@@ -1,5 +1,3 @@
-What is SocketLite?
-
 SocketLite is a lightweight C++ socket network framework
 
 It simplifies the development of OO socket network applications and
