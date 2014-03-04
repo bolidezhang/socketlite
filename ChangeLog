@@ -1,0 +1,9 @@
+SocketLite 3.2.26 2014-1-7
+    1. SL_Socket_SendControl_Handler类增加直接发送
+
+SocketLite 2.3.9 2013-1-9  
+    1. SL_Seda_RpcMessageEvent增加 socket_handler_id <bolidezhang@gmail.com>
+    2. 将timeout interval 由 毫秒millisecond(ms) 改为 微秒microsecond(us)
+    
+SocketLite 1.5.2 2010-4-28
+SocketLite 1.5.1 2010-2-24

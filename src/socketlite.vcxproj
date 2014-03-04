@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>SocketLite</ProjectName>
+    <ProjectGuid>{B33A09C9-05F6-4536-8DC7-7A730014ECEA}</ProjectGuid>
+    <RootNamespace>SocketLite</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)\Debug\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)\Release\</IntDir>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)SD</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)S</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\include;..\include\thrift;..\deps\boost;..\deps\log4cplus\include;..\deps\openssl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;SOCKETLITE_LOG_USE_LOG4CPLUS;SOCKETLITE_USE_OPENSSL;SOCKETLITE_USE_THRIFT;LOG4CPLUS_STATIC;SOCKETLITE_CPLUSPLUS_STD_TR1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+    </ClCompile>
+    <Lib>
+      <OutputFile>..\lib\socketlite\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;SOCKETLITE_LOG_USE_LOG4CPLUS;SOCKETLITE_USE_OPENSSL;SOCKETLITE_USE_THRIFT;SOCKETLITE_CPLUSPLUS_STD_TR1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\include;..\include\thrift;..\deps\boost;..\deps\log4cplus\include;..\deps\openssl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Lib>
+      <OutputFile>..\lib\socketlite\$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\SL_Alloc.h" />
+    <ClInclude Include="..\include\SL_Application.h" />
+    <ClInclude Include="..\include\SL_ByteBuffer.h" />
+    <ClInclude Include="..\include\SL_CircularBuffer.h" />
+    <ClInclude Include="..\include\SL_CircularQueue.h" />
+    <ClInclude Include="..\include\SL_Config.h" />
+    <ClInclude Include="..\include\SL_Crypto.h" />
+    <ClInclude Include="..\include\SL_Crypto_AES.h" />
+    <ClInclude Include="..\include\SL_Crypto_Base64.h" />
+    <ClInclude Include="..\include\SL_Crypto_BaseN.h" />
+    <ClInclude Include="..\include\SL_Crypto_Cipher.h" />
+    <ClInclude Include="..\include\SL_Crypto_CRTRand.h" />
+    <ClInclude Include="..\include\SL_Crypto_Hash.h" />
+    <ClInclude Include="..\include\SL_Crypto_Hex.h" />
+    <ClInclude Include="..\include\SL_Crypto_MD5.h" />
+    <ClInclude Include="..\include\SL_Crypto_RaknetRand.h" />
+    <ClInclude Include="..\include\SL_Crypto_Rand.h" />
+    <ClInclude Include="..\include\SL_Crypto_SHA1.h" />
+    <ClInclude Include="..\include\SL_DataType.h" />
+    <ClInclude Include="..\include\SL_Disruptor_Event.h" />
+    <ClInclude Include="..\include\SL_Disruptor_Handler.h" />
+    <ClInclude Include="..\include\SL_Disruptor_Interface.h" />
+    <ClInclude Include="..\include\SL_Disruptor_LockFreeQueue.h" />
+    <ClInclude Include="..\include\SL_Disruptor_SingleWriteQueue.h" />
+    <ClInclude Include="..\include\SL_Fsm_Manager.h" />
+    <ClInclude Include="..\include\SL_Hash_Fun.h" />
+    <ClInclude Include="..\include\SL_Logger.h" />
+    <ClInclude Include="..\include\SL_LRUHashtable.h" />
+    <ClInclude Include="..\include\SL_ObjectPool.h" />
+    <ClInclude Include="..\include\SL_OS_API.h" />
+    <ClInclude Include="..\include\SL_OS_File.h" />
+    <ClInclude Include="..\include\SL_Queue.h" />
+    <ClInclude Include="..\include\SL_Random.h" />
+    <ClInclude Include="..\include\SL_Rpc_Message.h" />
+    <ClInclude Include="..\include\SL_Rpc_Thrift_BinaryProtocol.h" />
+    <ClInclude Include="..\include\SL_Rpc_Thrift_BufferTransport.h" />
+    <ClInclude Include="..\include\SL_Seda_Event.h" />
+    <ClInclude Include="..\include\SL_Seda_EventQueue.h" />
+    <ClInclude Include="..\include\SL_Seda_Interface.h" />
+    <ClInclude Include="..\include\SL_Seda_Stage.h" />
+    <ClInclude Include="..\include\SL_Seda_StageHandler.h" />
+    <ClInclude Include="..\include\SL_Seda_StageThread.h" />
+    <ClInclude Include="..\include\SL_Seda_Timer.h" />
+    <ClInclude Include="..\include\SL_Seda_TimerQueue.h" />
+    <ClInclude Include="..\include\SL_SharedPtr.h" />
+    <ClInclude Include="..\include\SL_Singleton.h" />
+    <ClInclude Include="..\include\SL_Socket_CommonAPI.h" />
+    <ClInclude Include="..\include\SL_Socket_Epoll_Runner.h" />
+    <ClInclude Include="..\include\SL_Socket_Handler.h" />
+    <ClInclude Include="..\include\SL_Socket_INET_Addr.h" />
+    <ClInclude Include="..\include\SL_Socket_Iocp_Handler.h" />
+    <ClInclude Include="..\include\SL_Socket_Iocp_Message_Handler.h" />
+    <ClInclude Include="..\include\SL_Socket_Iocp_Runner.h" />
+    <ClInclude Include="..\include\SL_Socket_Kqueue_Runner.h" />
+    <ClInclude Include="..\include\SL_Socket_Message_Handler.h" />
+    <ClInclude Include="..\include\SL_Socket_Poll_Runner.h" />
+    <ClInclude Include="..\include\SL_Socket_Runner.h" />
+    <ClInclude Include="..\include\SL_Socket_Runner_Group.h" />
+    <ClInclude Include="..\include\SL_Socket_Select_Runner.h" />
+    <ClInclude Include="..\include\SL_Socket_SendControl_Handler.h" />
+    <ClInclude Include="..\include\SL_Socket_SendControl_HandlerManager.h" />
+    <ClInclude Include="..\include\SL_Socket_Source.h" />
+    <ClInclude Include="..\include\SL_Socket_TcpClient.h" />
+    <ClInclude Include="..\include\SL_Socket_TcpClient_AutoConnect.h" />
+    <ClInclude Include="..\include\SL_Socket_TcpServer.h" />
+    <ClInclude Include="..\include\SL_Socket_TcpServer_Handler.h" />
+    <ClInclude Include="..\include\SL_Socket_UdpSource.h" />
+    <ClInclude Include="..\include\SL_Socket_UdpSource_Handler.h" />
+    <ClInclude Include="..\include\SL_Sync_Atomic.h" />
+    <ClInclude Include="..\include\SL_Sync_Condition.h" />
+    <ClInclude Include="..\include\SL_Sync_Guard.h" />
+    <ClInclude Include="..\include\SL_Sync_Macros.h" />
+    <ClInclude Include="..\include\SL_Sync_Mutex.h" />
+    <ClInclude Include="..\include\SL_Sync_RWMutex.h" />
+    <ClInclude Include="..\include\SL_Sync_Semaphore.h" />
+    <ClInclude Include="..\include\SL_Sync_SpinMutex.h" />
+    <ClInclude Include="..\include\SL_Task.h" />
+    <ClInclude Include="..\include\SL_Task_Condition.h" />
+    <ClInclude Include="..\include\SL_Task_MultiQueue.h" />
+    <ClInclude Include="..\include\SL_Task_MultiQueue_Condition.h" />
+    <ClInclude Include="..\include\SL_Test.h" />
+    <ClInclude Include="..\include\SL_Thread.h" />
+    <ClInclude Include="..\include\SL_Thread_Group.h" />
+    <ClInclude Include="..\include\SL_Timer.h" />
+    <ClInclude Include="..\include\SL_Timer_List_Clock.h" />
+    <ClInclude Include="..\include\SL_Timer_List_Time.h" />
+    <ClInclude Include="..\include\SL_Timer_Queue.h" />
+    <ClInclude Include="..\include\SL_TLS.h" />
+    <ClInclude Include="..\include\SL_Utility_CircularQueue.h" />
+    <ClInclude Include="..\include\SL_Utility_LockFreeQueue .h" />
+    <ClInclude Include="..\include\SL_Utility_RingBuffer.h" />
+    <ClInclude Include="..\include\SL_Utility_TwoLockQueue.h" />
+    <ClInclude Include="..\include\SL_Utility_TwoPointerSwapQueue.h" />
+    <ClInclude Include="..\include\SL_UUID.h" />
+    <ClInclude Include="thrift\TApplicationException.h" />
+    <ClInclude Include="thrift\Thrift.h" />
+    <ClInclude Include="thrift\TLogging.h" />
+    <ClInclude Include="thrift\TMemoryBuffer.h" />
+    <ClInclude Include="thrift\TProcessor.h" />
+    <ClInclude Include="thrift\protocol\TBinaryProtocol.h" />
+    <ClInclude Include="thrift\protocol\TProtocol.h" />
+    <ClInclude Include="thrift\protocol\TProtocolException.h" />
+    <ClInclude Include="thrift\transport\TBufferTransports.h" />
+    <ClInclude Include="thrift\transport\TTransport.h" />
+    <ClInclude Include="thrift\transport\TTransportException.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\SL_Application.cpp" />
+    <ClCompile Include="..\src\SL_Crypto_AES.cpp" />
+    <ClCompile Include="..\src\SL_Crypto_Base64.cpp" />
+    <ClCompile Include="..\src\SL_Crypto_CRTRand.cpp" />
+    <ClCompile Include="..\src\SL_Crypto_Hex.cpp" />
+    <ClCompile Include="..\src\SL_Crypto_MD5.cpp" />
+    <ClCompile Include="..\src\SL_Crypto_RaknetRand.cpp" />
+    <ClCompile Include="..\src\SL_Crypto_SHA1.cpp" />
+    <ClCompile Include="..\src\SL_OS_API.cpp" />
+    <ClCompile Include="..\src\SL_OS_File.cpp" />
+    <ClCompile Include="..\src\SL_Random.cpp" />
+    <ClCompile Include="..\src\SL_Seda_TimerQueue.cpp" />
+    <ClCompile Include="..\src\SL_Socket_CommonAPI.cpp" />
+    <ClCompile Include="..\src\SL_Socket_Handler.cpp" />
+    <ClCompile Include="..\src\SL_Socket_INET_Addr.cpp" />
+    <ClCompile Include="..\src\SL_Socket_Iocp_Message_Handler.cpp" />
+    <ClCompile Include="..\src\SL_Socket_Message_Handler.cpp" />
+    <ClCompile Include="..\src\SL_Socket_SendControl_HandlerManager.cpp" />
+    <ClCompile Include="..\src\SL_Socket_TcpClient_AutoConnect.cpp" />
+    <ClCompile Include="..\src\SL_Thread_Group.cpp" />
+    <ClCompile Include="..\src\thrift\TApplicationException.cpp" />
+    <ClCompile Include="..\src\thrift\Thrift.cpp" />
+    <ClCompile Include="thrift\TApplicationException.cpp" />
+    <ClCompile Include="thrift\Thrift.cpp" />
+    <ClCompile Include="thrift\protocol\TBinaryProtocol.cpp" />
+    <ClCompile Include="thrift\transport\TBufferTransports.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="thrift\transport\TTransportException.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
