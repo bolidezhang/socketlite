@@ -68,27 +68,27 @@ public:
         return len;
     }
 
-    virtual int init(const unsigned char *key, const unsigned char *ivec, int mode=0, int key_Len=16, int block_size=16)
+    virtual int init(const unsigned char *key, const unsigned char *ivec, int mode = 0, int key_Len = 16, int block_size = 16)
     {
         return 0;
     }
 
-    virtual int encrypt_block(const unsigned char *input, unsigned char *out)
+    virtual int encrypt_block(const unsigned char *in, unsigned char *out)
     {
         return 0;
     }
 
-    virtual int decrypt_block(const unsigned char *input, unsigned char *out)
+    virtual int decrypt_block(const unsigned char *in, unsigned char *out)
     {
         return 0;
     }
 
-    virtual int encrypt(const unsigned char *input, unsigned int input_len, unsigned char *out, unsigned int out_len)
+    virtual int encrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len)
     {
         return 0;
     }
 
-    virtual int decrypt(const unsigned char *input, unsigned int input_len, unsigned char *out, unsigned int out_len)
+    virtual int decrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len)
     {
         return 0;
     }

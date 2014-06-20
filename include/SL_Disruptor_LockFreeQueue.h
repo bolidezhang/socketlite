@@ -31,7 +31,7 @@ public:
         }
     }
 
-    inline int init(uint capacity, uint event_max_len=64, int rewrite_count=-1, int reread_count=-1)
+    inline int init(ulong capacity, uint event_max_len=64, int rewrite_count=-1, int reread_count=-1)
     {
         rewrite_count_ = (rewrite_count < 1) ? -1 : rewrite_count;
 
@@ -49,7 +49,7 @@ public:
             capacity = SL_2_POW_LIST[SL_NUM_2_POW - 1];
         }
 
-        int pool_size = capacity * event_max_len;
+        ulong pool_size = capacity * event_max_len;
         event_pool_ = (char *)malloc(pool_size);
         if (NULL != event_pool_)
         {
@@ -82,11 +82,11 @@ public:
         notify_list_.clear();
     }
 
-    inline int push(const SL_Disruptor_Event *event, bool timedwait_signal=true, int redo_count=0)
+    inline long push(const SL_Disruptor_Event *event, bool timedwait_signal=true, int redo_count=0)
     {
-        int64   next_index;
-        int64   handler_index;
-        uint    queue_size;
+        int64 next_index;
+        int64 handler_index;
+        ulong queue_size;
 
         if (0 == redo_count)
         {
@@ -101,12 +101,12 @@ public:
                 {
                     next_index      = next_index_.load();
                     handler_index   = min_dependent_index_i();
-                    queue_size      = (uint)(next_index - handler_index);
+                    queue_size      = (ulong)(next_index - handler_index);
                     if (queue_size < capacity_)
                     {
                         if (next_index_.compare_exchange(next_index, next_index + 1))
                         {
-                            uint offset = (next_index & index_bit_mask_) * event_max_len_;
+                            ulong offset = (next_index & index_bit_mask_) * event_max_len_;
                             memcpy(event_pool_ + offset, event->get_event_buffer(), event->get_event_len());
                             while (1)
                             {
@@ -136,12 +136,12 @@ public:
                 {
                     next_index      = next_index_.load();
                     handler_index   = min_dependent_index_i();
-                    queue_size      = (uint)(next_index - handler_index);
+                    queue_size      = (ulong)(next_index - handler_index);
                     if (queue_size < capacity_)
                     {
                         if (next_index_.compare_exchange(next_index, next_index + 1))
                         {
-                            uint offset = (next_index & index_bit_mask_) * event_max_len_;
+                            ulong offset = (next_index & index_bit_mask_) * event_max_len_;
                             memcpy(event_pool_ + offset, event->get_event_buffer(), event->get_event_len());
                             while (1)
                             {
@@ -170,16 +170,16 @@ public:
         return -1;
     }
 
-    inline uint capacity() const
+    inline ulong capacity() const
     {
         return capacity_;
     }
 
-    inline uint size()
+    inline ulong size()
     {
         int64 next_index        = next_index_.load();
         int64 dependent_index   = min_dependent_index();
-        return (uint)(next_index - dependent_index);
+        return (ulong)(next_index - dependent_index);
     }
 
     inline bool empty()
@@ -212,7 +212,7 @@ public:
         return cursor_index_.load();
     }
 
-    inline int quit_event()
+    inline long quit_event()
     {
         SL_Disruptor_QuitEvent quit_event;
         return push(&quit_event, true, -1);
@@ -220,7 +220,7 @@ public:
 
     inline SL_Disruptor_Event* get_event(int64 event_index)
     {
-        uint offset = (event_index & index_bit_mask_) * event_max_len_;
+        ulong offset = (event_index & index_bit_mask_) * event_max_len_;
         return (SL_Disruptor_Event *)(event_pool_ + offset);
     }
 
@@ -269,8 +269,8 @@ private:
     char                    *event_pool_;                   //事件池
     SL_Sync_Atomic_Int64    cursor_index_;                  //队列当前位置(只增不减)
     SL_Sync_Atomic_Int64    next_index_;                    //队列下一位置(只增不减)
-    uint                    capacity_;                      //队列容量(必须为2的N次方)
-    uint                    index_bit_mask_;                //下标位掩码(为capacity_ - 1)
+    ulong                   capacity_;                      //队列容量(必须为2的N次方)
+    ulong                   index_bit_mask_;                //下标位掩码(为capacity_ - 1)
     uint                    event_max_len_;                 //事件对象最大大小
     int                     rewrite_count_;                 //重写次数(-1:无限次数)
 

@@ -1,5 +1,6 @@
 #ifndef SOCKETLITE_CRYPTO_RAND_H
 #define SOCKETLITE_CRYPTO_RAND_H
+#include "SL_Config.h"
 
 class SL_Crypto_Rand
 {
@@ -17,23 +18,27 @@ public:
         TYPE_NUMS,
     };
 
-    SL_Crypto_Rand()
-    {
-    }
+    SL_Crypto_Rand();
+    virtual ~SL_Crypto_Rand();
 
-    virtual ~SL_Crypto_Rand()
-    {
-    }
+    virtual void    seed(int nseed) = 0;
+    virtual int     random_int() = 0;
+    virtual int     random_int(int low, int high);
+    virtual double  random_double();
+    virtual double  random_double(double low, double high);
+    virtual int     random_byte(char *out, unsigned int out_len, SL_Crypto_Rand::TYPE type, const char *special_char);
+    virtual int     random_byte(char *out, unsigned int out_len, int low, int high);
 
-    virtual void seed() = 0;
-    virtual int  seed(int seed) = 0;
+protected:
+    virtual char    random_mt_char();                          // 生成标准字符
+    virtual char    random_mt_char(const char* special_char);  // 按特殊字符(specialchar)生成 增强型字符
 
-    virtual int random_byte(char *out, int out_len, SL_Crypto_Rand::TYPE type, const char *special_char) = 0;
-    virtual int random_byte(char *out, int out_len, int low, int high) = 0;
-    virtual int random_int() = 0;
-    virtual int random_int(int low, int high) = 0;
-    virtual double random_double() = 0;
-    virtual double random_double(double low, double high) = 0;
+    // Randomizes a buffer
+    virtual void    fill_buffer_mt(char *buffer, unsigned int bytes);
+
+    // Randomizes a buffer by type
+    virtual void    fill_buffer_mt(char *buffer, unsigned int bytes, int type);
+    virtual void    fill_buffer_mt(char *buffer, unsigned int bytes, const char *special_char);
 };
 
 #endif

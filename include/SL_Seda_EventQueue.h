@@ -30,11 +30,11 @@ public:
         }
     }
 
-    inline int init(uint capacity, uint event_max_len = 64)
+    inline int init(ulong capacity, uint event_max_len = 64)
     {
         clear();
 
-        int pool_size = capacity * event_max_len;
+        ulong pool_size = capacity * event_max_len;
         pool_begin_ = (char *)malloc(pool_size);
         if (NULL != pool_begin_)
         {
@@ -64,7 +64,7 @@ public:
         event_max_len_  = 0;
     }
 
-    inline int push(const SL_Seda_Event *event)
+    inline long push(const SL_Seda_Event *event)
     {
         if (queue_size_ < capacity_)
         {
@@ -74,13 +74,13 @@ public:
             {
                 write_index_ = pool_begin_;
             }
-            int ret = ++queue_size_;
+            long ret = ++queue_size_;
             return ret;
         }
         return -1;
     }
 
-    inline int pop(SL_Seda_Event **event)
+    inline long pop(SL_Seda_Event **event)
     {
         if (queue_size_ > 0)
         {
@@ -96,12 +96,12 @@ public:
         return -1;
     }
 
-    inline uint capacity() const
+    inline ulong capacity() const
     {
         return capacity_;
     }
 
-    inline uint size() const
+    inline ulong size() const
     {
         return queue_size_;
     }
@@ -112,14 +112,14 @@ public:
     }
 
 private:
-    char *pool_begin_;          //事件池开始位
-    char *pool_end_;            //事件池结束位
-    char *write_index_;         //写位置
-    char *read_index_;          //读位置
+    char  *pool_begin_;         //事件池开始位
+    char  *pool_end_;           //事件池结束位
+    char  *write_index_;        //写位置
+    char  *read_index_;         //读位置
 
-    uint capacity_;             //队列容量
-    uint queue_size_;           //队列大小
-    uint event_max_len_;        //事件对象最大大小
+    ulong capacity_;            //队列容量
+    ulong queue_size_;          //队列大小
+    uint  event_max_len_;       //事件对象最大大小
 };
 
 #endif

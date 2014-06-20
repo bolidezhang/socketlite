@@ -61,6 +61,14 @@ template <typename T>
 class SL_Allocator
 {
 public:
+    typedef T           value_type;
+    typedef T*          pointer;
+    typedef const T*    const_pointer;
+    typedef T&          reference;
+    typedef const T&    const_reference;
+    typedef size_t      size_type;
+    typedef ptrdiff_t   difference_type;
+
     virtual int clear()
     {
     }
@@ -97,14 +105,6 @@ public:
     {
         return &m_Alloc;
     }
-public:
-    typedef T           value_type;
-    typedef T*          pointer;
-    typedef const T*    const_pointer;
-    typedef T&          reference;
-    typedef const T&    const_reference;
-    typedef size_t      size_type;
-    typedef ptrdiff_t   difference_type;
 
 private:
     static SL_Allocator<char> m_Alloc;

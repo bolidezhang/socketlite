@@ -24,13 +24,13 @@ public:
     {
     }
 
-    virtual int  init(uint capacity, uint event_max_len) = 0;
-    virtual void clear() = 0;
-    virtual int  push(const SL_Seda_Event *event) = 0;
-    virtual int  pop(SL_Seda_Event **event) = 0;
-    virtual uint capacity() const = 0;
-    virtual uint size() const = 0;
-    virtual bool empty() const = 0;
+    virtual int   init(ulong capacity, uint event_max_len) = 0;
+    virtual void  clear() = 0;
+    virtual long  push(const SL_Seda_Event *event) = 0;
+    virtual long  pop(SL_Seda_Event **event) = 0;
+    virtual ulong capacity() const = 0;
+    virtual ulong size() const = 0;
+    virtual bool  empty() const = 0;
 };
 
 class SL_Seda_IStageHandler

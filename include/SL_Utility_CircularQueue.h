@@ -29,7 +29,7 @@ public:
         }
     }
 
-    inline int init(uint capacity, int rewrite_count = 1, int reread_count = 1)
+    inline int init(ulong capacity, int rewrite_count = 1, int reread_count = 1)
     {
         rewrite_count_ = (rewrite_count < 1) ? -1 : rewrite_count;
         reread_count_  = (reread_count < 1) ? -1 : reread_count;
@@ -75,10 +75,10 @@ public:
         read_index_     = 0;
     }
 
-    inline int push(const TValue &value, int redo_count = 0)
+    inline long push(const TValue &value, int redo_count = 0)
     {
-        uint    queue_size;
-        uint    offset;
+        ulong queue_size;
+        ulong offset;
 
         if (0 == redo_count)
         {
@@ -90,7 +90,7 @@ public:
             for (int i=0; i<redo_count; ++i)
             {
                 mutex_.lock();
-                queue_size  = (uint)(write_index_ - read_index_);
+                queue_size = (ulong)(write_index_ - read_index_);
                 if (queue_size < capacity_)
                 {
                     offset = write_index_ & index_bit_mask_;
@@ -108,10 +108,10 @@ public:
             while (1)
             {
                 mutex_.lock();
-                queue_size  = (uint)(write_index_ - read_index_);
+                queue_size = (ulong)(write_index_ - read_index_);
                 if (queue_size < capacity_)
                 {
-                    offset = (uint)(write_index_ & index_bit_mask_);
+                    offset = (ulong)(write_index_ & index_bit_mask_);
                     pool_[offset] = value;
 
                     ++write_index_;
@@ -125,10 +125,10 @@ public:
         return -1;
     }
 
-    inline int pop(TValue &value, int redo_count = 0)
+    inline long pop(TValue &value, int redo_count = 0)
     {
-        uint    queue_size;
-        uint    offset;
+        ulong queue_size;
+        ulong offset;
 
         if (0 == redo_count)
         {
@@ -140,10 +140,10 @@ public:
             for (int i=0; i<redo_count; ++i)
             {
                 mutex_.lock();
-                queue_size  = (uint)(write_index_ - read_index_);
+                queue_size  = (ulong)(write_index_ - read_index_);
                 if (queue_size > 0)
                 {
-                    offset  = (uint)(read_index_ & index_bit_mask_);
+                    offset  = (ulong)(read_index_ & index_bit_mask_);
                     value   = pool_[offset];
 
                     ++read_index_;
@@ -158,10 +158,10 @@ public:
             while (1)
             {
                 mutex_.lock();
-                queue_size  = (uint)(write_index_ - read_index_);
+                queue_size  = (ulong)(write_index_ - read_index_);
                 if (queue_size > 0)
                 {
-                    offset  = (uint)(read_index_ & index_bit_mask_);
+                    offset  = (ulong)(read_index_ & index_bit_mask_);
                     value   = pool_[offset];
 
                     ++read_index_;
@@ -175,18 +175,17 @@ public:
         return -1;
     }
 
-    inline uint capacity() const
+    inline ulong capacity() const
     {
         return capacity_;
     }
 
-    inline uint size()
+    inline ulong size()
     {
-        uint size;
         mutex_.lock();
-        size = (uint)(write_index_ - read_index_);
+        ulong ret = (ulong)(write_index_ - read_index_);
         mutex_.unlock();
-        return size;
+        return ret;
     }
 
     inline bool empty()
@@ -228,13 +227,13 @@ public:
 
     inline TValue& get(int64 index)
     {
-        uint offset = index & index_bit_mask_;
+        ulong offset = index & index_bit_mask_;
         return pool_[offset];
     }
 
     inline const TValue& get(int64 index) const
     {
-        uint offset = index & index_bit_mask_;
+        ulong offset = index & index_bit_mask_;
         return pool_[offset];
     }
 
@@ -242,8 +241,8 @@ private:
     TValue                  *pool_;             //对象数组
     int64                   write_index_;       //队列写位置(只增不减)
     int64                   read_index_;        //队列读位置(只增不减)
-    uint                    capacity_;          //队列容量(必须为2的N次方)
-    uint                    index_bit_mask_;    //下标位掩码(为capacity_ - 1)
+    ulong                   capacity_;          //队列容量(必须为2的N次方)
+    ulong                   index_bit_mask_;    //下标位掩码(为capacity_ - 1)
     int                     rewrite_count_;     //重写次数(-1:无限次数)
     int                     reread_count_;      //重读次数(-1:无限次数)
 

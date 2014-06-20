@@ -167,7 +167,7 @@ private:
     unsigned int    free_size_;  
 
     TSyncMutex      mutex_;
-    std::list<T* >  free_objects_;
+    std::list<T * > free_objects_;
 };
 
 template <typename T, typename TSyncMutex>
@@ -215,6 +215,10 @@ public:
         if (init_chunk_size > max_chunk_size)
         {
             init_chunk_size = max_chunk_size;
+        }
+        else if (per_chunk_size == 0)
+        {
+            per_chunk_size = 1;
         }
 
         mutex_.lock();
@@ -289,8 +293,8 @@ private:
     unsigned int    current_chunk_size_;  
 
     TSyncMutex      mutex_;
-    std::list<T* >  free_objects_;
-    std::list<T* >  object_chunks_;
+    std::list<T * > free_objects_;
+    std::list<T * > object_chunks_;
 };
 
 #endif

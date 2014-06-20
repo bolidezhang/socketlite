@@ -23,7 +23,7 @@ public:
     {
     }
 
-    inline SL_CircularQueue(uint capacity, bool rewrite=false)
+    inline SL_CircularQueue(ulong capacity, bool rewrite=false)
         : pool_end_(NULL)
         , read_index_(NULL)
         , write_index_(NULL)
@@ -64,7 +64,7 @@ public:
         queue_size_     = 0;
     }
 
-    inline int init(uint capacity, bool rewrite = false)
+    inline int init(ulong capacity, bool rewrite = false)
     {
         clear();
 
@@ -81,15 +81,15 @@ public:
         return 0;
     }
 
-    inline uint capacity() const
+    inline ulong capacity() const
     {
         return capacity_;
     }
 
-    inline uint size() const
+    inline ulong size() const
     {
         mutex_.lock();
-        uint ret = queue_size_;
+        ulong ret = queue_size_;
         mutex_.unlock;
         return ret;
     }
@@ -97,7 +97,7 @@ public:
     inline bool empty() const
     {
         mutex_.lock();
-        uint ret = queue_size_;
+        ulong ret = queue_size_;
         mutex_.unlock;
         return 0 == ret;
     }
@@ -105,14 +105,14 @@ public:
     inline bool full() const
     {
         mutex_.lock();
-        uint ret = queue_size_;
+        ulong ret = queue_size_;
         mutex_.unlock;
         return ret == capacity_;
     }
 
-    inline int push(const TValue &value, bool rewrite = false)
+    inline long push(const TValue &value, bool rewrite = false)
     {
-        int ret = -1;
+        long ret = -1;
         mutex_.lock();
         if (queue_size_ < capacity_)
         {
@@ -140,7 +140,7 @@ public:
         return ret;
     }
 
-    inline int pop(TValue &value)
+    inline long pop(TValue &value)
     {
         mutex_.lock();
         if (queue_size_ > 0)
@@ -168,18 +168,18 @@ public:
         return *write_index_;
     }
 
-    inline int push_back(const TValue &value, bool rewrite = false)
+    inline long push_back(const TValue &value, bool rewrite = false)
     {
         return push(value, rewrite);
     }
 
-    inline int pop_front(TValue &value)
+    inline long pop_front(TValue &value)
     {
         return pop(value);
     }
 
 private:
-    inline uint size_i() const
+    inline ulong size_i() const
     {
         return queue_size_;
     }
@@ -200,8 +200,8 @@ private:
     TValue      *read_index_;
     TValue      *write_index_;
 
-    uint        capacity_;          //队列容量
-    uint        queue_size_;        //队列大小
+    ulong       capacity_;          //队列容量
+    ulong       queue_size_;        //队列大小
     bool        rewrite_flag_;
 
     TSyncMutex  mutex_;

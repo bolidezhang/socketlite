@@ -20,9 +20,9 @@ int SL_Crypto_SHA1::init()
 	return SHA1_Init(&ctx_);
 }
 
-int SL_Crypto_SHA1::update(const unsigned char *input, unsigned int input_len)
+int SL_Crypto_SHA1::update(const unsigned char *in, unsigned int in_len)
 {
-	return SHA1_Update(&ctx_, input, input_len);
+	return SHA1_Update(&ctx_, in, in_len);
 }
 
 int SL_Crypto_SHA1::final(unsigned char *digest)
@@ -35,9 +35,9 @@ int SL_Crypto_SHA1::final(unsigned char *digest)
 	return 0;
 }
 
-int SL_Crypto_SHA1::final(const unsigned char *input, unsigned int input_len, unsigned char *digest)
+int SL_Crypto_SHA1::final(const unsigned char *in, unsigned int in_len, unsigned char *digest)
 {
-	SHA1_Update(&ctx_, input, input_len);
+	SHA1_Update(&ctx_, in, in_len);
 	SHA1_Final(digest, &ctx_);
 
 	//recover init status
@@ -45,7 +45,9 @@ int SL_Crypto_SHA1::final(const unsigned char *input, unsigned int input_len, un
 
 	return 0;
 }
+
 #else
+
 SL_Crypto_SHA1::SL_Crypto_SHA1()
 {
 }
@@ -64,7 +66,7 @@ int SL_Crypto_SHA1::init()
     return 0;
 }
 
-int SL_Crypto_SHA1::update(const unsigned char *input, unsigned int input_len)
+int SL_Crypto_SHA1::update(const unsigned char *in, unsigned int in_len)
 {
 	return 0;
 }
@@ -74,7 +76,7 @@ int SL_Crypto_SHA1::final(unsigned char *digest)
 	return 0;
 }
 
-int SL_Crypto_SHA1::final(const unsigned char *input, unsigned int input_len, unsigned char *digest)
+int SL_Crypto_SHA1::final(const unsigned char *in, unsigned int in_len, unsigned char *digest)
 {
     return 0;
 }

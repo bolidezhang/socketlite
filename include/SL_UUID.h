@@ -44,6 +44,10 @@ private:
 
 #else   //SOCKETLITE_OS_LINUX
 
+//方法一
+//直接读取/proc/sys/kernel/random/uuid
+
+//方法二
 //link libuuid.so
 #include <uuid/uuid.h>
 

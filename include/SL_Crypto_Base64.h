@@ -9,8 +9,10 @@ public:
     virtual ~SL_Crypto_Base64();
 
     int get_need_len(unsigned int len, SL_Crypto_BaseN::TYPE type = SL_Crypto_BaseN::ENCODE);
-    int encode(const unsigned char *input, unsigned int input_len, unsigned char *out, unsigned int *out_len);
-    int decode(const unsigned char *input, unsigned int input_len, unsigned char *out, unsigned int *out_len);
+    int encode(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int *out_len);
+    int encode(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len);
+    int decode(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int *out_len, bool checked_data = false);
+    int decode(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len,  bool checked_data = false);
 };
 
 #endif

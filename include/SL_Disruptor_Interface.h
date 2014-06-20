@@ -32,17 +32,17 @@ public:
     {
     }
 
-    virtual int     init(uint capacity, uint event_max_len, int rewrite_count, int reread_count) = 0;
+    virtual int     init(ulong capacity, uint event_max_len, int rewrite_count, int reread_count) = 0;
     virtual void    clear() = 0;
 
-    virtual int     push(const SL_Disruptor_Event *event, bool timedwait_signal, int redo_count) = 0;
-    virtual uint    capacity() const = 0;
-    virtual uint    size() = 0;
+    virtual long    push(const SL_Disruptor_Event *event, bool timedwait_signal, int redo_count) = 0;
+    virtual ulong   capacity() const = 0;
+    virtual ulong   size() = 0;
     virtual bool    empty() = 0;
 
     virtual void    add_handler(SL_Disruptor_IHandler *handler, bool dependent_flag, bool notify_flag) = 0;
     virtual int64   cursor_index() = 0;
-    virtual int     quit_event() = 0;
+    virtual long    quit_event() = 0;
 
     virtual SL_Disruptor_Event* get_event(int64 event_index) = 0;
 };

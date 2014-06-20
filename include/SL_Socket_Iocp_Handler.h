@@ -26,7 +26,7 @@ public:
         OVERLAPPED    overlapped;
 
         //操作类型表示
-        OPERTYPE      opertype;
+        OPERTYPE      oper_type;
 
         //缓冲区
         WSABUF        buffer;
@@ -48,7 +48,7 @@ public:
         per_io_data_.data_buffer.reset();
         per_io_data_.buffer.buf = per_io_data_.data_buffer.buffer();
         per_io_data_.buffer.len = per_io_data_.data_buffer.buffer_size();
-        per_io_data_.opertype   = RECV_POSTED;
+        per_io_data_.oper_type  = RECV_POSTED;
         return 0;
     }
 
@@ -56,8 +56,8 @@ public:
     virtual int post_recv()
     {
         //重置IO操作数据
-        DWORD  flag = 0;
-        DWORD  recv_byte = 0;
+        DWORD flag = 0;
+        DWORD recv_byte = 0;
         ZeroMemory(&(per_io_data_.overlapped), sizeof(OVERLAPPED));
 
         //提交WSARecv请求

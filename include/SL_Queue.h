@@ -21,7 +21,7 @@ public:
         clear();
     }
 
-    inline int init(int capacity = 10000)
+    inline int init(ulong capacity = 10000)
     {
         if (capacity < 1)
         {
@@ -43,13 +43,13 @@ public:
         mutex_.unlock();
     }
 
-    inline int push_front_i(const T &node)
+    inline long push_front_i(const T &node)
     {
         queue_.push_front(node);
         return ++queue_size_;
     }
 
-    inline int push_front_i(const T node[], int node_count, int &push_node_count)
+    inline long push_front_i(const T node[], int node_count, int &push_node_count)
     {
         for (int i=0; i<node_count; ++i)
         {
@@ -60,13 +60,13 @@ public:
         return queue_size_;
     }
 
-    inline int push_back_i(const T &node)
+    inline long push_back_i(const T &node)
     {
         queue_.push_back(node);
         return ++queue_size_;
     }
 
-    inline int push_back_i(const T node[], int node_count, int &push_node_count)
+    inline long push_back_i(const T node[], int node_count, int &push_node_count)
     {
         for (int i=0; i<node_count; ++i)
         {
@@ -77,7 +77,7 @@ public:
         return queue_size_;
     }
 
-    inline int pop_front_i(T &node)
+    inline long pop_front_i(T &node)
     {
         if (queue_size_ > 0)
         {
@@ -88,7 +88,7 @@ public:
         return -1;
     }
 
-    inline int pop_front_i(T node[], int node_count, int &pop_node_count)
+    inline long pop_front_i(T node[], int node_count, int &pop_node_count)
     {
         pop_node_count = ((node_count < queue_size_) ? node_count : queue_size_);
         if (pop_node_count <= 0)
@@ -104,7 +104,7 @@ public:
         return queue_size_;
     }
 
-    inline int pop_back_i(T &node)
+    inline long pop_back_i(T &node)
     {
         if (queue_size_ > 0)
         {
@@ -115,7 +115,7 @@ public:
         return -1;
     }
 
-    inline int pop_back_i(T node[], int node_count, int &pop_node_count)
+    inline long pop_back_i(T node[], int node_count, int &pop_node_count)
     {
         pop_node_count = ((node_count < queue_size_) ? node_count : queue_size_);
         if (pop_node_count <= 0)
@@ -131,82 +131,82 @@ public:
         return queue_size_;
     }
 
-    inline int push_front(const T &node)
+    inline long push_front(const T &node)
     {
         mutex_.lock();
-        int ret = push_front_i(node);
+        long ret = push_front_i(node);
         mutex_.unlock();
         return ret;
     }
 
-    inline int push_front(const T node[], int node_count, int &push_node_count)
+    inline long push_front(const T node[], int node_count, int &push_node_count)
     {
         mutex_.lock();
-        int ret = push_front_i(node, node_count, push_node_count);
+        long ret = push_front_i(node, node_count, push_node_count);
         mutex_.unlock();
         return ret;
     }
 
-    inline int push_back(const T &node)
+    inline long push_back(const T &node)
     {
         mutex_.lock();
-        int ret = push_back_i(node);
+        long ret = push_back_i(node);
         mutex_.unlock();
         return ret;
     }
 
-    inline int push_back(const T node[], int node_count, int &push_node_count)
+    inline long push_back(const T node[], int node_count, int &push_node_count)
     {
         mutex_.lock();
-        int ret = push_back_i(node, node_count, push_node_count);
+        long ret = push_back_i(node, node_count, push_node_count);
         mutex_.unlock();
         return ret;
     }
 
-    inline int pop_front(T &node)
+    inline long pop_front(T &node)
     {
         mutex_.lock();
-        int ret = pop_front_i(node);
+        long ret = pop_front_i(node);
         mutex_.unlock();
         return ret;
     }
 
-    inline int pop_front(T node[], int node_count, int &pop_node_count)
+    inline long pop_front(T node[], int node_count, int &pop_node_count)
     {
         mutex_.lock();
-        int ret = pop_front_i(node, node_count, pop_node_count);
+        long ret = pop_front_i(node, node_count, pop_node_count);
         mutex_.unlock();
         return ret;
     }
 
-    inline int pop_back(T &node)
+    inline long pop_back(T &node)
     {
         mutex_.lock();
-        int ret = pop_back_i(node);
+        long ret = pop_back_i(node);
         mutex_.unlock();
         return ret;
     }
 
-    inline int pop_back(T node[], int node_count, int &pop_node_count)
+    inline long pop_back(T node[], int node_count, int &pop_node_count)
     {
         mutex_.lock();
-        int ret = pop_back_i(node, node_count, pop_node_count);
+        long ret = pop_back_i(node, node_count, pop_node_count);
         mutex_.unlock();
         return ret;
     }
 
-    inline int push(const T &node)
+    inline long push(const T &node)
     {
         mutex_.lock();
-        int ret = push_back_i(node);
+        long ret = push_back_i(node);
         mutex_.unlock();
         return ret;
     }
 
-    inline int pop(const T &node)
+    inline long pop(const T &node)
     {
         mutex_.lock();
-        int ret = pop_back_i(node);
+        long ret = pop_back_i(node);
         mutex_.unlock();
         return ret;
     }
@@ -237,8 +237,8 @@ public:
     }
 
 private:
-    int             capacity_size_;
-    int             queue_size_;    //加入的原因是因为std::list.size()只保证为时间效率为O(N)不是O(1)
+    ulong           capacity_size_;
+    ulong           queue_size_;    //加入的原因是因为std::list.size()只保证为时间效率为O(N)不是O(1)
     TSyncMutex      mutex_;
     std::list<T>    queue_;
     //std::deque<T>   queue_;

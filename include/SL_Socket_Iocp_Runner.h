@@ -239,7 +239,7 @@ public:
                 continue;
             }
 
-            if (per_io_data->opertype == SL_Socket_Iocp_Handler::RECV_POSTED)
+            if (per_io_data->oper_type == SL_Socket_Iocp_Handler::RECV_POSTED)
             {//接收数据
 
                 //消息处理

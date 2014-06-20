@@ -1,4 +1,6 @@
+#include <assert.h>
 #include "SL_OS_File.h"
+
 #ifdef SOCKETLITE_OS_WINDOWS
 
 SL_OS_File::SL_OS_File()
@@ -56,11 +58,14 @@ int SL_OS_File::read(void *buf, unsigned int nbytes)
 
 int SL_OS_File::readn(void *buf, unsigned int nbytes)
 {
+    assert(buf != NULL);
+    assert(nbytes > 0);
+
     char *ptr = (char *)buf;
     unsigned int nleft = nbytes;
-    int nread;
+    int nread = 0;
 
-    while (nleft > 0)
+    do 
     {
         nread = _read(fd_, ptr, nleft);
         if (nread < 0)
@@ -80,8 +85,9 @@ int SL_OS_File::readn(void *buf, unsigned int nbytes)
         }
         nleft -= nread;
         ptr   += nread;
-    }
-    return (nbytes-nleft);
+    } while (nleft > 0);
+
+    return (nbytes - nleft);
 }
 
 int SL_OS_File::write(const void *buf, unsigned int nbytes)
@@ -91,11 +97,14 @@ int SL_OS_File::write(const void *buf, unsigned int nbytes)
 
 int SL_OS_File::writen(const void *buf, unsigned int nbytes)
 {
+    assert(buf != NULL);
+    assert(nbytes > 0);
+
     char *ptr = (char *)buf;
     unsigned int nleft = nbytes;
-    int nwrite;
+    int nwrite = 0;
 
-    while (nleft > 0)
+    do 
     {
         nwrite = _write(fd_, ptr, nleft);
         if (nwrite < 0)
@@ -115,8 +124,9 @@ int SL_OS_File::writen(const void *buf, unsigned int nbytes)
         }
         nleft -= nwrite;
         ptr   += nwrite;
-    }
-    return (nbytes-nleft);
+    } while (nleft > 0);
+
+    return (nbytes - nleft);
 }
 
 int SL_OS_File::lseek(long offset, int whence)
@@ -224,11 +234,14 @@ int SL_OS_File::read(void *buf, unsigned int nbytes)
 
 int SL_OS_File::readn(void *buf, unsigned int nbytes)
 {
+    assert(buf != NULL);
+    assert(nbytes > 0);
+
     char *ptr = (char *)buf;
     unsigned int nleft = nbytes;
-    int nread;
+    int nread = 0;
 
-    while (nleft > 0)
+    do 
     {
         nread = ::read(fd_, ptr, nleft);
         if (nread < 0)
@@ -248,8 +261,9 @@ int SL_OS_File::readn(void *buf, unsigned int nbytes)
         }
         nleft -= nread;
         ptr   += nread;
-    }
-    return (nbytes-nleft);
+    } while (nleft > 0);
+
+    return (nbytes - nleft);
 }
 
 int SL_OS_File::write(const void *buf, unsigned int nbytes)
@@ -259,11 +273,14 @@ int SL_OS_File::write(const void *buf, unsigned int nbytes)
 
 int SL_OS_File::writen(const void *buf, unsigned int nbytes)
 {
+    assert(buf != NULL);
+    assert(nbytes > 0);
+
     char *ptr = (char *)buf;
     unsigned int nleft = nbytes;
-    int nwrite;
+    int nwrite = 0;
 
-    while (nleft > 0)
+    do 
     {
         nwrite = ::write(fd_, ptr, nleft);
         if (nwrite < 0)
@@ -283,8 +300,9 @@ int SL_OS_File::writen(const void *buf, unsigned int nbytes)
         }
         nleft -= nwrite;
         ptr   += nwrite;
-    }
-    return (nbytes-nleft);
+    } while (nleft > 0);
+
+    return (nbytes - nleft);
 }
 
 int SL_OS_File::lseek(long offset, int whence)

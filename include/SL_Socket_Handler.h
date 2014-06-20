@@ -117,7 +117,7 @@ public:
     }
 
     virtual int handle_write()
-    { 
+    {
         return 0;
     }
 

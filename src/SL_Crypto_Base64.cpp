@@ -1,30 +1,26 @@
+#include <assert.h>
 #include <string.h>
 #include "SL_Crypto_Base64.h"
 
-static const char *BASE64_CODES = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-static const unsigned char BASE64_MAP[256] = {
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255,  62, 255, 255, 255,  63,
-	52,  53,  54,  55,  56,  57,  58,  59,  60,  61, 255, 255,
-	255, 254, 255, 255, 255,   0,   1,   2,   3,   4,   5,   6,
-	7,   8,   9,  10,  11,  12,  13,  14,  15,  16,  17,  18,
-	19,  20,  21,  22,  23,  24,  25, 255, 255, 255, 255, 255,
-	255,  26,  27,  28,  29,  30,  31,  32,  33,  34,  35,  36,
-	37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,  48,
-	49,  50,  51, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255 };
+static const unsigned char BASE64_ENCODE_TABLE[]    = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const unsigned char BASE64_DECODE_TABLE[256] = {
+    0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+    0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+    0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x3e,0xff,0xff,0xff,0x3f,
+    0x34,0x35,0x36,0x37,0x38,0x39,0x3a,0x3b,0x3c,0x3d,0xff,0xff,0xff,0xff,0xff,0xff,
+    0xff,0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,
+    0x0f,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0xff,0xff,0xff,0xff,0xff,
+    0xff,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,
+    0x29,0x2a,0x2b,0x2c,0x2d,0x2e,0x2f,0x30,0x31,0x32,0x33,0xff,0xff,0xff,0xff,0xff,
+    0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+    0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+    0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+    0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+    0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+    0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+    0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+    0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+};
 
 SL_Crypto_Base64::SL_Crypto_Base64()
 {
@@ -38,98 +34,176 @@ int SL_Crypto_Base64::get_need_len(unsigned int len, SL_Crypto_BaseN::TYPE type)
 {
     if (SL_Crypto_BaseN::ENCODE == type)
 	{//encode
-		return  (len + 2) * 4 / 3 + 1;
+        unsigned int i = len % 3;
+        if (i)
+        {
+            return (len + 3 - i) * 4 / 3;
+        }
+		return  len * 4 / 3;
 	}
 	else
 	{//decode
-		return  len * 3 / 4 + 1;
+        return  len * 3 / 4;
 	}
 }
 
-int SL_Crypto_Base64::encode(const unsigned char *input, unsigned int input_len, unsigned char *out, unsigned int *out_len)
+int SL_Crypto_Base64::encode(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int *out_len)
 {
-	unsigned long i, len2, leven;
-	unsigned char *p;
+    assert(in && out && out_len && (in_len > 0));
 
-	/* valid output size ? */
-	len2 = (input_len + 2) * 4 / 3;
-	if (*out_len < len2 + 1) 
-	{
-		return -2;
-	}
-	p = out;
-	leven = (input_len / 3) * 3;
-	for (i = 0; i < leven; i += 3) 
-	{
-		*p++ = BASE64_CODES[input[0] >> 2];
-		*p++ = BASE64_CODES[((input[0] & 3) << 4) + (input[1] >> 4)];
-		*p++ = BASE64_CODES[((input[1] & 0xf) << 2) + (input[2] >> 6)];
-		*p++ = BASE64_CODES[input[2] & 0x3f];
-		input += 3;
-	}
-	/* Pad it if necessary...  */
-	if (i < input_len) 
-	{
-		unsigned a = input[0];
-		unsigned b = (i+1 < input_len) ? input[1] : 0;
-		unsigned c = 0;
+	unsigned int need_len;
+    unsigned int remainder = in_len % 3;
+    switch (remainder)
+    {
+        case 1:
+            {
+                /* valid output size ? */
+                need_len = (in_len + 3 - remainder) * 4 / 3;
+                if (*out_len < need_len)
+                {
+                    return -1;
+                }
 
-		*p++ = BASE64_CODES[a >> 2];
-		*p++ = BASE64_CODES[((a & 3) << 4) + (b >> 4)];
-		*p++ = (i+1 < input_len) ? BASE64_CODES[((b & 0xf) << 2) + (c >> 6)] : '=';
-		*p++ = '=';
-	}
+                unsigned int leven = in_len - remainder;
+                for (unsigned int i = 0; i < leven; i += 3)
+                {
+                    *out++ = BASE64_ENCODE_TABLE[ (in[0] >> 2) & 0x3f ];
+                    *out++ = BASE64_ENCODE_TABLE[((in[0] << 4) & 0x30) | ((in[1] >> 4) & 0x0f)];
+                    *out++ = BASE64_ENCODE_TABLE[((in[1] << 2) & 0x3c) | ((in[2] >> 6) & 0x03)];
+                    *out++ = BASE64_ENCODE_TABLE[  in[2] & 0x3f ];
+                    in += 3;
+                }
 
-	/* append a NULL byte */
-	*p = '\0';
+                *out++ = BASE64_ENCODE_TABLE[(in[0] >> 2) & 0x3f];
+                *out++ = BASE64_ENCODE_TABLE[(in[0] << 4) & 0x30];
+                *out++ = '=';
+                *out++ = '=';
+            }
+            break;
+        case 2:
+            {
+                /* valid output size ? */
+                need_len = (in_len + 3 - remainder) * 4 / 3;
+                if (*out_len < need_len)
+                {
+                    return -1;
+                }
+
+                unsigned int leven = in_len - remainder;
+                for (unsigned int i = 0; i < leven; i += 3)
+                {
+                    *out++ = BASE64_ENCODE_TABLE[ (in[0] >> 2) & 0x3f ];
+                    *out++ = BASE64_ENCODE_TABLE[((in[0] << 4) & 0x30) | ((in[1] >> 4) & 0x0f)];
+                    *out++ = BASE64_ENCODE_TABLE[((in[1] << 2) & 0x3c) | ((in[2] >> 6) & 0x03)];
+                    *out++ = BASE64_ENCODE_TABLE[  in[2] & 0x3f ];
+                    in += 3;
+                }
+
+                *out++ = BASE64_ENCODE_TABLE[ (in[0] >> 2) & 0x3f ];
+                *out++ = BASE64_ENCODE_TABLE[((in[0] << 4) & 0x30) | ((in[1] >> 4) & 0x0f)];
+                *out++ = BASE64_ENCODE_TABLE[ (in[1] << 2) & 0x3c ];
+                *out++ = '=';
+            }
+            break;
+        default:
+            {//remainder == 0
+                /* valid output size ? */
+                need_len = in_len * 4 / 3;
+                if (*out_len < need_len)
+                {
+                    return -1;
+                }
+
+                for (unsigned int i = 0; i < in_len; i += 3)
+                {
+                    *out++ = BASE64_ENCODE_TABLE[ (in[0] >> 2) & 0x3f ];
+                    *out++ = BASE64_ENCODE_TABLE[((in[0] << 4) & 0x30) | ((in[1] >> 4) & 0x0f)];
+                    *out++ = BASE64_ENCODE_TABLE[((in[1] << 2) & 0x3c) | ((in[2] >> 6) & 0x03)];
+                    *out++ = BASE64_ENCODE_TABLE[  in[2] & 0x3f ];
+                    in += 3;
+                }           
+            }
+        break;
+    }
 
 	/* return ok */
-	*out_len = p - out;
-	return *out_len;
+	*out_len = need_len;
+	return need_len;
 }
 
-int SL_Crypto_Base64::decode(const unsigned char *input, unsigned int input_len, unsigned char *out, unsigned int *out_len)
+int SL_Crypto_Base64::encode(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len)
 {
-	unsigned long t, x, y, z;
-	unsigned char c;
-	int	g = 3;
+    return encode(in, in_len, out, (unsigned int *)&out_len);
+}
 
-	for (x = y = z = t = 0; x < input_len; x++) 
-	{
-		c = BASE64_MAP[input[x]];
-		if (c == 255)
-        {
-            continue;
-        }
-		if (c == 254) 
-		{ 
-			c = 0;
-			--g;
-		}
-		t = (t << 6) | c;
-		if (++y == 4)
-		{
-			if (z + g > *out_len) 
-			{ 
-				return -1;
-			}
-			out[z++] = (unsigned char)((t >> 16) & 255);
-			if (g > 1)
+int SL_Crypto_Base64::decode(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int *out_len, bool checked_data)
+{
+    assert(in && out && out_len && (in_len > 0));
+
+    unsigned int need_len = (in_len * 3 / 4);
+    if ( (in_len % 4) || (*out_len < need_len) )
+    {
+        return -1;
+    }
+
+    //Calculate Padding number
+    unsigned int  padding_number = 0;
+    unsigned char *in1 = (unsigned char *)in + in_len - 1;
+    while (*in1-- == '=')
+    {
+        ++padding_number;
+    }
+
+    switch (padding_number)
+    {
+        case 1:
             {
-                out[z++] = (unsigned char)((t >> 8) & 255);
+                need_len -= padding_number;
+                in_len   -= 4;
+                for (unsigned int i = 0; i < in_len; i += 4)
+                {
+                    *out++ = (BASE64_DECODE_TABLE[ in[0]] << 2)         | (BASE64_DECODE_TABLE[in[1]] >> 4);
+                    *out++ = ((BASE64_DECODE_TABLE[in[1]] << 4) & 0xf0) | (BASE64_DECODE_TABLE[in[2]] >> 2);
+                    *out++ = ((BASE64_DECODE_TABLE[in[2]] << 6) & 0xc0) | (BASE64_DECODE_TABLE[in[3]]);
+                    in += 4;
+                }
+                *out++ = (BASE64_DECODE_TABLE[in[0]] << 2) | (BASE64_DECODE_TABLE[in[1]] >> 4);
+                *out++ = ((BASE64_DECODE_TABLE[in[1]] << 4) & 0xf0) | (BASE64_DECODE_TABLE[in[2]] >> 2);
             }
-			if (g > 2)
+            break;
+        case 2:
             {
-                out[z++] = (unsigned char)(t & 255);
+                need_len -= padding_number;
+                in_len   -= 4;
+                for (unsigned int i = 0; i < in_len; i += 4)
+                {
+                    *out++ = (BASE64_DECODE_TABLE[ in[0]] << 2)         | (BASE64_DECODE_TABLE[in[1]] >> 4);
+                    *out++ = ((BASE64_DECODE_TABLE[in[1]] << 4) & 0xf0) | (BASE64_DECODE_TABLE[in[2]] >> 2);
+                    *out++ = ((BASE64_DECODE_TABLE[in[2]] << 6) & 0xc0) | (BASE64_DECODE_TABLE[in[3]]);
+                    in += 4;
+                }
+                *out++ = (BASE64_DECODE_TABLE[in[0]] << 2) | (BASE64_DECODE_TABLE[in[1]] >> 4);
             }
-			y = t = 0;
-		}
-	}
-	if (y != 0) 
-	{
-		return -2;
-	}
-	*out_len = z;
-	return z;
+            break;
+        default:
+            {//padding_number == 0
+                for (unsigned int i = 0; i < in_len; i += 4)
+                {
+                    *out++ = (BASE64_DECODE_TABLE[ in[0]] << 2)         | (BASE64_DECODE_TABLE[in[1]] >> 4);
+                    *out++ = ((BASE64_DECODE_TABLE[in[1]] << 4) & 0xf0) | (BASE64_DECODE_TABLE[in[2]] >> 2);
+                    *out++ = ((BASE64_DECODE_TABLE[in[2]] << 6) & 0xc0) | (BASE64_DECODE_TABLE[in[3]]);
+                    in += 4;
+                }
+            }
+            break;
+    }
+
+    *out_len = need_len;
+    return need_len;
+}
+
+int SL_Crypto_Base64::decode(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, bool checked_data)
+{
+    return decode(in, in_len, out, (unsigned int *)&out_len, checked_data);
 }
 

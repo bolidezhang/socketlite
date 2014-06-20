@@ -98,12 +98,24 @@ all: ${OUTPUT}
 
 SRCS := SL_Application.cpp \
 SL_Crypto_AES.cpp \
+SL_Crypto_DH.cpp \
+SL_Crypto_RSA.cpp \
 SL_Crypto_Base64.cpp \
-SL_Crypto_CRTRand.cpp \
 SL_Crypto_Hex.cpp \
-SL_Crypto_MD5.cpp \
+SL_Crypto_Rand.cpp \
+SL_Crypto_CRTRand.cpp \
 SL_Crypto_RaknetRand.cpp \
+SL_Crypto_OSRand.cpp \
+SL_Crypto_Adler32.cpp \
+SL_Crypto_CRC16.cpp \
+SL_Crypto_CRC32.cpp \
+SL_Crypto_CRC32C.cpp \
+SL_Crypto_CRC64.cpp \
+SL_Crypto_MD5.cpp \
 SL_Crypto_SHA1.cpp \
+SL_Crypto_SHA256.cpp \
+SL_Crypto_SHA512.cpp \
+SL_Crypto_HMAC.cpp \
 SL_OS_API.cpp \
 SL_OS_File.cpp \
 SL_Random.cpp \

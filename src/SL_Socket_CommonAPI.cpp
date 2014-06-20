@@ -1056,35 +1056,161 @@ void* SL_Socket_CommonAPI::util_memcpy(void *dest, const void *src, size_t n)
 {
     void *ret = dest;
 
-    size_t unit_len = sizeof(int64);
-    int64 *dest_align = (int64 *)dest;
-    int64 *src_align  = (int64 *)src;
-    for (; n >= unit_len; n -= unit_len)
-    {   
-        *dest_align++ = *src_align++;
-    }
-    
-    char *dest_char = (char *)dest_align;
-    char *src_char = (char *)src_align;
-    for (unit_len=n, n=0; n<unit_len; ++n)
+    if (n >= sizeof(int64))
     {
-        *dest_char++ = *src_char++;
+        int64 *dest_64 = (int64 *)dest;
+        int64 *src_64  = (int64 *)src;
+        do 
+        {   
+            *dest_64++ = *src_64++;
+            n -= sizeof(int64);
+        } while (n >= sizeof(int64));
+
+        dest = dest_64;
+        src  = src_64;
     }
-    return ret; 
+
+    //方法一
+    switch (n)
+    {
+        case 7:
+            {
+                int32 *dest_32 = (int32 *)dest;
+                int32 *src_32  = (int32 *)src;
+                *dest_32++ = *src_32++;
+
+                int16 *dest_16 = (int16 *)dest_32;
+                int16 *src_16  = (int16 *)src_32;
+                *dest_16++ = *src_16++;
+
+                int8 *dest_8 = (int8 *)dest_16;
+                int8 *src_8  = (int8 *)src_16;
+                *dest_8 = *src_8;
+            }
+            break;
+        case 6:
+            {
+                int32 *dest_32 = (int32 *)dest;
+                int32 *src_32  = (int32 *)src;
+                *dest_32++ = *src_32++;
+
+                int16 *dest_16 = (int16 *)dest_32;
+                int16 *src_16  = (int16 *)src_32;
+                *dest_16 = *src_16;
+            }
+            break;
+        case 5:
+            {
+                int32 *dest_32 = (int32 *)dest;
+                int32 *src_32  = (int32 *)src;
+                *dest_32++ = *src_32++;
+
+                int8 *dest_8 = (int8 *)dest_32;
+                int8 *src_8  = (int8 *)src_32;
+                *dest_8 = *src_8;
+            }
+            break;
+        case 4:
+            {
+                int32 *dest_32 = (int32 *)dest;
+                int32 *src_32  = (int32 *)src;
+                *dest_32 = *src_32;
+            }
+            break;
+        case 3:
+            {
+                int16 *dest_16 = (int16 *)dest;
+                int16 *src_16  = (int16 *)src;
+                *dest_16++ = *src_16++;
+
+                int8 *dest_8 = (int8 *)dest_16;
+                int8 *src_8  = (int8 *)src_16;
+                *dest_8 = *src_8;
+            }
+            break;
+        case 2:
+            {
+                int16 *dest_16 = (int16 *)dest;
+                int16 *src_16  = (int16 *)src;
+                *dest_16 = *src_16;
+            }
+            break;
+        case 1:
+            {
+                int8 *dest_8 = (int8 *)dest;
+                int8 *src_8  = (int8 *)src;
+                *dest_8 = *src_8;
+            }
+            break;
+    }
+        
+    ////方法二
+    ////4 bytes
+    //if (n >= sizeof(int32))
+    //{
+    //    int32 *dest_32 = (int32 *)dest;
+    //    int32 *src_32  = (int32 *)src;
+    //    *dest_32++ = *src_32++;
+    //    n -= sizeof(int32);
+
+    //    if (n >= sizeof(int32))
+    //    {
+    //        *dest_32 = *src_32;
+    //        return ret;
+    //    }
+
+    //    dest = dest_32;
+    //    src  = src_32;
+    //}
+
+    ////2 bytes
+    //if (n >= sizeof(int16))
+    //{
+    //    int16 *dest_16 = (int16 *)dest;
+    //    int16 *src_16  = (int16 *)src;
+    //    *dest_16++ = *src_16++;
+    //    n -= sizeof(int16);
+
+    //    if (n >= sizeof(int16))
+    //    {
+    //        *dest_16 = *src_16;
+    //        return ret;
+    //    }
+
+    //    dest = dest_16;
+    //    src  = src_16;
+    //}
+
+    ////1 bytes
+    //if (n > 0)
+    //{
+    //    int8 *dest_8 = (int8 *)dest;
+    //    int8 *src_8  = (int8 *)src;
+    //    *dest_8 = *src_8;
+    //}
+
+    ////方法三
+    //char *dest_char = (char *)dest;
+    //char *src_char  = (char *)src;
+    //while (n--)
+    //{
+    //    *dest_char++ = *src_char++;
+    //}
+
+    return ret;
 }
 
 //内存拷贝
 void* SL_Socket_CommonAPI::util_memcpy_char(void *dest, const void *src, size_t n)
 {
-    void *ret = dest;
-
-    char *char_dest = (char *)dest;
-    char *char_src  = (char *)src;
+    char *dest_char = (char *)dest;
+    char *src_char  = (char *)src;
     while (n--) 
     {
-        *char_dest++ = *char_src++;
+        *dest_char++ = *src_char++;
     }
-    return ret;
+
+    return dest;
 }
 
 bool SL_Socket_CommonAPI::util_is_exists_file(const SL_TCHAR *path_name)
@@ -1108,8 +1234,8 @@ int8 SL_Socket_CommonAPI::util_get_byteorder()
     static int8 byte_order = 0;
     if (byte_order < 1)
     {
-        const short n = 1;
-        if (*(char *)&n)
+        const int e = 1;
+        if (*(char *)&e)
         {  
             byte_order = __SOCKETLITE_LITTLE_ENDIAN;
         }
