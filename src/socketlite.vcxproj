@@ -138,6 +138,7 @@
     <ClInclude Include="..\include\SL_Rpc_Message.h" />
     <ClInclude Include="..\include\SL_Rpc_Thrift_BinaryProtocol.h" />
     <ClInclude Include="..\include\SL_Rpc_Thrift_BufferTransport.h" />
+    <ClInclude Include="..\include\SL_Rpc_Thrift_CompactProtocol.h" />
     <ClInclude Include="..\include\SL_Seda_Event.h" />
     <ClInclude Include="..\include\SL_Seda_EventQueue.h" />
     <ClInclude Include="..\include\SL_Seda_Interface.h" />
@@ -245,6 +246,7 @@
     <ClCompile Include="SL_Crypto_RSA.cpp" />
     <ClCompile Include="SL_Crypto_SHA256.cpp" />
     <ClCompile Include="SL_Crypto_SHA512.cpp" />
+    <ClCompile Include="SL_Rpc_Thrift_CompactProtocol.cpp" />
     <ClCompile Include="thrift\TApplicationException.cpp" />
     <ClCompile Include="thrift\Thrift.cpp" />
     <ClCompile Include="thrift\protocol\TBinaryProtocol.cpp" />

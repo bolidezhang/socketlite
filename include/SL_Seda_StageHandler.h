@@ -24,9 +24,14 @@ public:
         return 0;
     }
 
-    void set_stage_thread(SL_Seda_IStageThread *stage_thread)
+    inline void set_stage_thread(SL_Seda_IStageThread *stage_thread)
     {
         stage_thread_ = stage_thread;
+    }
+
+    inline SL_Seda_IStageThread* get_stage_thread() const
+    {
+        return stage_thread_;
     }
 
 public:

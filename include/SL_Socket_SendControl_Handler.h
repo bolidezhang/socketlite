@@ -417,7 +417,7 @@ private:
 
     inline int put_data_i(const char *msg, int len, bool timedwait_signal)
     {
-        if (handler_manager_->direct_send_flag_ && queue_standby_->empty() && queue_active_->empty())
+        if (queue_standby_->empty() && queue_active_->empty())
         {
             uint64 current_timestamp = SL_Socket_SendControl_HandlerManager::current_timestamp_;
             if (current_timestamp - last_fail_timestamp_ >= handler_manager_->send_delaytime_ms_)
@@ -469,7 +469,7 @@ private:
 
     inline int put_data_i(TByteBuffer &tmsg, bool timedwait_signal)
     {
-        if (handler_manager_->direct_send_flag_ && queue_standby_->empty() && queue_active_->empty())
+        if (queue_standby_->empty() && queue_active_->empty())
         {
             uint64 current_timestamp = SL_Socket_SendControl_HandlerManager::current_timestamp_;
             if (current_timestamp - last_fail_timestamp_ >= handler_manager_->send_delaytime_ms_)

@@ -20,7 +20,7 @@ public:
 
     int write_data(const char *buf, int len, SL_Socket_INET_Addr &dest_addr)
     {
-        return SL_Socket_CommonAPI::socket_sendto(socket_, buf, len, 0, dest_addr.get_addr(), dest_addr.get_addr_size());
+        return SL_Socket_CommonAPI::socket_sendto(socket_, buf, len, 0, dest_addr.get_addr(), dest_addr.get_addr_size(), NULL, NULL);
     }
 
     virtual int handle_read(const char *buf, int len, SL_Socket_INET_Addr &src_addr) 

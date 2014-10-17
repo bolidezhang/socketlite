@@ -17,14 +17,14 @@ public:
         UUID uuid;
         ::UuidCreate(&uuid);
         
-        //方法一
+        //方法1
         int ret = sprintf(uuid_string, "%08lx-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
             uuid.Data1, uuid.Data2, uuid.Data3,
             uuid.Data4[0], uuid.Data4[1], uuid.Data4[2], uuid.Data4[3],
             uuid.Data4[4], uuid.Data4[5], uuid.Data4[6], uuid.Data4[7]);
         return ret;
 
-        //方法二
+        //方法2
         //unsigned char *str;
         //::UuidToString(&uuid, &str);
         //strncpy(uuid_string, str, 50);
@@ -44,10 +44,10 @@ private:
 
 #else   //SOCKETLITE_OS_LINUX
 
-//方法一
+//方法1
 //直接读取/proc/sys/kernel/random/uuid
 
-//方法二
+//方法2
 //link libuuid.so
 #include <uuid/uuid.h>
 

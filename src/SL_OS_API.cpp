@@ -156,10 +156,10 @@ int SL_OS_API::futil_rmdir(const SL_TCHAR *dir_name)
 bool SL_OS_API::futil_exists(const SL_TCHAR *path_name)
 {
 #ifdef SOCKETLITE_OS_WINDOWS
-    //方法一
+    //方法1
     return PathFileExists(path_name);
 
-    //方法二 access, _taccess(_access/_waccess)
+    //方法2 access, _taccess(_access/_waccess)
     //return _taccess(path_name, 0);
 #else
     int rc = access(path_name, F_OK);
@@ -174,7 +174,7 @@ bool SL_OS_API::futil_exists(const SL_TCHAR *path_name)
 int SL_OS_API::futil_filesize(const SL_TCHAR *file_name, unsigned long &file_size)
 {
 #ifdef SOCKETLITE_OS_WINDOWS
-    //方法一:
+    //方法1
     //HANDLE handle = CreateFileA(file_name, FILE_READ_EA, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
     //if (handle != INVALID_HANDLE_VALUE)
     //{
@@ -184,7 +184,7 @@ int SL_OS_API::futil_filesize(const SL_TCHAR *file_name, unsigned long &file_siz
     //}
     //return -1;
 
-    //方法二 stat,_tstat(_stat/_wstat)
+    //方法2 stat,_tstat(_stat/_wstat)
     //Get data associated with the file descriptor.
     struct _stat statbuf;
     int ret     = _tstat(file_name, &statbuf);

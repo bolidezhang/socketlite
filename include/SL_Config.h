@@ -1,4 +1,4 @@
-// Copyright (c) 2007-2013, Bolide Zhang <bolidezhang@gmail.com>
+// Copyright (c) 2007-2014, Bolide Zhang <bolidezhang@gmail.com>
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,9 +29,9 @@
 #endif
 
 #define SOCKETLITE_MAJOR_VERSION        3
-#define SOCKETLITE_MINOR_VERSION        2
-#define SOCKETLITE_SUB_MINOR_VERSION    37
-#define SOCKETLITE_VERSION_STRING       "3.2.37"
+#define SOCKETLITE_MINOR_VERSION        6
+#define SOCKETLITE_SUB_MINOR_VERSION    5
+#define SOCKETLITE_VERSION_STRING       "3.6.5"
 
 #ifdef _DEBUG
     #define SOCKETLITE_DEBUG
@@ -77,6 +77,8 @@
 //#define SOCKETLITE_C_STD_1999
 //4.C11
 //#define SOCKETLITE_C_STD_2011
+//5.C14
+//#define SOCKETLITE_C_STD_2014
 
 //C++ ±ê×¼
 //1.C++98

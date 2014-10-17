@@ -164,28 +164,28 @@ int SL_Socket_Message_Handler::write_message(const char *msg, int len)
     SL_ByteBuffer buf;
     switch (msglen_bytes)
     {
-    case 2:
-        {
-            short i = data_len;
-            buf.reserve(data_len);
-            buf.write(i);
-        }
-        break;
-    case 1:
-        {
-            char i = data_len;
-            buf.reserve(data_len);
-            buf.write(i);
-        }
-        break;
-    case 4:
-        {
-            buf.reserve(data_len);
-            buf.write(data_len);
-        }
-        break;
-    default:
-        return -1;
+        case 2:
+            {
+                short i = data_len;
+                buf.reserve(data_len);
+                buf.write(i);
+            }
+            break;
+        case 1:
+            {
+                char i = data_len;
+                buf.reserve(data_len);
+                buf.write(i);
+            }
+            break;
+        case 4:
+            {
+                buf.reserve(data_len);
+                buf.write(data_len);
+            }
+            break;
+        default:
+            return -1;
     }
     buf.write(msg, len);
     if (socket_source_->get_socket_handler() == this)
@@ -204,13 +204,13 @@ int SL_Socket_Message_Handler::get_msglen(const char *msg, int len, int msglen_b
     switch (msglen_bytes)
     {
     case 2:
-        msglen = *((int16*)msg);
+        msglen = *((int16 *)msg);
         break;
     case 1:
         msglen = *msg;
         break;
     case 4:
-        msglen = *((int32*)msg);
+        msglen = *((int32 *)msg);
         break;
     default:
         return -1;
@@ -224,13 +224,13 @@ int SL_Socket_Message_Handler::set_msglen(char *msg, int len, int msglen_bytes, 
     switch (msglen_bytes)
     {
     case 2:
-        *((int16*)msg) = len;
+        *((int16 *)msg) = len;
         break;
     case 1:
         *msg = len;
         break;
     case 4:
-        *((int32*)msg) = len;
+        *((int32 *)msg) = len;
         break;
     default:
         return -1;

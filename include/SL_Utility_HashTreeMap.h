@@ -2,6 +2,7 @@
 #define SOCKETLITE_UTILITY_HASH_TREE_MAP_H
 
 #include <assert.h>
+#include <functional>
 #include <vector>
 #include <map>
 
@@ -12,14 +13,14 @@
 #include "SL_ObjectPool.h"
 
 #ifdef SOCKETLITE_OS_WINDOWS
-template <class TKey, class TValue, class THash = stdext::hash_compare<TKey, std::less<TKey> >, class TKeyCompare = std::less<TKey>, class TMutex = SL_Sync_NullMutex >
+template <typename TKey, typename TValue, typename THash = stdext::hash_compare<TKey, std::less<TKey> >, typename TKeyCompare = std::less<TKey>, typename TMutex = SL_Sync_NullMutex>
 #else
-template <class TKey, class TValue, class THash = std::hash<TKey>, class TKeyCompare = std::less<TKey>, class TMutex = SL_Sync_NullMutex >
+template <typename TKey, typename TValue, typename THash = SL_DEFAULT_HASHFUNC<TKey>, typename TKeyCompare = std::less<TKey>, typename TMutex = SL_Sync_NullMutex>
 #endif
 class SL_Utility_HashTreeMap
 {
 public:
-    typedef typename std::map<TKey, TValue, TKeyCompare > DATA_MAP;
+    typedef std::map<TKey, TValue, TKeyCompare> DATA_MAP;
     typedef TMutex   mutex_type;
     typedef TKey     key_type;
     typedef TValue   value_type;
@@ -96,7 +97,7 @@ public:
         BUCKET *bucket = find_position(key);
 
         bucket->mutex.lock();
-        DATA_MAP::iterator iter = bucket->data_map.find(key);
+        typename DATA_MAP::iterator iter = bucket->data_map.find(key);
         if (iter != bucket->data_map.end())
         {
             value = iter->second;
@@ -113,7 +114,7 @@ public:
         BUCKET *bucket = find_position(key);
 
         bucket->mutex.lock();
-        DATA_MAP::iterator iter = bucket->data_map.find(key);
+        typename DATA_MAP::iterator iter = bucket->data_map.find(key);
         if (iter != bucket->data_map.end())
         {
             bucket->mutex.unlock();
@@ -145,7 +146,7 @@ public:
         {
             bucket->mutex.lock();
             size_type before_size = bucket->data_map.size();
-            bucket->data_map.insert(DATA_MAP::value_type(key, value));
+            bucket->data_map.insert(typename DATA_MAP::value_type(key, value));
             if (bucket->data_map.size() > before_size)
             {
                 ++elements_num_;

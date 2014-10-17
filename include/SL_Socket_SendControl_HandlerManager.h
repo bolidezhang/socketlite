@@ -125,7 +125,7 @@ private:
     //用于控制是否触发条件信号(因触发条件信号比较耗时)
     bool timedwait_signal_;
 
-    //直接发送标识(由逻辑线程直接发送数据,不在发送线程,省去数据拷贝和线程切换)
+    //直接发送标识(由逻辑线程直接发送数据,不在发送线程中,省去数据拷贝和线程切换开销)
     bool direct_send_flag_;
 
     template <typename TSocketHandler, typename TByteBuffer, typename TSyncMutex, typename TEncryptCipher, typename TDecryptCipher> friend class SL_Socket_SendControl_Handler;

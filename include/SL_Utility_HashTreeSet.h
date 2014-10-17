@@ -2,6 +2,7 @@
 #define SOCKETLITE_UTILITY_HASH_TREE_SET_H
 
 #include <assert.h>
+#include <functional>
 #include <vector>
 #include <set>
 
@@ -11,14 +12,14 @@
 #include "SL_Sync_SpinMutex.h"
 
 #ifdef SOCKETLITE_OS_WINDOWS
-template <class TKey, class THash = stdext::hash_compare<TKey, std::less<TKey> >, class TKeyCompare = std::less<TKey>, class TMutex = SL_Sync_NullMutex >
+template <typename TKey, typename THash = stdext::hash_compare<TKey, std::less<TKey> >, typename TKeyCompare = std::less<TKey>, typename TMutex = SL_Sync_NullMutex>
 #else
-template <class TKey, class THash = std::hash<TKey>, class TKeyCompare = std::less<TKey>, class TMutex = SL_Sync_NullMutex >
+template <typename TKey, typename THash = SL_DEFAULT_HASHFUNC<TKey>, class TKeyCompare = std::less<TKey>, typename TMutex = SL_Sync_NullMutex>
 #endif
 class SL_Utility_HashTreeSet
 {
 public:
-    typedef typename std::set<TKey, TKeyCompare > DATA_SET;
+    typedef std::set<TKey, TKeyCompare> DATA_SET;
     typedef TMutex   mutex_type;
     typedef TKey     key_type;
     typedef THash    hash_fn;
@@ -96,7 +97,7 @@ public:
         BUCKET *bucket = find_position(key);
 
         bucket->mutex.lock();
-        DATA_SET::iterator iter = bucket->data_set.find(key);
+        typename DATA_SET::iterator iter = bucket->data_set.find(key);
         if (iter != bucket->data_set.end())
         {
             bucket->mutex.unlock();

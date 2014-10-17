@@ -77,6 +77,10 @@ public:
     {
     }
 
+    virtual void advance(int amount)
+    {
+    }
+
     virtual bool empty() const 
     { 
         return true; 
@@ -329,7 +333,7 @@ public:
         return data_begin_index_;
     }
 
-    void data_begin(int new_begin_index)
+    inline void data_begin(int new_begin_index)
     {
         if (new_begin_index > buffer_size_)
         {
@@ -360,6 +364,14 @@ public:
         }
     }
 
+    inline void advance(int amount)
+    {
+        if (buffer_size_ >= (data_end_index_ + amount))
+        {
+            data_end_index_ += amount;
+        }
+    }
+
     inline bool empty() const
     {
         return data_end_index_ - data_begin_index_ == 0;
@@ -375,7 +387,7 @@ public:
         owner_ = owner;
     }
 
-    bool reserve(int new_size)
+    inline bool reserve(int new_size)
     {
         if (owner_)
         {
@@ -648,7 +660,7 @@ public:
         return data_begin_index_;
     }
 
-    void data_begin(int new_begin_index)
+    inline void data_begin(int new_begin_index)
     {
         if (new_begin_index > buffer_->buffer_size_)
         {
@@ -676,6 +688,14 @@ public:
         if (data_begin_index_ > data_end_index_)
         {
             data_begin_index_ = data_end_index_;
+        }
+    }
+
+    inline void advance(int amount)
+    {
+        if (buffer_->buffer_size() >= (data_end_index_ + amount))
+        {
+            data_end_index_ += amount;
         }
     }
 
