@@ -29,7 +29,7 @@ public:
     {
     }
 
-    inline int init(unsigned int max_size=100000, unsigned int init_size=0, unsigned int grow_size=10)
+    inline int init(unsigned int max_size = 100000, unsigned int init_size = 0, unsigned int grow_size = 10)
     {
         return 0;
     }
@@ -81,7 +81,7 @@ public:
         return 0;
     }
 
-    inline int init(unsigned int max_size=100000, unsigned int init_size=0, unsigned int grow_size=10)
+    inline int init(unsigned int max_size = 100000, unsigned int init_size = 0, unsigned int grow_size = 10)
     {
         clear();
         if (grow_size < 1)
@@ -209,7 +209,7 @@ public:
         return 0;
     }
 
-    inline int init(unsigned int max_chunk_size=10000, unsigned int init_chunk_size=0, unsigned int per_chunk_size=10)
+    inline int init(unsigned int max_chunk_size = 10000, unsigned int init_chunk_size = 0, unsigned int per_chunk_size = 10)
     {
         clear();
         if (init_chunk_size > max_chunk_size)
@@ -290,7 +290,7 @@ private:
 
     unsigned int    max_chunk_size_;      //对象池最大块数
     unsigned int    per_chunk_size_;      //每块中对象数
-    unsigned int    current_chunk_size_;  
+    unsigned int    current_chunk_size_;
 
     TSyncMutex      mutex_;
     std::list<T * > free_objects_;

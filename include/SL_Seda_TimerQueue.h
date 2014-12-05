@@ -176,7 +176,7 @@ public:
     SL_Seda_TimerQueue();
     ~SL_Seda_TimerQueue();
 
-    int init(uint queue_max_size, uint interval_ms, SL_Seda_IStageHandler *stage_handler=NULL, int slot=-1);
+    int init(uint queue_max_size, uint interval_ms, SL_Seda_IStageHandler *stage_handler = NULL, int slot = -1);
     int clear();
 
     SL_Seda_Timer* set_timer(uint interval_ms, SL_Seda_Timer::TimerParam param);
@@ -212,7 +212,7 @@ public:
     SL_Seda_LRUTimerQueue();
     ~SL_Seda_LRUTimerQueue();
 
-    int init(uint queue_max_size, uint interval_ms, SL_Seda_IStageHandler *stage_handler=NULL, int slot=-1);
+    int init(uint queue_max_size, uint interval_ms, SL_Seda_IStageHandler *stage_handler = NULL, int slot = -1);
     int clear();
 
     SL_Seda_Timer* set_timer(ulong interval_ms, SL_Seda_Timer::TimerParam param);

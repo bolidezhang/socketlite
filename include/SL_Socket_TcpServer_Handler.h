@@ -44,27 +44,25 @@ public:
         while (1)
         {   
             fd = SL_Socket_CommonAPI::socket_accept(socket_, sl_addr.get_addr(), &addrlen);
-            if (fd != SL_INVALID_SOCKET)
+            if (SL_INVALID_SOCKET != fd)
             {
-                if (do_accept(fd, sl_addr) < 0)
-                {
-                    SL_Socket_CommonAPI::socket_close(fd);
-                    return 0;
-                }
                 handler = socket_source_->alloc_handler();
-                if (handler != NULL)
+                if (NULL != handler)
                 {
                     if (handler->handle_open(fd, socket_source_, socket_runner_) < 0)
                     {
-                        SL_Socket_CommonAPI::socket_close(fd);
+                        handler->close();
                         socket_source_->free_handler(handler);
-                        return 0;
                     }
-                    if (socket_source_->get_add_runner())
+                    else
                     {
-                        if (socket_source_->get_socket_runner()->add_handle(handler, SL_Socket_Handler::READ_EVENT_MASK) < 0)
+                        if (socket_source_->get_add_runner())
                         {
-                            socket_source_->free_handler(handler);
+                            if (socket_source_->get_socket_runner()->add_handle(handler, SL_Socket_Handler::READ_EVENT_MASK) < 0)
+                            {
+                                handler->close();
+                                socket_source_->free_handler(handler);
+                            }
                         }
                     }
                 }
@@ -74,7 +72,7 @@ public:
                 }
             }
             else
-            {
+            {//关闭TcpServer::socket_,进而促使accept线程退出
                 break;
             }
         }
@@ -83,32 +81,28 @@ public:
 
     inline int handle_accept(SL_SOCKET fd, SL_Socket_INET_Addr &sl_addr)
     {
-        if (do_accept(fd, sl_addr) < 0)
-        {
-            return -1;
-        }
-
         SL_Socket_Handler *handler = socket_source_->alloc_handler();
         if (NULL != handler)
         {
             if (handler->handle_open(fd, socket_source_, socket_runner_) < 0)
             {
                 socket_source_->free_handler(handler);
-                return -2;
+                return -1;
             }
             if (socket_source_->get_add_runner())
             {
                 if (socket_source_->get_socket_runner()->add_handle(handler, SL_Socket_Handler::READ_EVENT_MASK) < 0)
                 {
                     socket_source_->free_handler(handler);
-                    return -3;
+                    return -2;
                 }
             }
         }
         else
         {
-            return -4;
+            return -3;
         }
+
         return 0; 
     }
 };

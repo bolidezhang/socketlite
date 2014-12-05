@@ -144,20 +144,22 @@ struct SL_Seda_EventType
     enum
     {
         QUIT_EVENT = 0,
-        THREAD_IDLE,
-        TIMER_EXPIRE,
+        THREAD_IDLE = 1,
+        TIMER_EXPIRE = 2,
 
-        TCP_LISTEN,
-        TCP_SOCKET_OPEN,
-        TCP_SOCKET_CLOSE,
-        TCP_READ_DATA,
-        TCP_READ_MESSAGE,
+        TCP_LISTEN = 3,
+        TCP_SOCKET_OPEN = 4,
+        TCP_SOCKET_CLOSE = 5,
+        TCP_READ_DATA = 6,
+        TCP_READ_MESSAGE = 7,
+        TCP_WRITE_DATA = 8,
 
-        UDP_SOCKET_OPEN,
-        UDP_SOCKET_CLOSE,
-        UDP_READ_DATA,
+        UDP_SOCKET_OPEN = 9,
+        UDP_SOCKET_CLOSE =10,
+        UDP_READ_DATA = 11,
+        UDP_WRITE_DATA = 12,
 
-        RPC_MESSAGE,            //rpc(支持thrift和protobuf等消息格式)
+        RPC_MESSAGE = 13,               //rpc(支持thrift和protobuf等消息格式)
 
         USER_START = 1000,
         USER_START_NUMBER = 1000,
@@ -201,6 +203,15 @@ struct SL_Seda_TcpReadMessageEvent : public SL_Seda_FixedSizeEventBase<SL_Seda_T
 {
     SL_Socket_Handler *socket_handler;
     SL_ByteBuffer *message;
+    int64 attach_id1;
+    int64 attach_id2;
+    void  *attach_object1;
+    void  *attach_object2;
+};
+
+struct SL_Seda_TcpWriteDataEvent : public SL_Seda_FixedSizeEventBase<SL_Seda_TcpWriteDataEvent, SL_Seda_EventType::TCP_WRITE_DATA>
+{
+    SL_Socket_Handler *socket_handler;
     int64 attach_id1;
     int64 attach_id2;
     void  *attach_object1;

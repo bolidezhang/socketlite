@@ -6,7 +6,7 @@
 #include "SL_Sync_Mutex.h"
 #include "SL_Sync_SpinMutex.h"
 
-template <typename TValue, typename TSyncMutex=SL_Sync_NullMutex>
+template <typename TValue, typename TSyncMutex = SL_Sync_NullMutex>
 class SL_Utility_CircularQueue
 {
 public:
@@ -202,20 +202,18 @@ public:
 
     inline int64 write_index()
     {
-        int64 write_index;
         mutex_.lock();
-        write_index = write_index_;
+        int64 index = write_index_;
         mutex_.unlock();
-        return write_index;
+        return index;
     }
 
     inline int64 read_index()
     {
-        int64 read_index;
         mutex_.lock();
-        read_index = read_index_;
+        int64 index = read_index_;
         mutex_.unlock();
-        return read_index;
+        return index;
     }
 
     inline void read_index(int64 index)

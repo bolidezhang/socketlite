@@ -17,7 +17,7 @@ template <class TSyncMutex>
 class SOCKETLITE_API SL_Socket_Epoll_Runner : public SL_Socket_Runner
 {
 public:
-    inline SL_Socket_Epoll_Runner(uint max_events=100000, int epoll_mode=ET_MODE)
+    inline SL_Socket_Epoll_Runner(uint max_events = 100000, int epoll_mode = ET_MODE)
         : max_events_(max_events)
         , current_handle_size_(0)
         , epoll_mode_(epoll_mode)
@@ -31,7 +31,7 @@ public:
         close();
     }
 
-    inline int set_buffer_size(int recv_buffer_size=65536, int send_buffer_size=65536)
+    inline int set_buffer_size(int recv_buffer_size = 65536, int send_buffer_size = 65536)
     {
         recv_buffer_.reserve(recv_buffer_size);
         return 0;
@@ -47,7 +47,7 @@ public:
         return recv_buffer_.buffer();
     }
 
-    int open(int event_mask=SL_Socket_Handler::READ_EVENT_MASK, uint max_size=100000, uint max_timeout_ms=10, uint thread_number=0, int8 handler_close_status=SL_Socket_Handler::STATUS_CLOSE)
+    int open(int event_mask = SL_Socket_Handler::READ_EVENT_MASK, uint max_size = 100000, uint max_timeout_ms = 10, uint thread_number = 0, int8 handler_close_status = SL_Socket_Handler::STATUS_CLOSE)
     {
         if (max_size <= 0)
         {
@@ -87,25 +87,16 @@ public:
 
     inline int add_handle(SL_Socket_Handler *socket_handler, int event_mask)
     {
-        if (NULL == socket_handler)
+        if (socket_handler->socket_ < 0)
         {
             return -1;
         }
-        if (socket_handler->socket_ < 0)
-        {
-            return -2;
-        }
 
         mutex_.lock();
-        if (socket_handler->event_mask_ != SL_Socket_Handler::NULL_EVENT_MASK)
+        if (socket_handler->event_mask_ > SL_Socket_Handler::NULL_EVENT_MASK)
         {
             mutex_.unlock();
-            return -3;
-        }
-        if (current_handle_size_ >= max_size_)
-        {
-            mutex_.unlock();
-            return -4;
+            return -2;
         }
         struct epoll_event ev;
         memset(&ev, 0, sizeof(epoll_event));
@@ -119,7 +110,7 @@ public:
         if (epoll_ctl(epoll_handle_, EPOLL_CTL_ADD, socket_handler->socket_, &ev) < 0)
         {
             mutex_.unlock();
-            return -5;
+            return -3;
         }
         socket_handler->event_mask_ = SL_Socket_Handler::READ_EVENT_MASK;
 #else
@@ -142,36 +133,33 @@ public:
         if (epoll_ctl(epoll_handle_, EPOLL_CTL_ADD, socket_handler->socket_, &ev) < 0)
         {
             mutex_.unlock();
-            return -5;
+            return -3;
         }
         socket_handler->event_mask_ = temp_event_mask;
 #endif
         ++current_handle_size_;
         mutex_.unlock();
+
         return 0;
     }
 
     inline int del_handle(SL_Socket_Handler *socket_handler)
     {
-        if (NULL == socket_handler)
-        {
-            return -1;
-        }
         if (socket_handler->socket_ < 0)
         {
-            return -2;
+            return -1;
         }
 
         mutex_.lock();
         if (SL_Socket_Handler::NULL_EVENT_MASK == socket_handler->event_mask_)
         {
             mutex_.unlock();
-            return -3;
+            return -2;
         }
         if (epoll_ctl(epoll_handle_, EPOLL_CTL_DEL, socket_handler->socket_, NULL) < 0)
         {
             mutex_.unlock();
-            return -4;
+            return -3;
         }
         socket_handler->event_mask_ = SL_Socket_Handler::NULL_EVENT_MASK;
         --current_handle_size_;
@@ -189,20 +177,16 @@ public:
 
     inline int remove_handle(SL_Socket_Handler *socket_handler)
     {
-        if (NULL == socket_handler)
-        {
-            return -1;
-        }
         if (socket_handler->socket_ < 0)
         {
-            return -2;
+            return -1;
         }
 
         mutex_.lock();
         if (SL_Socket_Handler::NULL_EVENT_MASK == socket_handler->event_mask_)
         {
             mutex_.unlock();
-            return -3;
+            return -2;
         }
         if (epoll_ctl(epoll_handle_, EPOLL_CTL_DEL, socket_handler->socket_, NULL) < 0)
         {
@@ -212,23 +196,20 @@ public:
         socket_handler->event_mask_ = SL_Socket_Handler::NULL_EVENT_MASK;
         --current_handle_size_;
         mutex_.unlock();
+
         return 0;
     }
 
     inline int set_event_mask(SL_Socket_Handler *socket_handler, int event_mask)
     {
-        if (NULL == socket_handler)
-        {
-            return -1;
-        }
 #ifndef SOCKETLITE_RUNNER_EVENTMASK_ONLYREAD
         if (socket_handler->socket_ < 0)
         {
-            return -2;
+            return -1;
         }
         if (!(event_mask & SL_Socket_Handler::ALL_EVENT_MASK & event_mask_))
         {
-            return -3;
+            return -2;
         }
 
         mutex_.lock();
@@ -258,11 +239,12 @@ public:
         if (epoll_ctl(epoll_handle_, EPOLL_CTL_MOD, socket_handler->socket_, &ev) < 0)
         {
             mutex_.unlock();
-            return -4;
+            return -3;
         }
         socket_handler->event_mask_ = temp_event_mask;
         mutex_.unlock();
 #endif
+
         return 0;
     }
 
@@ -271,7 +253,7 @@ public:
         return current_handle_size_;
     }
 
-    inline int event_loop(int timeout_ms=1)
+    inline int event_loop(int timeout_ms = 1)
     {
         int ret = epoll_wait(epoll_handle_, events_, max_events_, timeout_ms);
         if (ret > 0)
@@ -328,7 +310,7 @@ public:
         return event_loop(-1);
     }
 
-    inline int thread_event_loop(int timeout_ms=1)
+    inline int thread_event_loop(int timeout_ms = 1)
     {
         max_timeout_ms_ = timeout_ms;
         return event_loop_thread_.start(event_loop_proc, this);

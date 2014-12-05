@@ -21,7 +21,7 @@ public:
         close();
     }
 
-    int open(int thread_number=4, int queue_max_size=10000, int batch_node_count=8, int timedwait_interval_us=1000)
+    int open(int thread_number = 4, int queue_max_size = 10000, int batch_node_count = 8, int timedwait_interval_us = 1000)
     {
         batch_node_count_ = batch_node_count;
         queue_.init(queue_max_size);
@@ -49,7 +49,7 @@ public:
         return queue_.pop_front(t);
     }
 
-    inline int putq(T &t, int thread_index=-1)
+    inline int putq(T &t, int thread_index = -1)
     {
         if (queue_.push_back(t) > 0)
         {

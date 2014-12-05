@@ -30,8 +30,8 @@
 
 #define SOCKETLITE_MAJOR_VERSION        3
 #define SOCKETLITE_MINOR_VERSION        6
-#define SOCKETLITE_SUB_MINOR_VERSION    5
-#define SOCKETLITE_VERSION_STRING       "3.6.5"
+#define SOCKETLITE_SUB_MINOR_VERSION    12
+#define SOCKETLITE_VERSION_STRING       "3.6.12"
 
 #ifdef _DEBUG
     #define SOCKETLITE_DEBUG
@@ -123,25 +123,6 @@
     #define SOCKETLITE_BYTE_ORDER __SOCKETLITE_LITTLE_ENDIAN
 #endif
 
-//内存分配 比较优秀malloc的实现
-//memory allocation: malloc implement
-//1.google tcmalloc
-//#define SOCKETLITE_MALLOC_TCMALLOC    
-//2.jemalloc freebsd/facebook/firefox
-//#define SOCKETLITE_MALLOC_JEMALLOC
-//3.hoard - The Hoard Memory Allocator
-//#define SOCKETLITE_MALLOC_HOARD
-//4.nedmalloc - ned Productions dlmalloc
-//#define SOCKETLITE_MALLOC_NEDMALLOC
-//5.Lockless malloc - Lockless Inc. Low level software to optimize performance
-//#define SOCKETLITE_MALLOC_LOCKLESS
-//6.intel tbbmalloc
-//#define SOCKETLITE_MALLOC_TBBMALLOC
-//7.ptmalloc - a) linux glibc default malloc b) 起源于 Doug Lea 的 dlmalloc
-//#define SOCKETLITE_MALLOC_PTMALLOC
-//8.dlmalloc - Doug Lea dlmalloc
-//#define SOCKETLITEZ_MALLOC_DLMALLOC
-
 //消息序列化编码方式
 //#define SOCKETLITE_USE_THRIFT
 //#define SOCKETLITE_USE_PROTOBUF
@@ -158,6 +139,9 @@
     #define SOCKETLITE_USE_MESSAGEPACK
     #define SOCKETLITE_ENCODE_MESSAGEPACK
 #endif
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #if defined(_WIN32) || defined(_WIN64) || defined(WIN32)
     #ifndef SOCKETLITE_NO_SUPPORT_WINXP
@@ -292,8 +276,8 @@
 
     #define SOCKETLITE_API
     #define SOCKETLITE_HAVE_PTHREADS
-    #define SL_SOCKET_ERROR     (-1)
-    #define SL_INVALID_SOCKET   (-1)
+    #define SL_SOCKET_ERROR     -1
+    #define SL_INVALID_SOCKET   -1
     #define SL_SHUT_RD          SHUT_RD
     #define SL_SHUT_WR          SHUT_WR
     #define SL_SHUT_RDWR        SHUT_RDWR
@@ -376,8 +360,6 @@
     #define SL_HASH_REHASH(c,n) c.rehash(n)
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
 #ifdef SOCKETLITE_OS_WINDOWS
     #include <tchar.h>
     #define SL_TEXT(x)      _T(x)
@@ -392,6 +374,7 @@
 #endif
 
 #include "SL_DataType.h"
+#include "SL_Malloc.h"
 #include "SL_Hash_Fun.h"
 
 #endif

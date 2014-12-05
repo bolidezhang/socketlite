@@ -239,7 +239,7 @@ int SL_Socket_INET_Addr::set(SL_SOCKET fd)
 {
     sockaddr_storage ss;
     int ss_len = sizeof(sockaddr_storage);
-    memset(&ss, 0, sizeof(sockaddr_storage));
+    memset(&ss, 0, ss_len);
     int ret = getpeername(fd, (sockaddr *)&ss, (socklen_t *)&ss_len);
     if (ret != 0)
         return ret;
@@ -266,7 +266,7 @@ int SL_Socket_INET_Addr::get_ip_remote_s(SL_SOCKET fd, char *ip_addr, int ip_len
 {
     sockaddr_storage ss;
     int ss_len = sizeof(sockaddr_storage);
-    memset(&ss, 0, sizeof(sockaddr_storage));
+    memset(&ss, 0, ss_len);
     int ret = getpeername(fd, (sockaddr *)&ss,(socklen_t *)&ss_len);
     if (ret != 0)
     {
@@ -298,7 +298,7 @@ int SL_Socket_INET_Addr::get_ip_local_s(SL_SOCKET fd, char *ip_addr, int ip_len,
 {
     sockaddr_storage ss;
     int ss_len = sizeof(sockaddr_storage);
-    memset(&ss, 0, sizeof(sockaddr_storage));
+    memset(&ss, 0, ss_len);
     int ret  = getsockname(fd, (sockaddr *)&ss, (socklen_t *)&ss_len);
     if (ret != 0)
     {

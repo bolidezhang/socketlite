@@ -329,7 +329,7 @@ private:
                             stage_thread->stage_handler_.handle_event(event);
 
                             ++timer_event_count;
-                            if (timer_event_count == SOCKETLITE_SEDA_TIMER_EVENT_FACTOR)
+                            if (SOCKETLITE_SEDA_TIMER_EVENT_FACTOR == timer_event_count)
                             {
                                 stage_thread->check_timers(SL_Socket_CommonAPI::util_process_clock_ms(), &timer_expire_event);
                                 timer_event_count = 0;
@@ -374,7 +374,7 @@ private:
                             stage_thread->stage_handler_.handle_event(event);
 
                             ++timer_event_count;
-                            if (timer_event_count == SOCKETLITE_SEDA_TIMER_EVENT_FACTOR)
+                            if (SOCKETLITE_SEDA_TIMER_EVENT_FACTOR == timer_event_count)
                             {
                                 stage_thread->check_timers(SL_Socket_CommonAPI::util_process_clock_ms(), &timer_expire_event);
                                 timer_event_count = 0;

@@ -50,8 +50,8 @@ public:
     };
 
     SL_Socket_SendControl_Interface()
-        : last_update_timestamp_(0)
-        , last_fail_timestamp_(0)
+        : last_update_timestamp_us_(0)
+        , last_fail_timestamp_us_(0)
         , handler_manager_(NULL)
         , send_thread_index_(-1)
         , crypto_type_(SL_CRYPTO_TYPE_NOCRYPT)
@@ -77,8 +77,8 @@ private:
     }
 
 protected:
-    uint64  last_update_timestamp_;         //最后更新连接时间戳(收到/发送成功数据后更新)
-    uint64  last_fail_timestamp_;           //最后发送失败时间戳(发送失败后更新)
+    uint64  last_update_timestamp_us_;      //最后更新连接时间戳(收到/发送成功数据后更新)
+    uint64  last_fail_timestamp_us_;        //最后发送失败时间戳(发送失败后更新)
 
     SL_Socket_SendControl_HandlerManager *handler_manager_;
     int     send_thread_index_;
@@ -103,10 +103,10 @@ public:
 
     inline void clear_data()
     {
-        mutex_.lock();
-        queue1_.clear();
-        queue2_.clear();
-        mutex_.unlock();
+        //mutex_.lock();
+        //queue1_.clear();
+        //queue2_.clear();
+        //mutex_.unlock();
     }
 
     inline size_t get_active_queue_size() const
@@ -137,7 +137,7 @@ public:
         return 0;
     }
 
-    inline int init_crypt(SL_CRYPTO_TYPE crypto_type, const char *key, const char *iv, int mode=SL_CRYPTO_MODE_ECB, int key_len=16, int block_size=16)
+    inline int init_crypt(SL_CRYPTO_TYPE crypto_type, const char *key, const char *iv, int mode = SL_CRYPTO_MODE_ECB, int key_len = 16, int block_size = 16)
     {
         if (crypto_type & SL_CRYPTO_TYPE_ENCRYPT)
         {
@@ -172,12 +172,19 @@ public:
         return 0;
     }
 
-	virtual int do_connect()
-	{
-		return 0;
-	}
+    virtual int do_connect()
+    {
+        return 0;
+    }
 
+    //收到一个完整消息时，通知事件
     virtual int do_message(const char *data, int len)
+    {
+        return 0;
+    }
+
+    //数据可发送时，通知事件
+    virtual int do_write()
     {
         return 0;
     }
@@ -185,9 +192,6 @@ public:
     inline int handle_open(SL_SOCKET fd, SL_Socket_Source *socket_source, SL_Socket_Runner *socket_runner)
     {
         TSocketHandler::handle_open(fd, socket_source, socket_runner);
-        last_update_timestamp_  = SL_Socket_SendControl_HandlerManager::current_timestamp_;
-        last_fail_timestamp_    = 0;
-        crypto_type_            = SL_CRYPTO_TYPE_NOCRYPT;
         return do_open();
     }
 
@@ -208,12 +212,12 @@ public:
 
     inline int handle_message(const char *data, int len)
     {
-        last_update_timestamp_ = SL_Socket_SendControl_HandlerManager::current_timestamp_;
+        last_update_timestamp_us_ = SL_Socket_SendControl_HandlerManager::current_timestamp_us_;
         if (crypto_type_ & SL_CRYPTO_TYPE_DECRYPT)
         {
             int msglen_bytes = TSocketHandler::get_socket_source()->get_msglen_bytes();
             TByteBuffer tmsg(len);
-            int ret = crypto_decrypt_.decrypt((unsigned char *)(data+msglen_bytes), 
+            int ret = crypto_decrypt_.decrypt((unsigned char *)(data + msglen_bytes), 
                 len-msglen_bytes, 
                 (unsigned char *)tmsg.buffer(), 
                 len);
@@ -229,32 +233,40 @@ public:
         }
     }
 
-    inline int put_data(const char *msg, int len, bool timedwait_signal=true)
+    inline int handle_write()
+    {
+        return do_write();
+    }
+
+    //发送数据
+    //返回值：1)< 0 表示发送失败 2)=0 表示数据进入发送队列 3)>0 数据已发送成功
+    inline int put_data(const char *msg, int len, bool timedwait_signal = true)
     {
         if (SL_Socket_Handler::STATUS_OPEN == TSocketHandler::current_status_)
         {
             if (crypto_type_ & SL_CRYPTO_TYPE_ENCRYPT)
             {
-                TByteBuffer tmsg(len+SL_CRYPTO_BLOCK_SIZE_32);
+                TByteBuffer tmsg(len + SL_CRYPTO_BLOCK_SIZE_32);
                 int msglen_bytes = TSocketHandler::get_socket_source()->get_msglen_bytes();
                 mutex_.lock();
                 int ret = crypto_encrypt_.encrypt((const unsigned char *)msg, 
                     len, 
-                    (unsigned char *)(tmsg.buffer()+msglen_bytes), 
-                    tmsg.buffer_size()-msglen_bytes);
+                    (unsigned char *)(tmsg.buffer() + msglen_bytes), 
+                    tmsg.buffer_size() - msglen_bytes);
                 if (ret > 0)
                 {                
-                    int encrypt_len = ret+msglen_bytes;
+                    int encrypt_len = ret + msglen_bytes;
                     tmsg.data_end(encrypt_len);
                     TSocketHandler::get_socket_source()->set_msglen_proc_(tmsg.buffer(), encrypt_len);
                     ret = put_data_i(tmsg, timedwait_signal);
+                    mutex_.unlock();
+                    return ret;
                 }
                 else
                 {
-                    ret = -1;
+                    mutex_.unlock();
+                    return -1;
                 }
-                mutex_.unlock();
-                return ret;
             }
             else
             {
@@ -267,13 +279,15 @@ public:
         return -1;
     }
 
-    inline int put_data(TByteBuffer &msg, bool timedwait_signal=true)
+    //发送数据
+    //返回值：1)< 0 发送失败 2)=0 数据进入发送队列 3)>0 数据已发送成功
+    inline int put_data(TByteBuffer &msg, bool timedwait_signal = true)
     {
         if (SL_Socket_Handler::STATUS_OPEN == TSocketHandler::current_status_)
         {
             if (crypto_type_ & SL_CRYPTO_TYPE_ENCRYPT)
             {
-                TByteBuffer tmsg(msg.data_size()+SL_CRYPTO_BLOCK_SIZE_32);
+                TByteBuffer tmsg(msg.data_size() + SL_CRYPTO_BLOCK_SIZE_32);
                 int msglen_bytes = TSocketHandler::get_socket_source()->get_msglen_bytes();
                 mutex_.lock();
                 int ret = crypto_encrypt_.encrypt((const unsigned char *)msg.data(), 
@@ -282,17 +296,18 @@ public:
                     tmsg.buffer_size()-msglen_bytes);
                 if (ret > 0)
                 {
-                    int encrypt_len = ret+msglen_bytes;
+                    int encrypt_len = ret + msglen_bytes;
                     tmsg.data_end(encrypt_len);
                     TSocketHandler::get_socket_source()->set_msglen_proc_(tmsg.buffer(), encrypt_len);
                     ret = put_data_i(tmsg, timedwait_signal);
+                    mutex_.unlock();
+                    return ret;
                 }
                 else
                 {
-                    ret = -1;
+                    mutex_.unlock();
+                    return -1;
                 }
-                mutex_.unlock();
-                return ret;
             }
             else
             {
@@ -308,15 +323,24 @@ public:
 private:
     inline void init_control()
     {
-        //mutex_.lock();
-        //queue1_.clear();
-        //queue2_.clear();
-        //mutex_.unlock();
+        mutex_.lock();
+        TSocketHandler::last_errno_     = 0;
+        TSocketHandler::current_status_ = SL_Socket_Handler::STATUS_OPEN;
+        TSocketHandler::next_status_    = SL_Socket_Handler::STATUS_OPEN;
+        last_update_timestamp_us_       = SL_Socket_SendControl_HandlerManager::current_timestamp_us_;
+        last_fail_timestamp_us_         = 0;
+        crypto_type_                    = SL_CRYPTO_TYPE_NOCRYPT;
+        queue1_.clear();
+        queue2_.clear();
+        mutex_.unlock();
     }
 
     inline void clear_control()
     {
         mutex_.lock();
+        last_update_timestamp_us_       = SL_Socket_SendControl_HandlerManager::current_timestamp_us_;
+        last_fail_timestamp_us_         = 0;
+        crypto_type_                    = SL_CRYPTO_TYPE_NOCRYPT;
         queue1_.clear();
         queue2_.clear();
         mutex_.unlock();
@@ -324,7 +348,7 @@ private:
 
     //发送数据
     //返回值的类型: WRITE_RETURN_VALUE
-    WRITE_RETURN_VALUE write_data(SL_IOVEC *iov, int iovcnt, uint64 current_timestamp)
+    WRITE_RETURN_VALUE write_data(SL_IOVEC *iov, int iovcnt, uint64 current_timestamp_us)
     {
         if (queue_active_->empty())
         {
@@ -362,7 +386,7 @@ private:
         int send_bytes = SL_Socket_CommonAPI::socket_sendv(TSocketHandler::socket_, iov, node_count, 0, NULL, error_id);
         if (send_bytes > 0)
         {
-            last_update_timestamp_ = current_timestamp;
+            last_update_timestamp_us_ = current_timestamp_us;
 
             int data_size;
             int i = 1;
@@ -388,12 +412,18 @@ private:
             WRITE_RETURN_VALUE ret;
             if (i == node_count)
             {
-                last_fail_timestamp_ = 0;
+                last_fail_timestamp_us_ = 0;
                 ret = WRITE_RETURN_SEND_SUCCESS;
+
+                //没有数据需要发送时,发出通知事件
+                if (queue_active_->empty() && queue_standby_->empty())
+                {
+                    do_write();
+                }
             }
             else
             {
-                last_fail_timestamp_ = current_timestamp;
+                last_fail_timestamp_us_ = current_timestamp_us;
                 ret = WRITE_RETURN_SEND_PART;
             }
 
@@ -403,7 +433,7 @@ private:
         {
             if ( (SL_EAGAIN == error_id) || (SL_EWOULDBLOCK == error_id) || (SL_IO_PENDING == error_id) || (SL_ENOBUFS == error_id) )
             {//非阻塞模式下正常情况
-                last_fail_timestamp_ = current_timestamp;
+                last_fail_timestamp_us_ = current_timestamp_us;
             }
             else
             {//非阻塞模式下异常情况
@@ -419,14 +449,14 @@ private:
     {
         if (queue_standby_->empty() && queue_active_->empty())
         {
-            uint64 current_timestamp = SL_Socket_SendControl_HandlerManager::current_timestamp_;
-            if (current_timestamp - last_fail_timestamp_ >= handler_manager_->send_delaytime_ms_)
+            uint64 current_timestamp_us = SL_Socket_SendControl_HandlerManager::current_timestamp_us_;
+            if (current_timestamp_us - last_fail_timestamp_us_ >= handler_manager_->send_delaytime_us_)
             {//直接发送数据
                 int error_id = 0;
                 int send_bytes = SL_Socket_CommonAPI::socket_send(TSocketHandler::socket_, msg, len, 0, NULL, &error_id);
                 if (send_bytes > 0)
                 {
-                    last_update_timestamp_ = current_timestamp;
+                    last_update_timestamp_us_ = current_timestamp_us;
                     if (send_bytes == len)
                     {
                         return 1;
@@ -445,7 +475,7 @@ private:
                 {
                     if ( (SL_EAGAIN == error_id) || (SL_EWOULDBLOCK == error_id) || (SL_IO_PENDING == error_id) || (SL_ENOBUFS == error_id) )
                     {//非阻塞模式下正常情况
-                        last_fail_timestamp_ = current_timestamp;
+                        last_fail_timestamp_us_ = current_timestamp_us;
                     }
                     else
                     {//非阻塞模式下异常情况
@@ -471,8 +501,8 @@ private:
     {
         if (queue_standby_->empty() && queue_active_->empty())
         {
-            uint64 current_timestamp = SL_Socket_SendControl_HandlerManager::current_timestamp_;
-            if (current_timestamp - last_fail_timestamp_ >= handler_manager_->send_delaytime_ms_)
+            uint64 current_timestamp_us = SL_Socket_SendControl_HandlerManager::current_timestamp_us_;
+            if (current_timestamp_us - last_fail_timestamp_us_ >= handler_manager_->send_delaytime_us_)
             {//直接发送数据
                 char *msg = tmsg.data();
                 int  len  = tmsg.data_size();
@@ -480,7 +510,7 @@ private:
                 int  send_bytes = SL_Socket_CommonAPI::socket_send(TSocketHandler::socket_, msg, len, 0, NULL, &error_id);
                 if (send_bytes > 0)
                 {
-                    last_update_timestamp_ = current_timestamp;
+                    last_update_timestamp_us_ = current_timestamp_us;
                     if (send_bytes == len)
                     {
                         return 1;
@@ -492,7 +522,7 @@ private:
                 {
                     if ( (SL_EAGAIN == error_id) || (SL_EWOULDBLOCK == error_id) || (SL_IO_PENDING == error_id) || (SL_ENOBUFS == error_id) )
                     {//非阻塞模式下正常情况
-                        last_fail_timestamp_ = current_timestamp;
+                        last_fail_timestamp_us_ = current_timestamp_us;
                     }
                     else
                     {//非阻塞模式下异常情况

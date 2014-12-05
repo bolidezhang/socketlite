@@ -28,7 +28,7 @@ int SL_Socket_SendControl_HandlerManager::open(int  thread_number,
                                                int  send_block_size,
                                                int  iovec_count, 
                                                int  keepalive_time_ms, 
-                                               int  send_delaytime_ms, 
+                                               int  send_delaytime_us, 
                                                int  scan_waittime_us,
                                                int  close_delaytime_ms, 
                                                bool timedwait_signal,
@@ -44,10 +44,10 @@ int SL_Socket_SendControl_HandlerManager::open(int  thread_number,
 
     thread_number_      = thread_number;
     send_block_size_    = send_block_size;
-    keepalive_time_ms_  = keepalive_time_ms;
-    send_delaytime_ms_  = send_delaytime_ms;
+    keepalive_time_us_  = keepalive_time_ms * 1000;
+    send_delaytime_us_  = send_delaytime_us;
     scan_waittime_us_   = scan_waittime_us;
-    close_delaytime_ms_ = close_delaytime_ms;
+    close_delaytime_us_ = close_delaytime_ms * 1000;
     timedwait_signal_   = timedwait_signal;
     direct_send_flag_   = direct_send_flag;
     if (thread_number > 0)
@@ -185,11 +185,11 @@ int SL_Socket_SendControl_HandlerManager::event_loop(int timeout_ms)
     SL_Socket_SendControl_Interface *sendcontrol;
     SendThread *send_thread     = send_threads_[0];
 
-    current_timestamp_us_       = SL_Socket_CommonAPI::util_timestamp_us();
+    uint64 current_timestamp_us = SL_Socket_CommonAPI::util_timestamp_us();
     current_time_us_            = SL_Socket_CommonAPI::util_time_us();
+    current_timestamp_us_       = current_timestamp_us;
     current_timestamp_          = current_timestamp_us_ / 1000LL;
     current_time_               = current_time_us_ / 1000000LL;
-    uint64 current_timestamp    = current_timestamp_;
     int write_success_times     = 0;
 
     //交换active/standby指针(使用std::swap函数)
@@ -221,16 +221,16 @@ int SL_Socket_SendControl_HandlerManager::event_loop(int timeout_ms)
                     ++iter;
 
                     //发送数据
-                    if ( (0 == send_delaytime_ms_) || (current_timestamp - sendcontrol->last_fail_timestamp_ > send_delaytime_ms_) )
+                    if ( (0 == send_delaytime_us_) || (current_timestamp_us - sendcontrol->last_fail_timestamp_us_ > send_delaytime_us_) )
                     {
-                        if (sendcontrol->write_data(iovec_, iovec_count_, current_timestamp) == SL_Socket_SendControl_Interface::WRITE_RETURN_SEND_SUCCESS)
+                        if (sendcontrol->write_data(iovec_, iovec_count_, current_timestamp_us) == SL_Socket_SendControl_Interface::WRITE_RETURN_SEND_SUCCESS)
                         {
                             ++write_success_times;
                         }
                     }
 
                     //防止死连接
-                    if ( (keepalive_time_ms_ > 0) && (current_timestamp - sendcontrol->last_update_timestamp_ > keepalive_time_ms_) )
+                    if ( (keepalive_time_us_ > 0) && (current_timestamp_us - sendcontrol->last_update_timestamp_us_ > keepalive_time_us_) )
                     {
                         handler->last_errno_  = SL_Socket_Handler::ERROR_KEEPALIVE_TIMEOUT;
                         handler->next_status_ = SL_Socket_Handler::STATUS_CLOSE;
@@ -244,13 +244,13 @@ int SL_Socket_SendControl_HandlerManager::event_loop(int timeout_ms)
                     ++iter;
 
                     //发送数据(因为应用主动关闭连接,但可能有数据需要发送)
-                    if (sendcontrol->write_data(iovec_, iovec_count_, current_timestamp) == SL_Socket_SendControl_Interface::WRITE_RETURN_SEND_SUCCESS)
+                    if (sendcontrol->write_data(iovec_, iovec_count_, current_timestamp_us) == SL_Socket_SendControl_Interface::WRITE_RETURN_SEND_SUCCESS)
                     {
                         ++write_success_times;
                     }
 
                     //延迟关闭连接
-                    if ( (0 == close_delaytime_ms_) || (current_timestamp - sendcontrol->last_update_timestamp_ > close_delaytime_ms_) )
+                    if ( (0 == close_delaytime_us_) || (current_timestamp_us - sendcontrol->last_update_timestamp_us_ > close_delaytime_us_) )
                     {
                         handler->next_status_ = SL_Socket_Handler::STATUS_CLOSE;
                         handler->get_socket_runner()->del_handle(handler);
@@ -306,75 +306,71 @@ void* SL_Socket_SendControl_HandlerManager::send_proc(void *arg)
 
     int iovec_count             = handler_manger->iovec_count_;
     SL_IOVEC *iovec             = new SL_IOVEC[iovec_count];
-    int write_success_times     = 0;
+    int  write_success_times    = 0;
+    uint send_delaytime_us      = handler_manger->send_delaytime_us_;
+    uint keepalive_time_us      = handler_manger->keepalive_time_us_;
+    uint close_delaytime_us     = handler_manger->close_delaytime_us_;
     uint scan_waittime_us       = handler_manger->scan_waittime_us_;
-    uint close_delaytime_ms     = handler_manger->close_delaytime_ms_;
-    uint keepalive_time_ms      = handler_manger->keepalive_time_ms_;
-    uint send_delaytime_ms      = handler_manger->send_delaytime_ms_;
-    uint64 current_timestamp    = SL_Socket_CommonAPI::util_process_clock_ms();
+    uint64 current_timestamp_us = SL_Socket_CommonAPI::util_timestamp_us();
+    
+    if ( (send_delaytime_us > 0) && (keepalive_time_us > 0) && (close_delaytime_us > 0) && (0 == send_thread->index) )
+    {//默认参数下,针对代码的特定优化
         
-    while (1)
-    {
-        if (!send_thread->thread.get_running())
+        while (1)
         {
-            delete []iovec;
-            send_thread->thread.exit();
-            return 0;
-        }
-        write_success_times = 0;
-
-        if (0 == send_thread->index)
-        {//第一个发送线程,更新全局时间
-            SL_Socket_SendControl_HandlerManager::current_timestamp_us_ = SL_Socket_CommonAPI::util_timestamp_us();
-            SL_Socket_SendControl_HandlerManager::current_time_us_      = SL_Socket_CommonAPI::util_time_us();
-            SL_Socket_SendControl_HandlerManager::current_time_         = SL_Socket_SendControl_HandlerManager::current_time_us_ / 1000000LL;
-            current_timestamp                                           = SL_Socket_SendControl_HandlerManager::current_timestamp_us_ / 1000LL;
-            SL_Socket_SendControl_HandlerManager::current_timestamp_    = current_timestamp;
-        }
-        else
-        {
-            current_timestamp   = SL_Socket_SendControl_HandlerManager::current_timestamp_;
-        }
-
-        //交换active/standby指针(使用std::swap函数)
-        if (!send_thread->temp_handlers_standby->empty())
-        {
-            send_thread->mutex.lock();
-            send_thread->handlers_list_size += send_thread->temp_handlers_size;
-            send_thread->temp_handlers_size  = 0;
-            std::swap(send_thread->temp_handlers_standby, send_thread->temp_handlers_active);
-            send_thread->mutex.unlock();
-
-            send_thread->handlers_list.insert(send_thread->handlers_list.end(), 
-                send_thread->temp_handlers_active->begin(), 
-                send_thread->temp_handlers_active->end());
-            send_thread->temp_handlers_active->clear();
-        }
-
-        iter = send_thread->handlers_list.begin();
-        iter_end = send_thread->handlers_list.end();
-        while (iter != iter_end)
-        {
-            handler     = (*iter).first;
-            sendcontrol = (*iter).second;
-
-            switch (handler->current_status_)
+            if (!send_thread->thread.get_running())
             {
+                delete []iovec;
+                send_thread->thread.exit();
+                return 0;
+            }
+
+            write_success_times = 0;
+            current_timestamp_us                                        = SL_Socket_CommonAPI::util_timestamp_us();
+            SL_Socket_SendControl_HandlerManager::current_time_us_      = SL_Socket_CommonAPI::util_time_us();
+            SL_Socket_SendControl_HandlerManager::current_timestamp_us_ = current_timestamp_us;
+            SL_Socket_SendControl_HandlerManager::current_timestamp_    = current_timestamp_us / 1000LL;
+            SL_Socket_SendControl_HandlerManager::current_time_         = SL_Socket_SendControl_HandlerManager::current_time_us_ / 1000000LL;
+
+            //交换active/standby指针(使用std::swap函数)
+            if (!send_thread->temp_handlers_standby->empty())
+            {
+                send_thread->mutex.lock();
+                send_thread->handlers_list_size += send_thread->temp_handlers_size;
+                send_thread->temp_handlers_size  = 0;
+                std::swap(send_thread->temp_handlers_standby, send_thread->temp_handlers_active);
+                send_thread->mutex.unlock();
+
+                send_thread->handlers_list.insert(send_thread->handlers_list.end(), 
+                    send_thread->temp_handlers_active->begin(), 
+                    send_thread->temp_handlers_active->end());
+                send_thread->temp_handlers_active->clear();
+            }
+
+            iter = send_thread->handlers_list.begin();
+            iter_end = send_thread->handlers_list.end();
+            while (iter != iter_end)
+            {
+                handler     = (*iter).first;
+                sendcontrol = (*iter).second;
+
+                switch (handler->current_status_)
+                {
                 case SL_Socket_Handler::STATUS_OPEN:
                     {
                         ++iter;
 
                         //发送数据
-                        if ( (0 == send_delaytime_ms) || (current_timestamp - sendcontrol->last_fail_timestamp_ > send_delaytime_ms) )
+                        if (current_timestamp_us - sendcontrol->last_fail_timestamp_us_ > send_delaytime_us)
                         {
-                            if (sendcontrol->write_data(iovec, iovec_count, current_timestamp) == SL_Socket_SendControl_Interface::WRITE_RETURN_SEND_SUCCESS)
+                            if (sendcontrol->write_data(iovec, iovec_count, current_timestamp_us) == SL_Socket_SendControl_Interface::WRITE_RETURN_SEND_SUCCESS)
                             {
                                 ++write_success_times;
                             }
                         }
 
                         //防止死连接
-                        if ( (keepalive_time_ms > 0) && (current_timestamp - sendcontrol->last_update_timestamp_ > keepalive_time_ms) )
+                        if (current_timestamp_us - sendcontrol->last_update_timestamp_us_ > keepalive_time_us)
                         {
                             handler->last_errno_  = SL_Socket_Handler::ERROR_KEEPALIVE_TIMEOUT;
                             handler->next_status_ = SL_Socket_Handler::STATUS_CLOSE;
@@ -388,13 +384,13 @@ void* SL_Socket_SendControl_HandlerManager::send_proc(void *arg)
                         ++iter;
 
                         //发送数据(因为应用主动关闭连接,但可能有数据需要发送)
-                        if (sendcontrol->write_data(iovec, iovec_count, current_timestamp) == SL_Socket_SendControl_Interface::WRITE_RETURN_SEND_SUCCESS)
+                        if (sendcontrol->write_data(iovec, iovec_count, current_timestamp_us) == SL_Socket_SendControl_Interface::WRITE_RETURN_SEND_SUCCESS)
                         {
                             ++write_success_times;
                         }
-                        
+
                         //延迟关闭连接
-                        if ( (0 == close_delaytime_ms) || (current_timestamp - sendcontrol->last_update_timestamp_ > close_delaytime_ms) )
+                        if (current_timestamp_us - sendcontrol->last_update_timestamp_us_ > close_delaytime_us)
                         {
                             handler->next_status_ = SL_Socket_Handler::STATUS_CLOSE;
                             handler->get_socket_runner()->del_handle(handler);
@@ -429,20 +425,157 @@ void* SL_Socket_SendControl_HandlerManager::send_proc(void *arg)
                 default:
                     ++iter;
                     break;
+                }
+            }
+
+            if (0 == write_success_times)
+            {
+                send_thread->timedwait_flag.store(1);
+#ifdef SOCKETLITE_OS_WINDOWS
+                send_thread->timedwait_condition.timed_wait(NULL, scan_waittime_us);
+#else
+                send_thread->timedwait_mutex.lock();
+                send_thread->timedwait_condition.timed_wait(&send_thread->timedwait_mutex, scan_waittime_us);
+                send_thread->timedwait_mutex.unlock();
+#endif
+                send_thread->timedwait_flag.store(0);
             }
         }
+    }
+    else
+    {//不是默认参数时
 
-        if (0 == write_success_times)
+        while (1)
         {
-            send_thread->timedwait_flag.store(1);
+            if (!send_thread->thread.get_running())
+            {
+                delete []iovec;
+                send_thread->thread.exit();
+                return 0;
+            }
+            write_success_times = 0;
+
+            if (0 == send_thread->index)
+            {//第一个发送线程,更新全局时间
+                current_timestamp_us                                        = SL_Socket_CommonAPI::util_timestamp_us();
+                SL_Socket_SendControl_HandlerManager::current_time_us_      = SL_Socket_CommonAPI::util_time_us();
+                SL_Socket_SendControl_HandlerManager::current_timestamp_us_ = current_timestamp_us;
+                SL_Socket_SendControl_HandlerManager::current_timestamp_    = current_timestamp_us / 1000LL;
+                SL_Socket_SendControl_HandlerManager::current_time_         = SL_Socket_SendControl_HandlerManager::current_time_us_ / 1000000LL;
+            }
+            else
+            {
+                current_timestamp_us = SL_Socket_SendControl_HandlerManager::current_timestamp_us_;
+            }
+
+            //交换active/standby指针(使用std::swap函数)
+            if (!send_thread->temp_handlers_standby->empty())
+            {
+                send_thread->mutex.lock();
+                send_thread->handlers_list_size += send_thread->temp_handlers_size;
+                send_thread->temp_handlers_size  = 0;
+                std::swap(send_thread->temp_handlers_standby, send_thread->temp_handlers_active);
+                send_thread->mutex.unlock();
+
+                send_thread->handlers_list.insert(send_thread->handlers_list.end(), 
+                    send_thread->temp_handlers_active->begin(), 
+                    send_thread->temp_handlers_active->end());
+                send_thread->temp_handlers_active->clear();
+            }
+
+            iter = send_thread->handlers_list.begin();
+            iter_end = send_thread->handlers_list.end();
+            while (iter != iter_end)
+            {
+                handler     = (*iter).first;
+                sendcontrol = (*iter).second;
+
+                switch (handler->current_status_)
+                {
+                case SL_Socket_Handler::STATUS_OPEN:
+                    {
+                        ++iter;
+
+                        //发送数据
+                        if ( (0 == send_delaytime_us) || (current_timestamp_us - sendcontrol->last_fail_timestamp_us_ > send_delaytime_us) )
+                        {
+                            if (sendcontrol->write_data(iovec, iovec_count, current_timestamp_us) == SL_Socket_SendControl_Interface::WRITE_RETURN_SEND_SUCCESS)
+                            {
+                                ++write_success_times;
+                            }
+                        }
+
+                        //防止死连接
+                        if ( (keepalive_time_us > 0) && (current_timestamp_us - sendcontrol->last_update_timestamp_us_ > keepalive_time_us) )
+                        {
+                            handler->last_errno_  = SL_Socket_Handler::ERROR_KEEPALIVE_TIMEOUT;
+                            handler->next_status_ = SL_Socket_Handler::STATUS_CLOSE;
+                            handler->get_socket_runner()->del_handle(handler);
+                            handler->current_status_ = SL_Socket_Handler::STATUS_CLOSE;
+                        }
+                    }
+                    break;
+                case SL_Socket_Handler::STATUS_CLOSE_WAIT:
+                    {
+                        ++iter;
+
+                        //发送数据(因为应用主动关闭连接,但可能有数据需要发送)
+                        if (sendcontrol->write_data(iovec, iovec_count, current_timestamp_us) == SL_Socket_SendControl_Interface::WRITE_RETURN_SEND_SUCCESS)
+                        {
+                            ++write_success_times;
+                        }
+
+                        //延迟关闭连接
+                        if ( (0 == close_delaytime_us) || (current_timestamp_us - sendcontrol->last_update_timestamp_us_ > close_delaytime_us) )
+                        {
+                            handler->next_status_ = SL_Socket_Handler::STATUS_CLOSE;
+                            handler->get_socket_runner()->del_handle(handler);
+                            handler->current_status_ = SL_Socket_Handler::STATUS_CLOSE;
+                        }
+                    }
+                    break;
+                case SL_Socket_Handler::STATUS_CLOSE_SEND:
+                    {
+                        ++iter;
+
+                        handler->next_status_ = SL_Socket_Handler::STATUS_CLOSE;
+                        handler->get_socket_runner()->del_handle(handler);
+                        handler->current_status_ = SL_Socket_Handler::STATUS_CLOSE;
+                    }
+                    break;
+                case SL_Socket_Handler::STATUS_CLOSE:
+                    {
+                        //关闭连接
+                        handler->close();
+
+                        //从集合中删除handler
+                        sendcontrol->clear_control();
+                        --send_thread->handlers_list_size;
+                        iter = send_thread->handlers_list.erase(iter);
+                        iter_end = send_thread->handlers_list.end();
+
+                        //回收连接对象
+                        handler->get_socket_source()->free_handler(handler);
+                    }
+                    break;
+                default:
+                    ++iter;
+                    break;
+                }
+            }
+
+            if (0 == write_success_times)
+            {
+                send_thread->timedwait_flag.store(1);
 #ifdef SOCKETLITE_OS_WINDOWS
-            send_thread->timedwait_condition.timed_wait(NULL, scan_waittime_us);
+                send_thread->timedwait_condition.timed_wait(NULL, scan_waittime_us);
 #else
-            send_thread->timedwait_mutex.lock();
-            send_thread->timedwait_condition.timed_wait(&send_thread->timedwait_mutex, scan_waittime_us);
-            send_thread->timedwait_mutex.unlock();
+                send_thread->timedwait_mutex.lock();
+                send_thread->timedwait_condition.timed_wait(&send_thread->timedwait_mutex, scan_waittime_us);
+                send_thread->timedwait_mutex.unlock();
 #endif
-            send_thread->timedwait_flag.store(0);
+                send_thread->timedwait_flag.store(0);
+            }
         }
     }
 

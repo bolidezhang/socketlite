@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <memory.h>
 #include "SL_Crypto_AES.h"
-#include "SL_ByteBuffer.h"
 
 #ifdef SOCKETLITE_USE_OPENSSL
 SL_Crypto_AES::SL_Crypto_AES()

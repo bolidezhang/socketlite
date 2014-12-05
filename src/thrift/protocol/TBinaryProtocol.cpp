@@ -70,8 +70,7 @@ uint32_t TBinaryProtocol::writeFieldEnd() {
 }
 
 uint32_t TBinaryProtocol::writeFieldStop() {
-  return
-    writeByte((int8_t)T_STOP);
+  return writeByte((int8_t)T_STOP);
 }
 
 uint32_t TBinaryProtocol::writeMapBegin(const TType keyType,

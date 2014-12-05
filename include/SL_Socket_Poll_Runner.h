@@ -68,7 +68,7 @@ public:
         return recv_buffer_.buffer();
     }
 
-    int open(int event_mask=SL_Socket_Handler::READ_EVENT_MASK, uint max_size=1024, uint max_timeout_ms=10, uint thread_number=0, int8 handler_close_status=SL_Socket_Handler::STATUS_CLOSE)
+    int open(int event_mask = SL_Socket_Handler::READ_EVENT_MASK, uint max_size = 1024, uint max_timeout_ms = 10, uint thread_number = 0, int8 handler_close_status = SL_Socket_Handler::STATUS_CLOSE)
     {
         if (max_size <= 0)
         {
@@ -116,7 +116,7 @@ public:
             mutex_.unlock();
             return -2;
         }
-        if (socket_handlers_.size() >= (max_size_-temp_handlers_standby_->size()))
+        if (socket_handlers_.size() >= (max_size_ - temp_handlers_standby_->size()))
         {
             mutex_.unlock();
             return -3;
@@ -141,6 +141,7 @@ public:
 #endif
         (*temp_handlers_standby_)[socket_handler] = ADD_HANDLE;
         mutex_.unlock();
+
         return 0;
     }
 
@@ -160,6 +161,7 @@ public:
         socket_handler->event_mask_ = SL_Socket_Handler::NULL_EVENT_MASK;
         (*temp_handlers_standby_)[socket_handler] = DEL_HANDLE;
         mutex_.unlock();
+
         return 0;
     }
 
@@ -179,6 +181,7 @@ public:
         socket_handler->event_mask_ = SL_Socket_Handler::NULL_EVENT_MASK;
         (*temp_handlers_standby_)[socket_handler] = REMOVE_HANDLE;
         mutex_.unlock();
+
         return 0;
     }
 
@@ -233,6 +236,7 @@ public:
         (*temp_handlers_standby_)[socket_handler] = SET_EVENT_MASK;
         mutex_.unlock();
 #endif
+
         return 0;
     }
 

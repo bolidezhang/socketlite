@@ -23,7 +23,7 @@ public:
     }
 };
 
-template<typename TFsm, typename TState, typename TObjectPool, typename TKey=uint>
+template<typename TFsm, typename TState, typename TObjectPool, typename TKey = uint>
 class SL_Fsm_Base
 {
     friend class SL_Fsm_Manager<TFsm, TState, TObjectPool, TKey>;
@@ -74,14 +74,14 @@ private:
     bool collect_flag_;     //回收标记,防止状态机被重复回收
 };
 
-template<typename TFsm, typename TState, typename TObjectPool, typename TKey=uint>
+template<typename TFsm, typename TState, typename TObjectPool, typename TKey = uint>
 class SL_Fsm_Manager
 {
     friend class SL_Fsm_Base<TFsm, TState, TObjectPool, TKey>;
 public:
-    typedef SL_HASH_MAP<TKey, TFsm* >   FsmMap;
+    typedef SL_HASH_MAP<TKey, TFsm * >  FsmMap;
     typedef typename FsmMap::iterator   FsmMapIterator;
-    typedef typename std::list<TFsm* >  FsmList;
+    typedef typename std::list<TFsm * > FsmList;
     typedef typename FsmList::iterator  FsmListIterator;
     typedef TObjectPool FsmPool;
 
@@ -94,15 +94,15 @@ public:
     {
     }
 
-    inline int init(unsigned int pool_size, unsigned int init_chunk_size=100, unsigned int per_chunk_size=10)
+    inline int init(unsigned int pool_size, unsigned int init_chunk_size = 1000, unsigned int per_chunk_size = 10)
     {
         if (per_chunk_size < 1)
         {
             per_chunk_size = 1;
         }
         next_id_ = 1;
-        SL_HASH_REHASH(fsm_map_, 10000);
-        return fsm_pool_.init((pool_size/per_chunk_size)+1, init_chunk_size, per_chunk_size);
+        SL_HASH_REHASH(fsm_map_, 100000);
+        return fsm_pool_.init((pool_size / per_chunk_size) + 1, init_chunk_size, per_chunk_size);
     }
 
     inline uint get_capacity()

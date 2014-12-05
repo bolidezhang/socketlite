@@ -32,7 +32,7 @@ public:
         return &local_addr_;
     }
 
-    int set_config(bool is_recv_thread=false, uint recvbuffer_size=32768)
+    int set_config(bool is_recv_thread = false, uint recvbuffer_size = 65536)
     {
         is_recv_thread_  = is_recv_thread;
         recvbuffer_size_ = recvbuffer_size;
@@ -45,7 +45,7 @@ public:
         return 0;
     }
 
-    int open(ushort local_port=0, const char *local_name=NULL, bool is_bind_localaddr=true, bool is_ipv6=false, int recv_thread_num=1)
+    int open(ushort local_port = 0, const char *local_name = NULL, bool is_bind_localaddr = true, bool is_ipv6 = false, int recv_thread_num = 1)
     {
         int ret = 0;
         int address_family = is_ipv6 ? AF_INET6:AF_INET;

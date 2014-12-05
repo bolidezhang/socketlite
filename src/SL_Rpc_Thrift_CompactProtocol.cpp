@@ -1,5 +1,7 @@
 #include "SL_Rpc_Thrift_CompactProtocol.h"
 
+#ifdef SOCKETLITE_USE_THRIFT
+
 const int8_t SL_Rpc_Thrift_CompactProtocol_Internal::TTypeToCType[16] = 
 {
     SL_Rpc_Thrift_CompactProtocol_Internal::CT_STOP,            // T_STOP
@@ -19,4 +21,6 @@ const int8_t SL_Rpc_Thrift_CompactProtocol_Internal::TTypeToCType[16] =
     SL_Rpc_Thrift_CompactProtocol_Internal::CT_SET,             // T_SET
     SL_Rpc_Thrift_CompactProtocol_Internal::CT_LIST,            // T_LIST
 };
+
+#endif
 

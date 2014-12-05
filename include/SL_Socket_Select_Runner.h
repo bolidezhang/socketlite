@@ -33,7 +33,7 @@ public:
         close();
     }
 
-    inline int set_buffer_size(int recv_buffer_size=65536, int send_buffer_size=65536)
+    inline int set_buffer_size(int recv_buffer_size = 65536, int send_buffer_size = 65536)
     {
         recv_buffer_.reserve(recv_buffer_size);
         return 0;
@@ -49,7 +49,7 @@ public:
         return recv_buffer_.buffer();
     }
 
-    int open(int event_mask=SL_Socket_Handler::READ_EVENT_MASK, uint max_size=1024, uint max_timeout_ms=10, uint thread_number=0, int8 handler_close_status=SL_Socket_Handler::STATUS_CLOSE)
+    int open(int event_mask = SL_Socket_Handler::READ_EVENT_MASK, uint max_size = 1024, uint max_timeout_ms = 10, uint thread_number = 0, int8 handler_close_status = SL_Socket_Handler::STATUS_CLOSE)
     {
         if (max_size <= 0)
         {
@@ -94,22 +94,18 @@ public:
 
     inline int add_handle(SL_Socket_Handler *socket_handler, int event_mask)
     {
-        if (NULL == socket_handler)
-        {
-            return -1;
-        }
         if ( (socket_handler->socket_ < 0) || (socket_handler->socket_ == SL_INVALID_SOCKET) )
         {
             return -1;
         }
 
         mutex_.lock();
-        if (socket_handler->event_mask_ != SL_Socket_Handler::NULL_EVENT_MASK)
+        if (socket_handler->event_mask_ > SL_Socket_Handler::NULL_EVENT_MASK)
         {
             mutex_.unlock();
             return -2;
         }
-        if (socket_handlers_.size() >= (max_size_-temp_handlers_standby_->size()))
+        if (socket_handlers_.size() >= (max_size_ - temp_handlers_standby_->size()))
         {
             mutex_.unlock();
             return -3;
@@ -139,25 +135,22 @@ public:
 #endif
         (*temp_handlers_standby_)[socket_handler] = ADD_HANDLE;
         mutex_.unlock();
+
         return 0;
     }
 
     inline int del_handle(SL_Socket_Handler *socket_handler)
     {
-        if (NULL == socket_handler)
-        {
-            return -1;
-        }
         if ( (socket_handler->socket_ < 0) || (socket_handler->socket_ == SL_INVALID_SOCKET) )
         {
-            return -2;
+            return -1;
         }
 
         mutex_.lock();
         if (SL_Socket_Handler::NULL_EVENT_MASK == socket_handler->event_mask_)
         {
             mutex_.unlock();
-            return -3;
+            return -2;
         }
 
 #ifdef SOCKETLITE_RUNNER_EVENTMASK_ONLYREAD
@@ -179,25 +172,22 @@ public:
         socket_handler->event_mask_ = SL_Socket_Handler::NULL_EVENT_MASK;
         (*temp_handlers_standby_)[socket_handler] = DEL_HANDLE;
         mutex_.unlock();
+
         return 0;
     }
 
     inline int remove_handle(SL_Socket_Handler *socket_handler)
     {
-        if (NULL == socket_handler)
-        {
-            return -1;
-        }
         if ( (socket_handler->socket_ < 0) || (socket_handler->socket_ == SL_INVALID_SOCKET) )
         {
-            return -2;
+            return -1;
         }
 
         mutex_.lock();
         if (SL_Socket_Handler::NULL_EVENT_MASK == socket_handler->event_mask_)
         {
             mutex_.unlock();
-            return -3;
+            return -2;
         }
 #ifdef SOCKETLITE_RUNNER_EVENTMASK_ONLYREAD
         FD_CLR(socket_handler->socket_, &fd_set_in_.read);
@@ -218,19 +208,16 @@ public:
         socket_handler->event_mask_ = SL_Socket_Handler::NULL_EVENT_MASK;
         (*temp_handlers_standby_)[socket_handler] = REMOVE_HANDLE;
         mutex_.unlock();
+
         return 0;
     }
 
     inline int set_event_mask(SL_Socket_Handler *socket_handler, int event_mask)
     {
-        if (NULL == socket_handler)
-        {
-            return -1;
-        }
 #ifndef SOCKETLITE_RUNNER_EVENTMASK_ONLYREAD
         if ( (socket_handler->socket_ < 0) || (socket_handler->socket_ == SL_INVALID_SOCKET) )
         {
-            return -2;
+            return -1;
         }
 
         mutex_.lock();
@@ -286,6 +273,7 @@ public:
         socket_handler->event_mask_ = temp_event_mask;
         mutex_.unlock();
 #endif
+
         return 0;
     }
 
@@ -294,7 +282,7 @@ public:
         return socket_handlers_.size();
     }
 
-    int event_loop(int timeout_ms=1)
+    int event_loop(int timeout_ms = 1)
     {
         SL_Socket_Handler *socket_handler;
         int ret = 0;
@@ -515,7 +503,7 @@ public:
         return event_loop(-1);
     }
 
-    inline int thread_event_loop(int timeout_ms=1)
+    inline int thread_event_loop(int timeout_ms = 1)
     { 
         max_timeout_ms_ = timeout_ms;
         return event_loop_thread_.start(event_loop_proc, this);

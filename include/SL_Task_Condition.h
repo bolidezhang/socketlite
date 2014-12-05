@@ -22,7 +22,7 @@ public:
         close();
     }
 
-    int open(int thread_number=4, int max_queue_size=10000, int batch_node_count=8, int timedwait_interval_us=1000)
+    int open(int thread_number = 4, int max_queue_size = 10000, int batch_node_count = 8, int timedwait_interval_us = 1000)
     {
         batch_node_count_ = batch_node_count;
         timedwait_interval_us_ = timedwait_interval_us;

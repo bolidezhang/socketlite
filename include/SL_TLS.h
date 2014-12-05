@@ -52,7 +52,7 @@ public:
     // Get the value.
     inline T* get() const
     {
-        return (T*)(TlsGetValue(tls_key_));
+        return (T *)(TlsGetValue(tls_key_));
     }
 
     inline T* operator->() const
@@ -127,7 +127,7 @@ public:
     // Get the value.
     inline T* get() const
     {
-        return (T*)(pthread_getspecific(tls_key_));
+        return (T *)(pthread_getspecific(tls_key_));
     }
 
     inline T* operator->() const

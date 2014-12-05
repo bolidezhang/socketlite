@@ -13,13 +13,13 @@
 //问题:如何保存模板类SL_Socket_SendControl_Handler<>的指针?
 //解决方法1:
 //      集合中存放SL_Socket_Handler类的指针,
-//      通过dynamic_cast<SL_Socket_SendControl_Interface*>(handler), 
+//      通过dynamic_cast<SL_Socket_SendControl_Interface *>(handler), 
 //      但dynamic_cast会显著降低程序的效率，在各种c++的编译器上都是如此,一般来说,
 //      使用到dynamic_cast的部分效率降低15%以上是很正常的。所以如果你的程序能够不用dynamic_cast,那就不要用.
-//      如:std::list<SL_Socket_Handler*>   sendcontrol_list_;
+//      如:std::list<SL_Socket_Handler *> sendcontrol_list_;
 //解决方法2:
-//      集合中存放<SL_Socket_Handler*, SL_Socket_SendControl_Interface*>的结构体
-//      但内存占用要大些(sizeof(void*)
+//      集合中存放<SL_Socket_Handler *, SL_Socket_SendControl_Interface *>的结构体
+//      但内存占用要大些(sizeof(void *)
 
 class SL_Socket_SendControl_Interface;
 class SL_Socket_SendControl_HandlerManager
@@ -41,15 +41,15 @@ public:
     SL_Socket_SendControl_HandlerManager();
     virtual ~SL_Socket_SendControl_HandlerManager();
 
-    int     open(int  thread_number=1, 
-                 int  send_block_size=65536, 
-                 int  iovec_count=1024, 
-                 int  keepalive_time_ms=0, 
-                 int  send_delaytime_ms=1, 
-                 int  scan_waittime_us=1000, 
-                 int  close_delaytime_ms=60000, 
-                 bool timedwait_signal=true,
-                 bool direct_send_flag=true);
+    int     open(int  thread_number         = 1,
+                 int  send_block_size       = 65536,
+                 int  iovec_count           = 1024,
+                 int  keepalive_time_ms     = 120000,
+                 int  send_delaytime_us     = 1000,
+                 int  scan_waittime_us      = 1000,
+                 int  close_delaytime_ms    = 5000,
+                 bool timedwait_signal      = true,
+                 bool direct_send_flag      = true);
 
     int     close();
     int     event_loop(int timeout_ms=10);
@@ -93,12 +93,12 @@ private:
     int         iovec_count_;           //系统调用writev函数iovec数组的个数
     int         thread_number_;         //线程数(若<=0,表示不启动专门发送线程)
     int         send_block_size_;       //发送数据块的大小(每遍历一次发送一块)
-    uint        keepalive_time_ms_;     //keepalive间隔
-    uint        send_delaytime_ms_;     //发送延迟时间(ms)
+    uint        keepalive_time_us_;     //keepalive间隔
+    uint        send_delaytime_us_;     //发送延迟时间(ms)
     uint        scan_waittime_us_;      //扫描一遍后,wait时间(us)
-    uint        close_delaytime_ms_;    //关闭延迟时间(ms), 因立即关闭socket, 客户端可能收不到最后发送的部分数据
+    uint        close_delaytime_us_;    //关闭延迟时间(ms), 因立即关闭socket, 客户端可能收不到最后发送的部分数据
 
-    typedef std::pair<SL_Socket_Handler*, SL_Socket_SendControl_Interface* > ITEM_SENDCONTROL;
+    typedef std::pair<SL_Socket_Handler *, SL_Socket_SendControl_Interface * >  ITEM_SENDCONTROL;
     struct SendThread
     {
         void   *parent;
@@ -119,7 +119,7 @@ private:
         SL_Sync_Condition               timedwait_condition;
         SL_Sync_Atomic_Int32            timedwait_flag;
     };
-    std::vector<SendThread* > send_threads_;
+    std::vector<SendThread * >  send_threads_;
     int  next_thread_index_;
 
     //用于控制是否触发条件信号(因触发条件信号比较耗时)

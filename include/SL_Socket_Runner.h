@@ -30,7 +30,7 @@ public:
     }
 
     //handler_close_status: 检测到handler导常时,将SL_Socket_Handler::next_status_置为handler_close_status
-    virtual int open(int event_mask, uint max_size, uint max_timeout_ms, uint thread_number, int8 handler_close_status=SL_Socket_Handler::STATUS_CLOSE) 
+    virtual int open(int event_mask, uint max_size, uint max_timeout_ms, uint thread_number, int8 handler_close_status = SL_Socket_Handler::STATUS_CLOSE) 
     { 
         return 0; 
     }

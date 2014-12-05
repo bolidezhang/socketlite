@@ -123,7 +123,7 @@ public:
     /**
     * Writing functions
     */
-    virtual uint32_t writeMessageBegin(const std::string& name, const TMessageType messageType, const int32_t seqid)
+    virtual uint32_t writeMessageBegin(const std::string &name, const TMessageType messageType, const int32_t seqid)
     {
         uint32_t wsize = writeByte(PROTOCOL_ID);
         wsize += writeByte((VERSION_N & VERSION_MASK) | (((int32_t)messageType << TYPE_SHIFT_AMOUNT) & TYPE_MASK));

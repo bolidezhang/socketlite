@@ -97,7 +97,7 @@ public:
         return 0; 
     }
 
-    int open(int event_mask, uint max_size, uint max_timeout_ms, uint thread_number, int handler_close_status=SL_Socket_Handler::STATUS_CLOSE) 
+    int open(int event_mask, uint max_size, uint max_timeout_ms, uint thread_number, int handler_close_status = SL_Socket_Handler::STATUS_CLOSE) 
     { 
         TRunner *runner;
         typename std::vector<TRunner* >::iterator iter = socket_runners_.begin();

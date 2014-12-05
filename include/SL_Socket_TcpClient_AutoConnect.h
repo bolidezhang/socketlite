@@ -13,7 +13,7 @@ public:
     SL_Socket_TcpClient_AutoConnect();
     ~SL_Socket_TcpClient_AutoConnect();
     
-    int open(uint check_interval_us=500000);
+    int open(uint check_interval_us = 500000);
     int close();
 
     int add_tcpclient(SL_Socket_Source *tcpclient);

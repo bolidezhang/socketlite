@@ -21,7 +21,7 @@ public:
         close();
     }
 
-    int open(int thread_number, uint queue_max_size, uint event_max_len=64, uint timedwait_interval_us=1000, bool timedwait_signal=true, int type=0)
+    int open(int thread_number, uint queue_max_size, uint event_max_len = 64, uint timedwait_interval_us = 1000, bool timedwait_signal = true, int type = 0)
     {
         type_ = type;
         timedwait_interval_us_ = timedwait_interval_us;
@@ -80,7 +80,7 @@ public:
         return thread_index;
     }
 
-    inline int push_event(const SL_Seda_Event *event, int thread_index=-1, bool timedwait_signal=true)
+    inline int push_event(const SL_Seda_Event *event, int thread_index = -1, bool timedwait_signal = true)
     {
         int thread_size = stage_threads_.size();
         if (thread_size < 2)

@@ -62,10 +62,10 @@ public:
         SL_Socket_CommonAPI::util_gettimeofday(&now, NULL);
         SL_Socket_CommonAPI::util_timeradd(&now, &repair_, &stand);
 
-        std::list<SL_Timer* > temp_timer_list;
+        std::list<SL_Timer * > temp_timer_list;
         SL_Timer *temp_timer;
-        std::list<SL_Timer* >::iterator iter;
-        std::list<SL_Timer* >::iterator iter_end;
+        std::list<SL_Timer * >::iterator iter;
+        std::list<SL_Timer * >::iterator iter_end;
 
         mutex_.lock();
         iter = timer_list_.begin();
@@ -103,8 +103,8 @@ public:
             temp_timer = *iter;
             temp_timer->timeout();
         }
-
         temp_timer_list.clear();
+
         return 0;
     }
 

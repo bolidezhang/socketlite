@@ -90,7 +90,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\SL_Alloc.h" />
     <ClInclude Include="..\include\SL_Application.h" />
     <ClInclude Include="..\include\SL_ByteBuffer.h" />
     <ClInclude Include="..\include\SL_CircularBuffer.h" />
@@ -130,6 +129,7 @@
     <ClInclude Include="..\include\SL_Hash_Fun.h" />
     <ClInclude Include="..\include\SL_Logger.h" />
     <ClInclude Include="..\include\SL_LRUHashtable.h" />
+    <ClInclude Include="..\include\SL_Malloc.h" />
     <ClInclude Include="..\include\SL_ObjectPool.h" />
     <ClInclude Include="..\include\SL_OS_API.h" />
     <ClInclude Include="..\include\SL_OS_File.h" />

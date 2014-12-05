@@ -29,12 +29,12 @@ public:
         close();
     }
 
-    inline int set_buffer_size(int recv_buffer_size=65536, int send_buffer_size=65536)
+    inline int set_buffer_size(int recv_buffer_size = 65536, int send_buffer_size = 65536)
     {
         return 0;
     }
 
-    int open(int event_mask=SL_Socket_Handler::READ_EVENT_MASK, uint max_size=100000, uint max_timeout_ms=100, uint thread_number=10, int8 handler_close_status=SL_Socket_Handler::STATUS_CLOSE)
+    int open(int event_mask = SL_Socket_Handler::READ_EVENT_MASK, uint max_size = 100000, uint max_timeout_ms = 10, uint thread_number = 10, int8 handler_close_status = SL_Socket_Handler::STATUS_CLOSE)
     {
         close();
         if (max_size <= 0)
@@ -79,32 +79,28 @@ public:
 
     inline int add_handle(SL_Socket_Handler *socket_handler, int event_mask) 
     {
-        if (socket_handler->socket_ == SL_INVALID_SOCKET)
+        if (SL_INVALID_SOCKET == socket_handler->socket_)
         {
             return -1;
         }
-        if (socket_handler->runner_pos_ >= 0)
-        {//socket_handler已加入runner
-            return -2;
-        }
 
         mutex_.lock();
-        if (current_handle_size_ >= max_size_)
-        {
+        if (socket_handler->runner_pos_ >= 0)
+        {//socket_handler已加入runner
             mutex_.unlock();
-            return -3;
+            return -2;
         }
         //将socket_handler关联到完成端口
         if (NULL == CreateIoCompletionPort((HANDLE)socket_handler->socket_, completion_port_, (ULONG_PTR)socket_handler, 0))
         {
             mutex_.unlock();
-            return -4;
+            return -3;
         }
         //投递接收操作
-        if (((SL_Socket_Iocp_Handler*)socket_handler)->post_recv() < 0)
+        if (((SL_Socket_Iocp_Handler *)socket_handler)->post_recv() < 0)
         {
             mutex_.unlock();
-            return -5;
+            return -4;
         }
         socket_handler->runner_pos_ = 0;
         ++current_handle_size_;
@@ -115,12 +111,17 @@ public:
 
     inline int del_handle(SL_Socket_Handler *socket_handler) 
     { 
-        if ((SL_INVALID_SOCKET == socket_handler->socket_) || (socket_handler->runner_pos_ < 0))
+        if (SL_INVALID_SOCKET == socket_handler->socket_)
         {
             return -1;
         }
 
         mutex_.lock();
+        if (socket_handler->runner_pos_ < 0)
+        {
+            mutex_.unlock();
+            return -2;
+        }
         socket_handler->runner_pos_ = -1;
         --current_handle_size_;
         mutex_.unlock();
@@ -138,12 +139,17 @@ public:
 
     inline int remove_handle(SL_Socket_Handler *socket_handler) 
     { 
-        if ((SL_INVALID_SOCKET == socket_handler->socket_) || (socket_handler->runner_pos_ < 0))
+        if (SL_INVALID_SOCKET == socket_handler->socket_)
         {
             return -1;
         }
 
         mutex_.lock();
+        if (socket_handler->runner_pos_ < 0)
+        {
+            mutex_.unlock();
+            return -2;
+        }
         socket_handler->runner_pos_ = -1;
         --current_handle_size_;
         mutex_.unlock();
@@ -167,7 +173,7 @@ public:
         return event_loop(1);
     }
 
-    inline int thread_event_loop(int timeout=-1)
+    inline int thread_event_loop(int timeout = -1)
     { 
         return 0;
     }

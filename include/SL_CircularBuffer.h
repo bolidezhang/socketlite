@@ -1,6 +1,6 @@
 #ifndef SOCKETLITE_CIRCULAR_BYTEBUFFER_H
 #define SOCKETLITE_CIRCULAR_BYTEBUFFER_H
-#include <stdlib.h>
+#include "SL_Malloc.h"
 
 class SL_CircularBuffer
 {
@@ -16,14 +16,14 @@ public:
         , data_end_index_(0)
         , data_size_(0)
     {
-        buffer_ = (char *)malloc(bffer_size);
+        buffer_ = (char *)sl_malloc(bffer_size);
     }
 
     inline ~SL_CircularBuffer()
     {
         if (NULL == buffer_)
         {
-            free(buffer_);
+            sl_free(buffer_);
         }
     }
 

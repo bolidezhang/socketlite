@@ -27,11 +27,11 @@ public:
     {
         if (NULL != event_pool_)
         {
-            free(event_pool_);
+            sl_free(event_pool_);
         }
     }
 
-    inline int init(ulong capacity, uint event_max_len=64, int rewrite_count=-1, int reread_count=-1)
+    inline int init(ulong capacity, uint event_max_len = 64, int rewrite_count = -1, int reread_count = -1)
     {
         rewrite_count_ = (rewrite_count < 1) ? -1 : rewrite_count;
 
@@ -50,7 +50,7 @@ public:
         }
 
         ulong pool_size = capacity * event_max_len;
-        event_pool_ = (char *)malloc(pool_size);
+        event_pool_ = (char *)sl_malloc(pool_size);
         if (NULL != event_pool_)
         {
             capacity_       = capacity;
@@ -67,7 +67,7 @@ public:
     {
         if (NULL != event_pool_)
         {
-            free(event_pool_);
+            sl_free(event_pool_);
             event_pool_ = NULL;
         }
         capacity_       = 0;
@@ -82,7 +82,7 @@ public:
         notify_list_.clear();
     }
 
-    inline long push(const SL_Disruptor_Event *event, bool timedwait_signal=true, int redo_count=0)
+    inline long push(const SL_Disruptor_Event *event, bool timedwait_signal = true, int redo_count = 0)
     {
         int64 next_index;
         int64 handler_index;

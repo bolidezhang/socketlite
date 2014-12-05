@@ -19,8 +19,8 @@ public:
     int decrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len);
 
     //带模式加密解
-    int encrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num=NULL, unsigned char *ecount_buf=NULL);
-    int decrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num=NULL, unsigned char *ecount_buf=NULL);
+    int encrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num = NULL, unsigned char *ecount_buf = NULL);
+    int decrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num = NULL, unsigned char *ecount_buf = NULL);
 
 private:
     AES_KEY encrypt_key_;
@@ -44,8 +44,8 @@ public:
     int decrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len);
 
     //带模式加密解
-    int encrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num=NULL, unsigned char *ecount_buf=NULL);
-    int decrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num=NULL, unsigned char *ecount_buf=NULL);
+    int encrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num = NULL, unsigned char *ecount_buf = NULL);
+    int decrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num = NULL, unsigned char *ecount_buf = NULL);
 
 private:
 	int	mode_;

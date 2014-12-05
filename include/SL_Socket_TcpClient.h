@@ -32,7 +32,7 @@ public:
         clear();
     }
 
-    int open(const char *server_name, ushort server_port, const char *local_name=NULL, ushort local_port=0, bool is_bind_localaddr=false, bool is_ipv6=false)
+    int open(const char *server_name, ushort server_port, const char *local_name = NULL, ushort local_port = 0, bool is_bind_localaddr = false, bool is_ipv6 = false)
     {
         local_name_         = local_name ? local_name:"";
         local_port_         = local_port;
@@ -165,36 +165,38 @@ public:
 
         switch (msglen_bytes)
         {
-        case 1:
-            {
-                get_msglen_proc_  = SL_Socket_Source::get_msglen_int8;
-                set_msglen_proc_  = SL_Socket_Source::set_msglen_int8;
-            }
-            break;
-        case 2:
-            if (msg_byteorder)
-            {
-                get_msglen_proc_ = SL_Socket_Source::get_msglen_int16_network;
-                set_msglen_proc_ = SL_Socket_Source::set_msglen_int16_network;
-            }
-            else
-            {
-                get_msglen_proc_ = SL_Socket_Source::get_msglen_int16_host;
-                set_msglen_proc_ = SL_Socket_Source::set_msglen_int16_host;
-            }
-            break;
-        case 4:
-            if (msg_byteorder)
-            {
-                get_msglen_proc_ = SL_Socket_Source::get_msglen_int32_network;
-                set_msglen_proc_ = SL_Socket_Source::set_msglen_int32_network;
-            }
-            else
-            {
-                get_msglen_proc_ = SL_Socket_Source::get_msglen_int32_host;
-                set_msglen_proc_ = SL_Socket_Source::set_msglen_int32_host;
-            }
-            break;
+            case 1:
+                {
+                    get_msglen_proc_  = SL_Socket_Source::get_msglen_int8;
+                    set_msglen_proc_  = SL_Socket_Source::set_msglen_int8;
+                }
+                break;
+            case 2:
+                if (msg_byteorder)
+                {
+                    get_msglen_proc_ = SL_Socket_Source::get_msglen_int16_network;
+                    set_msglen_proc_ = SL_Socket_Source::set_msglen_int16_network;
+                }
+                else
+                {
+                    get_msglen_proc_ = SL_Socket_Source::get_msglen_int16_host;
+                    set_msglen_proc_ = SL_Socket_Source::set_msglen_int16_host;
+                }
+                break;
+            case 4:
+                if (msg_byteorder)
+                {
+                    get_msglen_proc_ = SL_Socket_Source::get_msglen_int32_network;
+                    set_msglen_proc_ = SL_Socket_Source::set_msglen_int32_network;
+                }
+                else
+                {
+                    get_msglen_proc_ = SL_Socket_Source::get_msglen_int32_host;
+                    set_msglen_proc_ = SL_Socket_Source::set_msglen_int32_host;
+                }
+                break;
+            default:
+                break;
         }
 
         return 0;
@@ -207,7 +209,7 @@ public:
         return 0;
     }
 
-    int add_serveraddr(const char *server_name, ushort server_port, bool is_ipv6=false)
+    int add_serveraddr(const char *server_name, ushort server_port, bool is_ipv6 = false)
     {
         SL_Socket_INET_Addr server_addr;
         server_addr.set(server_name, server_port, is_ipv6);

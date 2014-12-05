@@ -26,7 +26,7 @@ public:
     {
         if (NULL != pool_begin_)
         {
-            free(pool_begin_);
+            sl_free(pool_begin_);
         }
     }
 
@@ -35,7 +35,7 @@ public:
         clear();
 
         ulong pool_size = capacity * event_max_len;
-        pool_begin_ = (char *)malloc(pool_size);
+        pool_begin_ = (char *)sl_malloc(pool_size);
         if (NULL != pool_begin_)
         {
             pool_end_       = pool_begin_ + pool_size;
@@ -53,7 +53,7 @@ public:
     {
         if (NULL != pool_begin_)
         {
-            free(pool_begin_);
+            sl_free(pool_begin_);
             pool_begin_ = NULL;
             pool_end_   = NULL;
         }

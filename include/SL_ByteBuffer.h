@@ -4,9 +4,8 @@
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
     #pragma once
 #endif
-#include <stdlib.h>
 #include <string.h>
-#include "SL_DataType.h"
+#include "SL_Malloc.h"
 #include "SL_Sync_Atomic.h"
 
 class SL_Buffer
@@ -163,7 +162,7 @@ public:
         , data_end_index_(0)
         , owner_(true)
     {
-        char *new_buffer = (char *)malloc(buffer_size);
+        char *new_buffer = (char *)sl_malloc(buffer_size);
         if (NULL != new_buffer)
         {
             buffer_      = new_buffer;
@@ -201,7 +200,7 @@ public:
     {
         if (owner_ && (NULL != buffer_))
         {
-            free(buffer_);
+            sl_free(buffer_);
         }
     }
 
@@ -211,7 +210,7 @@ public:
         {
             if (owner_ && (NULL != buffer_))
             {
-                free(buffer_);
+                sl_free(buffer_);
             }
 
             if (buf.owner_)
@@ -239,7 +238,7 @@ public:
     {
         if (owner_ && (NULL != buffer_))
         {
-            free(buffer_);
+            sl_free(buffer_);
         }
         buffer_             = NULL;
         buffer_size_        = 0;
@@ -284,11 +283,11 @@ public:
             char *new_buffer;
             if (owner_)
             {
-                new_buffer = (char *)realloc(buffer_, size);
+                new_buffer = (char *)sl_realloc(buffer_, size);
             }
             else
             {   
-                new_buffer = (char *)malloc(size);
+                new_buffer = (char *)sl_malloc(size);
             }
             if (NULL == new_buffer)
             {
@@ -301,7 +300,7 @@ public:
         {
             if (owner_ && (buffer_ != NULL))
             {
-                free(buffer_);
+                sl_free(buffer_);
             }
             buffer_ = (char *)data;
         }
@@ -393,7 +392,7 @@ public:
         {
             if (new_size > buffer_size_)
             {
-                char *new_buffer = (char *)realloc(buffer_, new_size);
+                char *new_buffer = (char *)sl_realloc(buffer_, new_size);
                 if (NULL != new_buffer)
                 {
                     buffer_             = new_buffer;
@@ -406,7 +405,7 @@ public:
         }
         else
         {
-            char *new_buffer = (char *)malloc(new_size);
+            char *new_buffer = (char *)sl_malloc(new_size);
             if (NULL != new_buffer)
             {
                 buffer_             = new_buffer;
@@ -506,7 +505,7 @@ private:
     inline bool adjust_buffer_i(const char *data, int size, int multiple)
     {
         int  new_size    = buffer_size_ * multiple / 100 + buffer_size_ + size;
-        char *new_buffer = (char *)realloc(buffer_, new_size);
+        char *new_buffer = (char *)sl_realloc(buffer_, new_size);
         if (NULL != new_buffer)
         {
             memcpy(new_buffer + data_end_index_, data, size);
@@ -797,7 +796,7 @@ private:
             , refcount_(1)
             , owner_(true)
         {
-            char *new_buffer = (char *)malloc(buffer_size);
+            char *new_buffer = (char *)sl_malloc(buffer_size);
             if (NULL != new_buffer)
             {
                 buffer_      = new_buffer;
@@ -818,7 +817,7 @@ private:
         {   
             if (owner_ && (new_size > buffer_size_))
             {
-                char *new_buffer = (char *)realloc(buffer_, new_size);
+                char *new_buffer = (char *)sl_realloc(buffer_, new_size);
                 if (NULL != new_buffer)
                 {
                     buffer_      = new_buffer;
@@ -847,7 +846,7 @@ private:
             {
                 if (owner_)
                 {
-                    free(buffer_);
+                    sl_free(buffer_);
                 }
                 buffer_ = NULL;
                 buffer_size_ = 0;
@@ -863,7 +862,7 @@ private:
                 {
                     if (owner_)
                     {
-                        free(buffer_);
+                        sl_free(buffer_);
                     }
                     buffer_ = NULL;
                     buffer_size_ = 0;
@@ -903,7 +902,7 @@ private:
                 if (owner_)
                 {
                     int new_size  = buffer_size_ * multiple / 100 + buffer_size_ + size;
-                    char *new_buffer = (char *)realloc(buffer_, new_size);
+                    char *new_buffer = (char *)sl_realloc(buffer_, new_size);
                     if (NULL != new_buffer)
                     {
                         memcpy(new_buffer + use_size_, data, size);

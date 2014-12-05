@@ -15,10 +15,16 @@
 enum SL_RPC_MESSAGE_ENCODE_TYPE
 {
     SL_RPC_MESSAGE_ENCODE_THRIFT = 0,                   //facebook thrift-BinaryProtocol
+
     SL_RPC_MESSAGE_ENCODE_PROTOBUF = 1,                 //google protobuf: varint encode/decode implementation
     SL_RPC_MESSAGE_ENCODE_MESSAGEPACK = 2,              //messagepack.org
     SL_RPC_MESSAGE_ENCODE_THRIFT_COMPACT_PROTOCOL = 3,  //facebook thrift-CompactProtocol: varint encode/decode implementation
     SL_RPC_MESSAGE_ENCODE_THRIFT_DENSE_PROTOCOL = 4,    //facebook thrift-DenseProtocol(experimental)
+    SL_RPC_MESSAGE_ENCODE_ZEROMQ = 5,                   //zeromq(ZeroMQ)
+
+    SL_RPC_MESSAGE_ENCODE_FLATBUFFERS = 100,            //flatbuffers(Google FlatBuffers: a serialization game development and other performance-critical apps)
+    SL_RPC_MESSAGE_ENCODE_SBE = 101,                    //sbe(Simple Binary Encoding - FIX/SBE: 用于低时延的高频交易(low latency hight-frequency trading(HFT))
+    SL_RPC_MESSAGE_ENCODE_CAPNPROTO = 102,              //cap'n proto(Cap'n Proto)
 };
 
 //消息标记的取值: 一个或几个按位组合

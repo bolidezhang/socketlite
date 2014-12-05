@@ -13,6 +13,7 @@
     #include <sys/timeb.h>
 
     //windows多媒体库(主要使用其中timeGetTime())
+    #include <MMSystem.h>
     #pragma comment(lib, "Winmm.lib")
 
     //windows视频库VFW
@@ -37,7 +38,7 @@ private:
     
 public:
     //socket_init 参数timer_resolution含义： 1) =0 自动设置OS允许定时精度的最小值 2) >0手动设置定时精度(精度范围: 1-5 ms)
-    static int socket_init(int version_high, int version_low, int timer_resolution_ms=0)
+    static int socket_init(int version_high, int version_low, int timer_resolution_ms = 0)
     {
         #ifdef SOCKETLITE_OS_WINDOWS
 
@@ -128,7 +129,7 @@ public:
 
     static inline int socket_close(SL_SOCKET fd)
     {
-        if ((fd < 0) || (fd == SL_INVALID_SOCKET))
+        if ( (fd < 0) || (SL_INVALID_SOCKET == fd) )
         {
             return -1;
         }
@@ -141,7 +142,7 @@ public:
 
     static inline int socket_shutdown(SL_SOCKET fd, int how)
     {
-        if ((fd < 0) || (fd == SL_INVALID_SOCKET))
+        if ( (fd < 0) || (SL_INVALID_SOCKET == fd) )
         {
             return -1;
         }
@@ -256,7 +257,7 @@ public:
         return setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&flag, sizeof(int));
     }
 
-    static inline int socket_set_keepalivevalue(SL_SOCKET fd, ulong keepalivetime=7200000, ulong keepaliveinterval=1000)
+    static inline int socket_set_keepalivevalue(SL_SOCKET fd, ulong keepalivetime = 7200000, ulong keepaliveinterval = 1000)
     {
         #ifdef SOCKETLITE_OS_WINDOWS 
             #if (_WIN32_WINNT>=0x0500)    //window 2000 or later version

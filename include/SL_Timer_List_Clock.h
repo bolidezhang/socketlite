@@ -58,10 +58,10 @@ public:
     inline int timer_loop()
     {
         uint64 current_clock = SL_Socket_CommonAPI::util_process_clock_ms() + repair_ms_;
-        std::list<SL_Timer* > temp_timer_list;
+        std::list<SL_Timer * > temp_timer_list;
         SL_Timer *temp_timer;
-        std::list<SL_Timer* >::iterator iter;
-        std::list<SL_Timer* >::iterator iter_end;
+        std::list<SL_Timer * >::iterator iter;
+        std::list<SL_Timer * >::iterator iter_end;
 
         mutex_.lock();
         iter = timer_list_.begin();

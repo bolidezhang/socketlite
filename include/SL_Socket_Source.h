@@ -35,7 +35,7 @@ public:
         return 0; 
     }
     virtual int recv(char *buf, int len, int flag) 
-    { 
+    {
         return 0; 
     }
     virtual bool get_connected()
@@ -151,8 +151,8 @@ public:
         return;
     }
 
-    typedef int (*get_msglen_proc)(const char *msg, int len);
-    typedef void (*set_msglen_proc)(char *msg, int len);
+    typedef int (* get_msglen_proc)(const char *msg, int len);
+    typedef void (* set_msglen_proc)(char *msg, int len);
 
     get_msglen_proc     get_msglen_proc_;       //取得消息长度函数指针
     set_msglen_proc     set_msglen_proc_;       //设置消息长度函数指针

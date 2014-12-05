@@ -47,7 +47,7 @@ public:
         return 0;
     }
 
-    inline int open(SL_Disruptor_IEventQueue *event_queue, bool batch_signal_flag=true, uint timedwait_interval_us=1000, bool timedwait_signal=true)
+    inline int open(SL_Disruptor_IEventQueue *event_queue, bool batch_signal_flag = true, uint timedwait_interval_us = 1000, bool timedwait_signal = true)
     {
         event_queue_            = event_queue;
         batch_signal_flag_      = batch_signal_flag;
@@ -352,8 +352,8 @@ private:
     SL_Thread                           thread_;                    //处理线程
     SL_Sync_Atomic_Int64                handler_index_;             //处理位置(只增不减)
     SL_Disruptor_IEventQueue            *event_queue_;              //事件队列
-    std::list<SL_Disruptor_IHandler* >  dependent_list_;            //依赖列表
-    std::list<SL_Disruptor_IHandler* >  notify_list_;               //通知列表
+    std::list<SL_Disruptor_IHandler * > dependent_list_;            //依赖列表
+    std::list<SL_Disruptor_IHandler * > notify_list_;               //通知列表
 
     SL_Sync_ThreadMutex                 timedwait_mutex_;
     SL_Sync_Condition                   timedwait_condition_;

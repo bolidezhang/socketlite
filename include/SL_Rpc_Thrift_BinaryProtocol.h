@@ -48,7 +48,7 @@ public:
     * Writing functions.
     */
 
-    inline uint32_t writeMessageBegin(const std::string& name, const TMessageType messageType, const int32_t seqid) 
+    inline uint32_t writeMessageBegin(const std::string &name, const TMessageType messageType, const int32_t seqid) 
     {
         int32_t  version = (VERSION_1) | ((int32_t)messageType);
         uint32_t wsize = writeI32(version);

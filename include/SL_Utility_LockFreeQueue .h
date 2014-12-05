@@ -29,7 +29,7 @@ public:
         }
     }
 
-    inline int init(ulong capacity, int rewrite_count=1, int reread_count=1)
+    inline int init(ulong capacity, int rewrite_count = 1, int reread_count = 1)
     {
         rewrite_count_ = (rewrite_count < 1) ? -1 : rewrite_count;
         reread_count_  = (reread_count < 1) ? -1 : reread_count;
@@ -79,7 +79,7 @@ public:
         read_index_.store(0);
     }
 
-    inline long push(const TValue &value, int redo_count=0)
+    inline long push(const TValue &value, int redo_count = 0)
     {
         int64 write_index;
         int64 read_end_index;

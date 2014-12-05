@@ -25,7 +25,7 @@ public:
         close();
     }
 
-    int open(int thread_number=4, int queue_max_size=10000, int batch_node_count=8, int timedwait_interval_us=1000)
+    int open(int thread_number = 4, int queue_max_size = 10000, int batch_node_count = 8, int timedwait_interval_us = 1000)
     {
         if (thread_number < 1)
         {

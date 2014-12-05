@@ -12,7 +12,7 @@
 class SL_UUID
 {
 public:
-    static int generate(char uuid_string[50])
+    static int generate(char uuid_string[64])
     {
         UUID uuid;
         ::UuidCreate(&uuid);
@@ -27,7 +27,7 @@ public:
         //·½·¨2
         //unsigned char *str;
         //::UuidToString(&uuid, &str);
-        //strncpy(uuid_string, str, 50);
+        //strncpy(uuid_string, str, 64);
         //RpcStringFree(&str);
         //return 0;
     };
@@ -54,7 +54,7 @@ private:
 class SL_UUID
 {
 public:
-    static int generate(char uuid_string[50])
+    static int generate(char uuid_string[64])
     {
         uuid_t uuid;
         uuid_generate(uuid);

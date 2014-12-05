@@ -23,7 +23,7 @@ public:
         close();
     }
 
-    int open(ushort local_port, int backlog=128, const char *local_name=NULL, bool is_ipv6=false)
+    int open(ushort local_port, int backlog = 128, const char *local_name = NULL, bool is_ipv6 = false)
     {
         close();
 
@@ -115,36 +115,38 @@ EXCEPTION_EXIT_PROC:
 
         switch (msglen_bytes)
         {
-        case 1:
-            {
-                get_msglen_proc_  = SL_Socket_Source::get_msglen_int8;
-                set_msglen_proc_  = SL_Socket_Source::set_msglen_int8;
-            }
-            break;
-        case 2:
-            if (msg_byteorder)
-            {
-                get_msglen_proc_ = SL_Socket_Source::get_msglen_int16_network;
-                set_msglen_proc_ = SL_Socket_Source::set_msglen_int16_network;
-            }
-            else
-            {
-                get_msglen_proc_ = SL_Socket_Source::get_msglen_int16_host;
-                set_msglen_proc_ = SL_Socket_Source::set_msglen_int16_host;
-            }
-            break;
-        case 4:
-            if (msg_byteorder)
-            {
-                get_msglen_proc_ = SL_Socket_Source::get_msglen_int32_network;
-                set_msglen_proc_ = SL_Socket_Source::set_msglen_int32_network;
-            }
-            else
-            {
-                get_msglen_proc_ = SL_Socket_Source::get_msglen_int32_host;
-                set_msglen_proc_ = SL_Socket_Source::set_msglen_int32_host;
-            }
-            break;
+            case 1:
+                {
+                    get_msglen_proc_  = SL_Socket_Source::get_msglen_int8;
+                    set_msglen_proc_  = SL_Socket_Source::set_msglen_int8;
+                }
+                break;
+            case 2:
+                if (msg_byteorder)
+                {
+                    get_msglen_proc_ = SL_Socket_Source::get_msglen_int16_network;
+                    set_msglen_proc_ = SL_Socket_Source::set_msglen_int16_network;
+                }
+                else
+                {
+                    get_msglen_proc_ = SL_Socket_Source::get_msglen_int16_host;
+                    set_msglen_proc_ = SL_Socket_Source::set_msglen_int16_host;
+                }
+                break;
+            case 4:
+                if (msg_byteorder)
+                {
+                    get_msglen_proc_ = SL_Socket_Source::get_msglen_int32_network;
+                    set_msglen_proc_ = SL_Socket_Source::set_msglen_int32_network;
+                }
+                else
+                {
+                    get_msglen_proc_ = SL_Socket_Source::get_msglen_int32_host;
+                    set_msglen_proc_ = SL_Socket_Source::set_msglen_int32_host;
+                }
+                break;
+            default:
+                break;
         }
 
         return 0;
@@ -188,10 +190,10 @@ private:
     static void* accept_proc(void *arg)
 #endif
     {
-        SL_Socket_TcpServer *tcpserver = (SL_Socket_TcpServer*)arg;
+        SL_Socket_TcpServer *tcpserver = (SL_Socket_TcpServer *)arg;
         SL_Socket_INET_Addr sl_addr(tcpserver->get_local_addr()->is_ipv6());
-        sockaddr *addr = sl_addr.get_addr();     
-        int addrlen = sl_addr.get_addr_size();
+        sockaddr *addr  = sl_addr.get_addr();     
+        int addrlen     = sl_addr.get_addr_size();
 
         SL_SOCKET client_socket;
         SL_SOCKET listen_fd = tcpserver->server_handler_.get_socket();
