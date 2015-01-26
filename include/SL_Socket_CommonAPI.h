@@ -1,9 +1,10 @@
 #ifndef SOCKETLITE_SOCKET_COMMON_API_H
 #define SOCKETLITE_SOCKET_COMMON_API_H
 
+#include <time.h>
 #include "SL_Config.h"
 #include "SL_OS_API.h"
-#include <time.h>
+#include "SL_Utility_Memory.h"
 #ifdef SOCKETLITE_OS_WINDOWS
     #include <io.h>
     #include "Shlwapi.h"
@@ -41,6 +42,8 @@ public:
     static int socket_init(int version_high, int version_low, int timer_resolution_ms = 0)
     {
         #ifdef SOCKETLITE_OS_WINDOWS
+            //初始化系统高精度计数器的频率
+            system_counter_frequency_ = util_system_counter_frequency();
 
             // initialize timer resolution
             // attempt to set the resolution as low as possible from 1ms to 5ms
@@ -172,7 +175,6 @@ public:
     {
         return connect(fd, addr, addrlen);
     }
-
 
     static inline int socket_connect(SL_SOCKET fd, const struct sockaddr *addr, int addrlen, timeval *timeout)
     {
@@ -1111,157 +1113,67 @@ public:
         #endif
     }
 
-    //内存拷贝(使用内存对齐)
-    static inline void* util_memcpy(void *dest, const void *src, size_t n)
+    //取得系统高精度计数器频率(用于windows系统高精度计时)
+    static inline uint64 util_system_counter_frequency()
     {
-        void *ret = dest;
-
-        if (n >= sizeof(int64))
-        {
-            int64 *dest_64 = (int64 *)dest;
-            int64 *src_64  = (int64 *)src;
-            do 
-            {   
-                *dest_64++ = *src_64++;
-                n -= sizeof(int64);
-            } while (n >= sizeof(int64));
-
-            dest = dest_64;
-            src  = src_64;
-        }
-
-        //方法1
-        switch (n)
-        {
-            case 7:
+        #ifdef SOCKETLITE_OS_WINDOWS
+            static uint64 counter_frequency = 1;
+            if (1 == counter_frequency)
+            {
+                LARGE_INTEGER i;
+                if (QueryPerformanceFrequency(&i))
                 {
-                    int32 *dest_32 = (int32 *)dest;
-                    int32 *src_32  = (int32 *)src;
-                    *dest_32++ = *src_32++;
-
-                    int16 *dest_16 = (int16 *)dest_32;
-                    int16 *src_16  = (int16 *)src_32;
-                    *dest_16++ = *src_16++;
-
-                    int8 *dest_8 = (int8 *)dest_16;
-                    int8 *src_8  = (int8 *)src_16;
-                    *dest_8 = *src_8;
+                    counter_frequency = i.QuadPart;
                 }
-                break;
-            case 6:
-                {
-                    int32 *dest_32 = (int32 *)dest;
-                    int32 *src_32  = (int32 *)src;
-                    *dest_32++ = *src_32++;
+            }
+            return counter_frequency;
+        #else
+            return 1;
+        #endif
+    }
 
-                    int16 *dest_16 = (int16 *)dest_32;
-                    int16 *src_16  = (int16 *)src_32;
-                    *dest_16 = *src_16;
-                }
-                break;
-            case 5:
-                {
-                    int32 *dest_32 = (int32 *)dest;
-                    int32 *src_32  = (int32 *)src;
-                    *dest_32++ = *src_32++;
+    //取得系统高精度计数器的计数值
+    static inline uint64 util_system_counter()
+    {
+        #ifdef SOCKETLITE_OS_WINDOWS
+            LARGE_INTEGER i;
+            QueryPerformanceCounter(&i);
+            return i.QuadPart;
+        #else
+            struct timespec tp;
+            clock_gettime(CLOCK_MONOTONIC, &tp);
+            return (tp.tv_sec * 1000000000LL + tp.tv_nsec);
+        #endif
+    }
 
-                    int8 *dest_8 = (int8 *)dest_32;
-                    int8 *src_8  = (int8 *)src_32;
-                    *dest_8 = *src_8;
-                }
-                break;
-            case 4:
-                {
-                    int32 *dest_32 = (int32 *)dest;
-                    int32 *src_32  = (int32 *)src;
-                    *dest_32 = *src_32;
-                }
-                break;
-            case 3:
-                {
-                    int16 *dest_16 = (int16 *)dest;
-                    int16 *src_16  = (int16 *)src;
-                    *dest_16++ = *src_16++;
+    //计算系统高精度计数器的计时(两次计数值之差即时间差: 以微秒为时间单位)
+    static inline uint64 util_system_counter_time_us(uint64 counter_end, uint64 counter_start)
+    {
+        #ifdef SOCKETLITE_OS_WINDOWS
+            return (counter_end - counter_start) * 1000000LL / system_counter_frequency_;
+        #else
+            return (counter_end - counter_start) / 1000;
+        #endif
+    }
 
-                    int8 *dest_8 = (int8 *)dest_16;
-                    int8 *src_8  = (int8 *)src_16;
-                    *dest_8 = *src_8;
-                }
-                break;
-            case 2:
-                {
-                    int16 *dest_16 = (int16 *)dest;
-                    int16 *src_16  = (int16 *)src;
-                    *dest_16 = *src_16;
-                }
-                break;
-            case 1:
-                {
-                    int8 *dest_8 = (int8 *)dest;
-                    int8 *src_8  = (int8 *)src;
-                    *dest_8 = *src_8;
-                }
-                break;
-        }
-
-        ////方法2
-        ////4 bytes
-        //if (n >= sizeof(int32))
-        //{
-        //    int32 *dest_32 = (int32 *)dest;
-        //    int32 *src_32  = (int32 *)src;
-        //    *dest_32++ = *src_32++;
-        //    n -= sizeof(int32);
-
-        //    if (n >= sizeof(int32))
-        //    {
-        //        *dest_32 = *src_32;
-        //        return ret;
-        //    }
-
-        //    dest = dest_32;
-        //    src  = src_32;
-        //}
-
-        ////2 bytes
-        //if (n >= sizeof(int16))
-        //{
-        //    int16 *dest_16 = (int16 *)dest;
-        //    int16 *src_16  = (int16 *)src;
-        //    *dest_16++ = *src_16++;
-        //    n -= sizeof(int16);
-
-        //    if (n >= sizeof(int16))
-        //    {
-        //        *dest_16 = *src_16;
-        //        return ret;
-        //    }
-
-        //    dest = dest_16;
-        //    src  = src_16;
-        //}
-
-        ////1 bytes
-        //if (n > 0)
-        //{
-        //    int8 *dest_8 = (int8 *)dest;
-        //    int8 *src_8  = (int8 *)src;
-        //    *dest_8 = *src_8;
-        //}
-
-        ////方法2
-        //char *dest_char = (char *)dest;
-        //char *src_char  = (char *)src;
-        //while (n--)
-        //{
-        //    *dest_char++ = *src_char++;
-        //}
-
-        return ret;
+    //计算系统高精度计数器的计时(两次计数值之差即时间差: 以纳秒为时间单位)
+    static inline uint64 util_system_counter_time_ns(uint64 counter_end, uint64 counter_start)
+    {
+        #ifdef SOCKETLITE_OS_WINDOWS
+            return (counter_end - counter_start) * 1000000000LL / system_counter_frequency_;
+        #else
+            return counter_end - counter_start;
+        #endif
     }
 
     //内存拷贝
-    static inline void* util_memcpy_char(void *dest, const void *src, size_t n)
+    static inline void util_memcpy(void *dest, const void *src, size_t n)
+    {
+        sl_memcpy(dest, src, n);
+    }
+
+    //内存拷贝(这种方式实现, 性能比较差)
+    static inline void util_memcpy_char(void *dest, const void *src, size_t n)
     {
         char *dest_char = (char *)dest;
         char *src_char  = (char *)src;
@@ -1269,8 +1181,6 @@ public:
         {
             *dest_char++ = *src_char++;
         }
-
-        return dest;
     }
 
     //检测文件是否存在
@@ -1328,18 +1238,19 @@ public:
     static inline int64 util_ntohll(int64 net_int64)
     {
         #if SOCKETLITE_BYTE_ORDER == __SOCKETLITE_BIG_ENDIAN
-                return net_int64;
+            return net_int64;
         #else
             #ifdef SOCKETLITE_OS_WINDOWS
-                    return ( (((unsigned long long)ntohl(net_int64)) << 32) + ntohl(net_int64 >> 32) );
+                return ( (((unsigned long long)ntohl(net_int64)) << 32) + ntohl(net_int64 >> 32) );
             #else
-                    return bswap_64(net_int64);
+                return bswap_64(net_int64);
             #endif
         #endif
     }
 
 private:
-    static unsigned int timer_resolution_ms_;       //定时精度(毫秒) windows下1-5 ms
+    static uint     timer_resolution_ms_;           //定时精度(毫秒) windows下1-5 ms
+    static uint64   system_counter_frequency_;      //系统高精度计数器的频率
 };
 
 #endif

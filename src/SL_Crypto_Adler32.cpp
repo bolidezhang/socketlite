@@ -1,5 +1,6 @@
 #include <assert.h>
 #include "SL_Crypto_Adler32.h"
+#include "SL_Utility_Memory.h"
 
 #define ADLER32_BASE 65521      /* largest prime smaller than 65536 */
 #define ADLER32_NMAX 5552
@@ -132,7 +133,7 @@ int SL_Crypto_Adler32::final(unsigned char *checksum, uint len)
 {
     assert(checksum && (len >= sizeof(uint32)));
 
-    memcpy(checksum, (char *)&checksum_, sizeof(uint32));
+    sl_memcpy(checksum, (char *)&checksum_, sizeof(uint32));
     checksum_ = 0;
     return sizeof(uint32);
 }
@@ -142,7 +143,7 @@ int SL_Crypto_Adler32::final(const unsigned char *in, uint in_len, unsigned char
     assert(out && (out_len >= sizeof(uint32)));
 
     checksum_ = checksum(in, in_len, checksum_);
-    memcpy(out, (char *)&checksum_, sizeof(uint32));
+    sl_memcpy(out, (char *)&checksum_, sizeof(uint32));
     checksum_ = 0;
     return sizeof(uint32);
 }

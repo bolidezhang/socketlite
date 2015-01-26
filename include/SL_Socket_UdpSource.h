@@ -143,14 +143,10 @@ private:
     SL_ByteBuffer buf(raw_buf_size);
     char          *raw_buf = buf.buffer();
 
-    int ret = 0;
+    int ret   = 0;
     int error = 0;
-    while (1)
+    while (udpsource->recv_thread_group_.get_running())
     {
-        if (!udpsource->recv_thread_group_.get_running())
-        {
-            break;
-        }
         ret = SL_Socket_CommonAPI::socket_recvfrom(udp_fd, raw_buf, raw_buf_size, 0, addr, &addrlen, NULL, error);
         if (ret > 0)
         {

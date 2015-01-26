@@ -9,11 +9,13 @@
 #include "SL_ObjectPool.h"
 #include "SL_Socket_TcpServer_Handler.h"
 
-template <typename TClientHandler, typename TObjectPool, typename TServerHandler=SL_Socket_TcpServer_Handler>
+template <typename TClientHandler, typename TObjectPool, typename TServerHandler = SL_Socket_TcpServer_Handler>
 class SL_Socket_TcpServer : public SL_Socket_Source
 {
 public:
     SL_Socket_TcpServer()
+        : accept_runner_(NULL)
+        , object_pool_(NULL)
     {
         set_config();
     }
@@ -23,7 +25,7 @@ public:
         close();
     }
 
-    int open(ushort local_port, int backlog = 128, const char *local_name = NULL, bool is_ipv6 = false)
+    int open(ushort local_port, int backlog = 1024, const char *local_name = NULL, bool is_ipv6 = false)
     {
         close();
 
@@ -57,23 +59,51 @@ public:
             ret = -5;
             goto EXCEPTION_EXIT_PROC;
         }
-        if (accept_thread_num_ > 0)
+        
+#ifdef SOCKETLITE_OS_WINDOWS
+        //目录在windows下，只支持在独立的Accept线程接收新连接
+        if (accept_thread_num_ < 1)
         {
-            SL_Socket_CommonAPI::socket_set_block(fd, true);
-            if (accept_thread_group_.start(accept_proc, this, accept_thread_num_, accept_thread_num_) < 0)
-            {
-                ret = -6;
-                goto EXCEPTION_EXIT_PROC;
-            }
-			socket_handler_ = &server_handler_;
-            return 0;
+            accept_thread_num_ = 1;
         }
-        if (socket_runner_->add_handle(&server_handler_, SL_Socket_Handler::READ_EVENT_MASK) < 0)
+        SL_Socket_CommonAPI::socket_set_block(fd, true);
+        if (accept_thread_group_.start(accept_proc, this, accept_thread_num_, accept_thread_num_) < 0)
         {
-            ret = -7;
+            ret = -6;
             goto EXCEPTION_EXIT_PROC;
         }
+#else
+        if (NULL != accept_runner_)
+        {
+            if (accept_runner_->add_handle(&server_handler_, SL_Socket_Handler::READ_EVENT_MASK) < 0)
+            {
+                ret = -7;
+                goto EXCEPTION_EXIT_PROC;
+            }
+        }
+        else
+        {
+            if (accept_thread_num_ > 0)
+            {
+                SL_Socket_CommonAPI::socket_set_block(fd, true);
+                if (accept_thread_group_.start(accept_proc, this, accept_thread_num_, accept_thread_num_) < 0)
+                {
+                    ret = -8;
+                    goto EXCEPTION_EXIT_PROC;
+                }
+            }
+            else
+            {
+                if (socket_runner_->add_handle(&server_handler_, SL_Socket_Handler::READ_EVENT_MASK) < 0)
+                {
+                    ret = -9;
+                    goto EXCEPTION_EXIT_PROC;
+                }
+            }
+        }
+#endif
         socket_handler_ = &server_handler_;
+        return 0;
 
 EXCEPTION_EXIT_PROC:
         server_handler_.set_socket(SL_INVALID_SOCKET);
@@ -152,10 +182,11 @@ EXCEPTION_EXIT_PROC:
         return 0;
     }
     
-    inline int set_interface(TObjectPool *object_pool, SL_Socket_Runner *socket_runner)
+    inline int set_interface(TObjectPool *object_pool, SL_Socket_Runner *socket_runner, SL_Socket_Runner *accept_runner = NULL)
     {
         object_pool_    = object_pool;
         socket_runner_  = socket_runner;
+        accept_runner_  = accept_runner;
         return 0;
     }
 
@@ -176,10 +207,7 @@ EXCEPTION_EXIT_PROC:
 
     inline void free_handler(SL_Socket_Handler *socket_handler)
     {
-        if (socket_handler_ != socket_handler)
-        {
-            object_pool_->free_object((TClientHandler *)socket_handler);
-        }
+        object_pool_->free_object((TClientHandler *)socket_handler);
         return;
     }
 
@@ -198,20 +226,19 @@ private:
         SL_SOCKET client_socket;
         SL_SOCKET listen_fd = tcpserver->server_handler_.get_socket();
 
-        while (1)
+        while (tcpserver->accept_thread_group_.get_running())
         {
-            if (!tcpserver->accept_thread_group_.get_running())
-            {
-                break;
-            }
             client_socket = SL_Socket_CommonAPI::socket_accept(listen_fd, addr, &addrlen);
-            if (SL_INVALID_SOCKET == client_socket)
+            if (SL_INVALID_SOCKET != client_socket)
             {
-                continue;
+                if (tcpserver->get_socket_handler()->handle_accept(client_socket, sl_addr) < 0)
+                {
+                    SL_Socket_CommonAPI::socket_close(client_socket);
+                }
             }
-            if (tcpserver->get_socket_handler()->handle_accept(client_socket, sl_addr) < 0)
-            {
-                SL_Socket_CommonAPI::socket_close(client_socket);
+            else
+            {//关闭TcpServer::socket_,进而促使accept线程退出
+                break;
             }
         }
         return 0;
@@ -223,8 +250,9 @@ protected:
     uint                maxconnect_num_;
     ushort              accept_thread_num_;
     SL_Thread_Group     accept_thread_group_;
-    TServerHandler      server_handler_;
+    SL_Socket_Runner    *accept_runner_;            //接收新连接的运行器
     TObjectPool         *object_pool_;
+    TServerHandler      server_handler_;
 };
 
 #endif

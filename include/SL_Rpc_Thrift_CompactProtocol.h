@@ -245,7 +245,7 @@ public:
 
     inline uint32_t writeString(const std::string& str)
     {
-        return writeBinary(str);        
+        return writeBinary(str);
     }
 
     inline uint32_t writeBinary(const std::string& str)
@@ -653,21 +653,26 @@ public:
         int32_t  msize = 0;
 
         uint32_t rsize = readVarint32(msize);
-        if (msize != 0)
+        if (msize > 0)
         {
-            rsize += readByte(kvType);
+            rsize  += readByte(kvType);
+            keyType = getTType((int8_t)((uint8_t)kvType >> 4));
+            valType = getTType((int8_t)((uint8_t)kvType & 0xf));
+            size = (uint32_t)msize;
+            return rsize;
         }
-
-        if (msize < 0)
+        else if (msize == 0)
         {
+            keyType = getTType(0);
+            valType = getTType(0);
+            size = (uint32_t)msize;
+            return rsize;
+        }
+        else
+        {//msize < 0
             throw TProtocolException(TProtocolException::NEGATIVE_SIZE);
+            return 0;
         }
-
-        keyType = getTType((int8_t)((uint8_t)kvType >> 4));
-        valType = getTType((int8_t)((uint8_t)kvType & 0xf));
-        size = (uint32_t)msize;
-
-        return rsize;
     }
 
     inline uint32_t readListBegin(TType& elemType, uint32_t& size)
@@ -677,20 +682,22 @@ public:
 
         uint32_t rsize = readByte(size_and_type);
         lsize = ((uint8_t)size_and_type >> 4) & 0x0f;
-        if (lsize == 15) 
+        if (lsize == 15)
         {
             rsize += readVarint32(lsize);
         }
 
-        if (lsize < 0) 
+        if (lsize >= 0)
+        {
+            elemType = getTType((int8_t)(size_and_type & 0x0f));
+            size = (uint32_t)lsize;
+            return rsize;
+        }
+        else
         {
             throw TProtocolException(TProtocolException::NEGATIVE_SIZE);
+            return 0;
         }
-
-        elemType = getTType((int8_t)(size_and_type & 0x0f));
-        size = (uint32_t)lsize;
-
-        return rsize;
     }
 
     inline uint32_t readSetBegin(TType& elemType, uint32_t& size)
@@ -790,23 +797,22 @@ public:
     {
         int32_t size;
         int32_t rsize = readVarint32(size);
-
-        // Catch empty string case
-        if (size == 0) 
+        if (size > 0)
         {
+            char *b = readBuffer(size);
+            str.assign(b, size);
+            return rsize + (uint32_t)size;
+        }
+        else if (size < 0)
+        {// Catch error cases
+            throw TProtocolException(TProtocolException::NEGATIVE_SIZE);
+            return 0;
+        }
+        else
+        {// size == 0, Catch empty string case
             str.clear();
             return rsize;
         }
-
-        // Catch error cases
-        if (size < 0) 
-        {
-            throw TProtocolException(TProtocolException::NEGATIVE_SIZE);
-        }
-
-        char *b = readBuffer(size);
-        str.assign(b, size);
-        return rsize + (uint32_t)size;
     }
 
     /*

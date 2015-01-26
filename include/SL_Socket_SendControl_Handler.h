@@ -1,15 +1,12 @@
 #ifndef SOCKETLITE_SOCKET_SEND_CONTROL_HANDLER_H
 #define SOCKETLITE_SOCKET_SEND_CONTROL_HANDLER_H
 
-#include <list>
 #include <deque>
-
 #include "SL_Config.h"
 #include "SL_Crypto.h"
 #include "SL_ByteBuffer.h"
 #include "SL_Sync_Mutex.h"
 #include "SL_Sync_Atomic.h"
-#include "SL_Queue.h"
 #include "SL_Socket_CommonAPI.h"
 #include "SL_Socket_Handler.h"
 #include "SL_Socket_Source.h"
@@ -111,17 +108,17 @@ public:
 
     inline size_t get_active_queue_size() const
     {
-        return 0;
+        return queue_active_->size();
     }
 
     inline size_t get_standby_queue_size() const
     {
-        return 0;
+        return queue_standby_->size();
     }
 
     inline size_t get_sendqueue_size() const
     {
-        return 0;
+        return queue1_.size() + queue2_.size();
     }
 
     inline int close_wait()
@@ -240,7 +237,7 @@ public:
 
     //发送数据
     //返回值：1)< 0 表示发送失败 2)=0 表示数据进入发送队列 3)>0 数据已发送成功
-    inline int put_data(const char *msg, int len, bool timedwait_signal = true)
+    inline int put_data(const char *msg, int len)
     {
         if (SL_Socket_Handler::STATUS_OPEN == TSocketHandler::current_status_)
         {
@@ -258,7 +255,7 @@ public:
                     int encrypt_len = ret + msglen_bytes;
                     tmsg.data_end(encrypt_len);
                     TSocketHandler::get_socket_source()->set_msglen_proc_(tmsg.buffer(), encrypt_len);
-                    ret = put_data_i(tmsg, timedwait_signal);
+                    ret = put_data_i(tmsg);
                     mutex_.unlock();
                     return ret;
                 }
@@ -271,7 +268,7 @@ public:
             else
             {
                 mutex_.lock();
-                int ret = put_data_i(msg, len, timedwait_signal);
+                int ret = put_data_i(msg, len);
                 mutex_.unlock();
                 return ret;
             }
@@ -281,7 +278,7 @@ public:
 
     //发送数据
     //返回值：1)< 0 发送失败 2)=0 数据进入发送队列 3)>0 数据已发送成功
-    inline int put_data(TByteBuffer &msg, bool timedwait_signal = true)
+    inline int put_data(TByteBuffer &msg)
     {
         if (SL_Socket_Handler::STATUS_OPEN == TSocketHandler::current_status_)
         {
@@ -299,7 +296,7 @@ public:
                     int encrypt_len = ret + msglen_bytes;
                     tmsg.data_end(encrypt_len);
                     TSocketHandler::get_socket_source()->set_msglen_proc_(tmsg.buffer(), encrypt_len);
-                    ret = put_data_i(tmsg, timedwait_signal);
+                    ret = put_data_i(tmsg);
                     mutex_.unlock();
                     return ret;
                 }
@@ -312,7 +309,7 @@ public:
             else
             {
                 mutex_.lock();
-                int ret = put_data_i(msg, timedwait_signal);
+                int ret = put_data_i(msg);
                 mutex_.unlock();
                 return ret;
             }
@@ -364,21 +361,14 @@ private:
             }
         }
 
-        int node_count = 0;
+        int queue_size = queue_active_->size();
+        int node_count = (queue_size < iovcnt) ? queue_size : iovcnt;
         typename SendQueue::iterator iter = queue_active_->begin();
-        typename SendQueue::iterator iter_end = queue_active_->end();
-        for (; iter != iter_end; ++iter)
+        for (int i = 0; i < node_count; ++i)
         {
-            if (node_count < iovcnt)
-            {
-                iov[node_count].iov_len  = (*iter).data_size();
-                iov[node_count].iov_base = (*iter).data();
-            }
-            else
-            {
-                break;
-            }
-            ++node_count;
+            iov[i].iov_len  = (*iter).data_size();
+            iov[i].iov_base = (*iter).data();
+            ++iter;
         }
 
         //发送数据
@@ -445,7 +435,7 @@ private:
         return WRITE_RETURN_NOT_DATA;
     }
 
-    inline int put_data_i(const char *msg, int len, bool timedwait_signal)
+    inline int put_data_i(const char *msg, int len)
     {
         if (queue_standby_->empty() && queue_active_->empty())
         {
@@ -465,10 +455,7 @@ private:
                     TByteBuffer tmsg(len - send_bytes);
                     tmsg.write(msg + send_bytes, len - send_bytes);
                     queue_standby_->push_back(tmsg);
-                    if (timedwait_signal)
-                    {
-                        handler_manager_->wakeup_thread(send_thread_index_);
-                    }
+                    handler_manager_->wakeup_thread(send_thread_index_);
                     return 0;
                 }
                 else
@@ -490,14 +477,11 @@ private:
         TByteBuffer tmsg(len);
         tmsg.write(msg, len);
         queue_standby_->push_back(tmsg);
-        if (timedwait_signal)
-        {
-            handler_manager_->wakeup_thread(send_thread_index_);
-        }
+        handler_manager_->wakeup_thread(send_thread_index_);
         return 0;
     }
 
-    inline int put_data_i(TByteBuffer &tmsg, bool timedwait_signal)
+    inline int put_data_i(TByteBuffer &tmsg)
     {
         if (queue_standby_->empty() && queue_active_->empty())
         {
@@ -535,16 +519,12 @@ private:
         }
 
         queue_standby_->push_back(tmsg);
-        if (timedwait_signal)
-        {
-            handler_manager_->wakeup_thread(send_thread_index_);
-        }
+        handler_manager_->wakeup_thread(send_thread_index_);
         return 0;
     }
 
 protected:
-    typedef std::list<TByteBuffer> SendQueue;
-    //typedef std::deque<TByteBuffer> SendQueue;
+    typedef std::deque<TByteBuffer> SendQueue;
 
     SendQueue       *queue_active_;
     SendQueue       *queue_standby_;

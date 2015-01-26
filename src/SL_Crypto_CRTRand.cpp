@@ -9,14 +9,12 @@
 
 #include <stdlib.h>
 #include <time.h>
-#include <memory.h>
 #include <math.h>
-#include <string.h>
 #include "SL_Crypto_CRTRand.h"
 
 SL_Crypto_CRTRand::SL_Crypto_CRTRand()
 {
-	seed();
+    seed();
 }
 
 SL_Crypto_CRTRand::~SL_Crypto_CRTRand()
@@ -39,12 +37,12 @@ int SL_Crypto_CRTRand::random_int()
 {
     return rand();
 
-	//int ret = ::rand();
-	//if (ret > RAND_MAX/2)
-	//{
-	//	ret = ret<<16 | ret;
-	//}
-	//return ret;
+    //int ret = ::rand();
+    //if (ret > RAND_MAX/2)
+    //{
+    //	ret = ret<<16 | ret;
+    //}
+    //return ret;
 }
 
 int SL_Crypto_CRTRand::random_int(int low, int high)
@@ -80,6 +78,6 @@ int SL_Crypto_CRTRand::random_byte(char *out, unsigned int out_len, int low, int
 */
 bool SL_Crypto_CRTRand::random_chance(double p)
 {
-	return (SL_Crypto_Rand::random_double(0, 1) < p);
+    return (SL_Crypto_Rand::random_double(0, 1) < p);
 }
 

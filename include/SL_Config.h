@@ -30,8 +30,8 @@
 
 #define SOCKETLITE_MAJOR_VERSION        3
 #define SOCKETLITE_MINOR_VERSION        6
-#define SOCKETLITE_SUB_MINOR_VERSION    12
-#define SOCKETLITE_VERSION_STRING       "3.6.12"
+#define SOCKETLITE_SUB_MINOR_VERSION    48
+#define SOCKETLITE_VERSION_STRING       "3.6.48"
 
 #ifdef _DEBUG
     #define SOCKETLITE_DEBUG
@@ -376,6 +376,7 @@
 #include "SL_DataType.h"
 #include "SL_Malloc.h"
 #include "SL_Hash_Fun.h"
+#include "SL_Utility.h"
 
 #endif
 

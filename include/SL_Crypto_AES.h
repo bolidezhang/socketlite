@@ -25,7 +25,7 @@ public:
 private:
     AES_KEY encrypt_key_;
     AES_KEY decrypt_key_;
-    int		mode_;
+    int mode_;
 };
 
 #else
@@ -48,7 +48,7 @@ public:
     int decrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num = NULL, unsigned char *ecount_buf = NULL);
 
 private:
-	int	mode_;
+    int mode_;
 };
 #endif
 

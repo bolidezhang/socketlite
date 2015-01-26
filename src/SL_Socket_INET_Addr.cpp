@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "SL_Socket_INET_Addr.h"
+#include "SL_Utility_Memory.h"
 
 SL_Socket_INET_Addr::SL_Socket_INET_Addr()
     : addr_type_(IPV4)
@@ -19,7 +20,6 @@ SL_Socket_INET_Addr::~SL_Socket_INET_Addr()
 
 void SL_Socket_INET_Addr::reset()
 {
-    memset(&inet_addr_, 0, sizeof(inet_addr_));
     if (addr_type_ == IPV4)
     {
         inet_addr_.in4.sin_family = AF_INET;
@@ -126,7 +126,6 @@ bool SL_Socket_INET_Addr::is_ipv6() const
 // 2)gethostbyname(建议使用getaddrinfo, 此函数已被弃用deprecated)
 int SL_Socket_INET_Addr::set(const char *hostname, ushort port, bool is_ipv6)
 {
-    memset(&inet_addr_, 0, sizeof(inet_addr_));
     char str_port[7] = {0};
     sprintf(str_port, "%d", port);
 #ifdef SOCKETLITE_HAVE_IPV6    
@@ -160,12 +159,12 @@ int SL_Socket_INET_Addr::set(const char *hostname, ushort port, bool is_ipv6)
     }    
     if (ret->ai_family == AF_INET)
     {
-        memcpy(&inet_addr_.in4, ret->ai_addr, ret->ai_addrlen);
+        sl_memcpy(&inet_addr_.in4, ret->ai_addr, ret->ai_addrlen);
         inet_addr_.in4.sin_port = htons(port);
     }
     else
     {
-        memcpy(&inet_addr_.in6, ret->ai_addr, ret->ai_addrlen);
+        sl_memcpy(&inet_addr_.in6, ret->ai_addr, ret->ai_addrlen);
         inet_addr_.in6.sin6_port = htons(port);
     }
     freeaddrinfo(ret);
@@ -186,7 +185,7 @@ int SL_Socket_INET_Addr::set(const char *hostname, ushort port, bool is_ipv6)
         }
         return -1;
     }    
-    memcpy(&inet_addr_.in4, ret->ai_addr, ret->ai_addrlen);
+    sl_memcpy(&inet_addr_.in4, ret->ai_addr, ret->ai_addrlen);
     inet_addr_.in4.sin_port = htons(port);
 #endif
     return 0;
@@ -198,16 +197,16 @@ int SL_Socket_INET_Addr::set(const struct sockaddr *addr, int addrlen)
     if (addr->sa_family == AF_INET)
     {
         addr_type_ = IPV4;
-        memcpy(&inet_addr_.in4, addr, addrlen);
+        sl_memcpy(&inet_addr_.in4, addr, addrlen);
     }
     else
     {
         addr_type_ = IPV6;
-        memcpy(&inet_addr_.in6, addr, addrlen);
+        sl_memcpy(&inet_addr_.in6, addr, addrlen);
     }
 #else
     addr_type_ = IPV4;
-    memcpy(&inet_addr_.in4, addr, addrlen);
+    sl_memcpy(&inet_addr_.in4, addr, addrlen);
 #endif
     return 0;
 }
@@ -239,25 +238,26 @@ int SL_Socket_INET_Addr::set(SL_SOCKET fd)
 {
     sockaddr_storage ss;
     int ss_len = sizeof(sockaddr_storage);
-    memset(&ss, 0, ss_len);
     int ret = getpeername(fd, (sockaddr *)&ss, (socklen_t *)&ss_len);
     if (ret != 0)
+    {
         return ret;
+    }
 
 #ifdef SOCKETLITE_HAVE_IPV6
     if (ss.ss_family == AF_INET)
     {//IPV4
         addr_type_ = IPV4;
-        memcpy(&inet_addr_.in4, &ss, sizeof(inet_addr_.in4));
+        sl_memcpy(&inet_addr_.in4, &ss, sizeof(inet_addr_.in4));
     }
     else
     {//IPV6
         addr_type_ = IPV6;
-        memcpy(&inet_addr_.in6, &ss, sizeof(inet_addr_.in6));
+        sl_memcpy(&inet_addr_.in6, &ss, sizeof(inet_addr_.in6));
     }            
 #else
     addr_type_ = IPV4;
-    memcpy(&inet_addr_.in4, &ss, sizeof(inet_addr_.in4));
+    sl_memcpy(&inet_addr_.in4, &ss, sizeof(inet_addr_.in4));
 #endif
     return 0;
 }
@@ -266,7 +266,6 @@ int SL_Socket_INET_Addr::get_ip_remote_s(SL_SOCKET fd, char *ip_addr, int ip_len
 {
     sockaddr_storage ss;
     int ss_len = sizeof(sockaddr_storage);
-    memset(&ss, 0, ss_len);
     int ret = getpeername(fd, (sockaddr *)&ss,(socklen_t *)&ss_len);
     if (ret != 0)
     {
@@ -298,7 +297,6 @@ int SL_Socket_INET_Addr::get_ip_local_s(SL_SOCKET fd, char *ip_addr, int ip_len,
 {
     sockaddr_storage ss;
     int ss_len = sizeof(sockaddr_storage);
-    memset(&ss, 0, ss_len);
     int ret  = getsockname(fd, (sockaddr *)&ss, (socklen_t *)&ss_len);
     if (ret != 0)
     {
@@ -382,7 +380,7 @@ int SL_Socket_INET_Addr::get_addr_s(const char *hostname, ushort port, sockaddr 
         }
         return -1;
     }    
-    memcpy(addr, ret->ai_addr, ret->ai_addrlen);
+    sl_memcpy(addr, ret->ai_addr, ret->ai_addrlen);
     freeaddrinfo(ret);
     if (addr->sa_family == AF_INET)
     {

@@ -92,7 +92,7 @@ public:
     {
         event_loop_thread_.stop();
         event_loop_thread_.join();
-		if (NULL != socket_pollfds_)
+        if (NULL != socket_pollfds_)
         {
             delete []socket_pollfds_;
             socket_pollfds_ = NULL;
@@ -105,21 +105,16 @@ public:
 
     inline inline int add_handle(SL_Socket_Handler *socket_handler, int event_mask)
     {
-        if (socket_handler->socket_ < 0)
-        {
-            return -1;
-        }
-
         mutex_.lock();
         if (socket_handler->event_mask_ != SL_Socket_Handler::NULL_EVENT_MASK)
         {
             mutex_.unlock();
-            return -2;
+            return -1;
         }
         if (socket_handlers_.size() >= (max_size_ - temp_handlers_standby_->size()))
         {
             mutex_.unlock();
-            return -3;
+            return -2;
         }
 #ifdef SOCKETLITE_RUNNER_EVENTMASK_ONLYREAD
         socket_handler->event_mask_ = SL_Socket_Handler::READ_EVENT_MASK;
@@ -147,16 +142,11 @@ public:
 
     inline int del_handle(SL_Socket_Handler *socket_handler)
     {
-        if (socket_handler->socket_ < 0)
-        {
-            return -1;
-        }
-
         mutex_.lock();
         if (SL_Socket_Handler::NULL_EVENT_MASK == socket_handler->event_mask_)
         {
             mutex_.unlock();
-            return -2;
+            return -1;
         }
         socket_handler->event_mask_ = SL_Socket_Handler::NULL_EVENT_MASK;
         (*temp_handlers_standby_)[socket_handler] = DEL_HANDLE;
@@ -335,7 +325,7 @@ public:
         if (ret > 0)
         {
 #ifdef SOCKETLITE_RUNNER_EVENTMASK_ONLYREAD
-            for (uint i=0; i<socket_pollfds_size; ++i)
+            for (uint i = 0; i < socket_pollfds_size; ++i)
             {
                 if (socket_pollfds_[i].revents & POLLIN)
                 {
@@ -351,7 +341,7 @@ public:
                 }
             }
 #else
-            for (uint i=0; i<socket_pollfds_size; ++i)
+            for (uint i = 0; i < socket_pollfds_size; ++i)
             {
                 if (socket_pollfds_[i].revents & POLLIN)
                 {
@@ -427,13 +417,9 @@ public:
 
     static void* event_loop_proc(void *arg)
     {
-        SL_Socket_Poll_Runner<TSyncMutex> *runner = (SL_Socket_Poll_Runner<TSyncMutex>*)arg;
-        while (1)
+        SL_Socket_Poll_Runner<TSyncMutex> *runner = (SL_Socket_Poll_Runner<TSyncMutex> *)arg;
+        while (runner->event_loop_thread_.get_running())
         {
-            if (!runner->event_loop_thread_.get_running())
-            {
-                break;
-            }
             runner->event_loop(runner->max_timeout_);
         }
         runner->event_loop_thread_.exit();
@@ -441,8 +427,8 @@ public:
     }
 
 private:
-    typedef std::vector<SL_Socket_Handler* >    SOCKET_HANDLES;
-    typedef std::map<SL_Socket_Handler*, int>   TEMP_SOCKET_HANDLES;
+    typedef std::vector<SL_Socket_Handler * >   SOCKET_HANDLES;
+    typedef std::map<SL_Socket_Handler *, int>  TEMP_SOCKET_HANDLES;
     enum
     {
         ADD_HANDLE      = 1,

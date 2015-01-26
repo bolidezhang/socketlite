@@ -3,7 +3,7 @@
 #ifdef SOCKETLITE_USE_OPENSSL
 SL_Crypto_SHA1::SL_Crypto_SHA1()
 {
-	init();
+    init();
 }
 
 SL_Crypto_SHA1::~SL_Crypto_SHA1()
@@ -12,38 +12,38 @@ SL_Crypto_SHA1::~SL_Crypto_SHA1()
 
 int SL_Crypto_SHA1::get_digest_len()
 {
-	return SHA_DIGEST_LENGTH;
+    return SHA_DIGEST_LENGTH;
 }
 
 int SL_Crypto_SHA1::init()
 {
-	return SHA1_Init(&ctx_);
+    return SHA1_Init(&ctx_);
 }
 
 int SL_Crypto_SHA1::update(const unsigned char *in, unsigned int in_len)
 {
-	return SHA1_Update(&ctx_, in, in_len);
+    return SHA1_Update(&ctx_, in, in_len);
 }
 
 int SL_Crypto_SHA1::final(unsigned char *digest)
 {
-	SHA1_Final(digest, &ctx_);
+    SHA1_Final(digest, &ctx_);
 
-	//recover init status
-	SHA1_Init(&ctx_);
+    //recover init status
+    SHA1_Init(&ctx_);
 
-	return 0;
+    return 0;
 }
 
 int SL_Crypto_SHA1::final(const unsigned char *in, unsigned int in_len, unsigned char *digest)
 {
-	SHA1_Update(&ctx_, in, in_len);
-	SHA1_Final(digest, &ctx_);
+    SHA1_Update(&ctx_, in, in_len);
+    SHA1_Final(digest, &ctx_);
 
-	//recover init status
-	SHA1_Init(&ctx_);
+    //recover init status
+    SHA1_Init(&ctx_);
 
-	return 0;
+    return 0;
 }
 
 #else
@@ -68,12 +68,12 @@ int SL_Crypto_SHA1::init()
 
 int SL_Crypto_SHA1::update(const unsigned char *in, unsigned int in_len)
 {
-	return 0;
+    return 0;
 }
 
 int SL_Crypto_SHA1::final(unsigned char *digest)
 {
-	return 0;
+    return 0;
 }
 
 int SL_Crypto_SHA1::final(const unsigned char *in, unsigned int in_len, unsigned char *digest)

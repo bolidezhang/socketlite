@@ -68,12 +68,12 @@ int SL_Crypto_SHA256::init()
 
 int SL_Crypto_SHA256::update(const unsigned char *in, unsigned int in_len)
 {
-	return 0;
+    return 0;
 }
 
 int SL_Crypto_SHA256::final(unsigned char *digest)
 {
-	return 0;
+    return 0;
 }
 
 int SL_Crypto_SHA256::final(const unsigned char *in, unsigned int in_len, unsigned char *digest)

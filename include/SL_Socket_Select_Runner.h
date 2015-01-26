@@ -12,6 +12,7 @@
 #include "SL_Sync_Mutex.h"
 #include "SL_Thread.h"
 #include "SL_ByteBuffer.h"
+#include "SL_Utility_Memory.h"
 
 #ifndef SOCKETLITE_OS_WINDOWS
     #include <sys/select.h>
@@ -94,21 +95,16 @@ public:
 
     inline int add_handle(SL_Socket_Handler *socket_handler, int event_mask)
     {
-        if ( (socket_handler->socket_ < 0) || (socket_handler->socket_ == SL_INVALID_SOCKET) )
-        {
-            return -1;
-        }
-
         mutex_.lock();
         if (socket_handler->event_mask_ > SL_Socket_Handler::NULL_EVENT_MASK)
         {
             mutex_.unlock();
-            return -2;
+            return -1;
         }
         if (socket_handlers_.size() >= (max_size_ - temp_handlers_standby_->size()))
         {
             mutex_.unlock();
-            return -3;
+            return -2;
         }
 
 #ifdef SOCKETLITE_RUNNER_EVENTMASK_ONLYREAD
@@ -141,16 +137,11 @@ public:
 
     inline int del_handle(SL_Socket_Handler *socket_handler)
     {
-        if ( (socket_handler->socket_ < 0) || (socket_handler->socket_ == SL_INVALID_SOCKET) )
-        {
-            return -1;
-        }
-
         mutex_.lock();
         if (SL_Socket_Handler::NULL_EVENT_MASK == socket_handler->event_mask_)
         {
             mutex_.unlock();
-            return -2;
+            return -1;
         }
 
 #ifdef SOCKETLITE_RUNNER_EVENTMASK_ONLYREAD
@@ -296,10 +287,10 @@ public:
             //fd_set的复制方法:
             //  1)标准的memcpy(&fd_set_out_.read, &fd_set_in_.read, sizeof(fd_set))
             //  2)fd_set的赋值操作(fd_set_out_.read = fd_set_in_.read)
-            memcpy(&fd_set_out_.read, &fd_set_in_.read, sizeof(fd_set));
+            sl_memcpy(&fd_set_out_.read, &fd_set_in_.read, sizeof(fd_set));
 #ifndef SOCKETLITE_RUNNER_EVENTMASK_ONLYREAD
-            memcpy(&fd_set_out_.write, &fd_set_in_.write, sizeof(fd_set));
-            memcpy(&fd_set_out_.except, &fd_set_in_.except, sizeof(fd_set));
+            sl_memcpy(&fd_set_out_.write, &fd_set_in_.write, sizeof(fd_set));
+            sl_memcpy(&fd_set_out_.except, &fd_set_in_.except, sizeof(fd_set));
 #endif
             mutex_.unlock();
 
@@ -381,10 +372,10 @@ public:
             //fd_set的复制方法:
             //  1)标准的memcpy(&fd_set_out_.read, &fd_set_in_.read, sizeof(fd_set))
             //  2)fd_set的赋值操作(fd_set_out_.read = fd_set_in_.read)
-            memcpy(&fd_set_out_.read, &fd_set_in_.read, sizeof(fd_set));
+            sl_memcpy(&fd_set_out_.read, &fd_set_in_.read, sizeof(fd_set));
 #ifndef SOCKETLITE_RUNNER_EVENTMASK_ONLYREAD
-            memcpy(&fd_set_out_.write, &fd_set_in_.write, sizeof(fd_set));
-            memcpy(&fd_set_out_.except, &fd_set_in_.except, sizeof(fd_set));
+            sl_memcpy(&fd_set_out_.write, &fd_set_in_.write, sizeof(fd_set));
+            sl_memcpy(&fd_set_out_.except, &fd_set_in_.except, sizeof(fd_set));
 #endif
             mutex_.unlock();
         }
@@ -528,12 +519,8 @@ public:
 #endif
     {
         SL_Socket_Select_Runner<TSyncMutex> *runner = (SL_Socket_Select_Runner<TSyncMutex> *)arg;
-        while (1)
+        while (runner->event_loop_thread_.get_running())
         {
-            if (!runner->event_loop_thread_.get_running())
-            {
-                break;
-            }
             runner->event_loop(runner->max_timeout_ms_);
         }
         runner->event_loop_thread_.exit();
@@ -541,8 +528,8 @@ public:
     }
 
 private:
-    typedef std::vector<SL_Socket_Handler* >    SOCKET_HANDLES;
-    typedef std::map<SL_Socket_Handler*, int>   TEMP_SOCKET_HANDLES;
+    typedef std::vector<SL_Socket_Handler * >   SOCKET_HANDLES;
+    typedef std::map<SL_Socket_Handler *, int>  TEMP_SOCKET_HANDLES;
 
     enum
     {

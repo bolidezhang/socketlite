@@ -86,7 +86,6 @@ public:
                     temp_timer->state_ = SL_Timer::TIMER_STATE_IDLE;
                     add_timer_i(temp_timer);
                 }
-                iter_end = timer_list_.end();
             }
             else
             {
@@ -133,14 +132,10 @@ private:
 #endif
     {
         SL_Timer_List_Time<TSyncMutex> *timer_list = (SL_Timer_List_Time<TSyncMutex>*)arg;
-        while (1)
+        while (timer_list->timer_loop_thread_.get_running())
         {
-            if (!timer_list->timer_loop_thread_.get_running())
-            {
-                break;
-            }
-            SL_Socket_CommonAPI::util_sleep_ms(timer_list->interval_ms_);
             timer_list->timer_loop();
+            SL_Socket_CommonAPI::util_sleep_ms(timer_list->interval_ms_);
         }
         timer_list->timer_loop_thread_.exit();
         return 0;
@@ -167,8 +162,8 @@ private:
         else
         {
             SL_Timer *temp_timer;
-            std::list<SL_Timer* >::iterator iter = timer_list_.begin();
-            std::list<SL_Timer* >::iterator iter_end = timer_list_.end();
+            std::list<SL_Timer * >::iterator iter = timer_list_.begin();
+            std::list<SL_Timer * >::iterator iter_end = timer_list_.end();
             for (; iter != iter_end; ++iter)
             {
                 temp_timer = *iter;
@@ -201,7 +196,7 @@ private:
     }
 
     TSyncMutex              mutex_;
-    std::list<SL_Timer* >   timer_list_;
+    std::list<SL_Timer * >  timer_list_;
 
     struct timeval          repair_;
     uint                    interval_ms_;

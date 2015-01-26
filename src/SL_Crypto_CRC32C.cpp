@@ -298,7 +298,7 @@ static inline uint32_t CRC32C_LE_LOAD32(const uint8 *p)
     #if SOCKETLITE_BYTE_ORDER == __SOCKETLITE_LITTLE_ENDIAN
         // Load the raw bytes
         uint32 result;
-        memcpy(&result, ptr, sizeof(uint32));  // gcc optimizes this to a plain load
+        sl_memcpy(&result, ptr, sizeof(uint32));  // gcc optimizes this to a plain load
         return result;
     #else
         return ((static_cast<uint32>(static_cast<unsigned char>(ptr[0])))
@@ -338,7 +338,7 @@ int SL_Crypto_CRC32C::final(unsigned char *checksum, uint len)
 {
     assert(checksum && (len >= sizeof(uint32)));
 
-    memcpy(checksum, (char *)&checksum_, sizeof(uint32));
+    sl_memcpy(checksum, (char *)&checksum_, sizeof(uint32));
     checksum_ = 0;
     return sizeof(int32);
 }
@@ -348,7 +348,7 @@ int SL_Crypto_CRC32C::final(const unsigned char *in, uint in_len, unsigned char 
     assert(out && (out_len >= sizeof(uint32)));
 
     checksum_ = checksum(in, in_len, checksum_);
-    memcpy(out, (char *)&checksum_, sizeof(uint32));
+    sl_memcpy(out, (char *)&checksum_, sizeof(uint32));
     checksum_ = 0;
     return sizeof(uint32);
 }

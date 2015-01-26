@@ -191,10 +191,12 @@
     <ClInclude Include="..\include\SL_Timer_List_Time.h" />
     <ClInclude Include="..\include\SL_Timer_Queue.h" />
     <ClInclude Include="..\include\SL_TLS.h" />
+    <ClInclude Include="..\include\SL_Utility.h" />
     <ClInclude Include="..\include\SL_Utility_CircularQueue.h" />
     <ClInclude Include="..\include\SL_Utility_HashTreeMap.h" />
     <ClInclude Include="..\include\SL_Utility_HashTreeSet.h" />
     <ClInclude Include="..\include\SL_Utility_LockFreeQueue .h" />
+    <ClInclude Include="..\include\SL_Utility_Math.h" />
     <ClInclude Include="..\include\SL_Utility_RingBuffer.h" />
     <ClInclude Include="..\include\SL_Utility_TwoLockQueue.h" />
     <ClInclude Include="..\include\SL_Utility_TwoPointerSwapQueue.h" />
@@ -247,6 +249,7 @@
     <ClCompile Include="SL_Crypto_SHA256.cpp" />
     <ClCompile Include="SL_Crypto_SHA512.cpp" />
     <ClCompile Include="SL_Rpc_Thrift_CompactProtocol.cpp" />
+    <ClCompile Include="SL_Utility_Memory.cpp" />
     <ClCompile Include="thrift\TApplicationException.cpp" />
     <ClCompile Include="thrift\Thrift.cpp" />
     <ClCompile Include="thrift\protocol\TBinaryProtocol.cpp" />

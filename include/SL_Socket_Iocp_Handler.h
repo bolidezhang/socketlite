@@ -41,7 +41,7 @@ public:
     {
     }
 
-    virtual int handle_open(SL_SOCKET fd, SL_Socket_Source *socket_source, SL_Socket_Runner *socket_runner)
+    inline int handle_open(SL_SOCKET fd, SL_Socket_Source *socket_source, SL_Socket_Runner *socket_runner)
     {
         SL_Socket_Handler::handle_open(fd, socket_source, socket_runner);
         per_io_data_.data_buffer.reserve(socket_source_->get_recvbuffer_size());
@@ -53,7 +53,7 @@ public:
     }
 
     //投递接收操作
-    virtual int post_recv()
+    inline int post_recv()
     {
         //重置IO操作数据
         DWORD flag = 0;
@@ -74,7 +74,7 @@ public:
     }
 
     //投递发送事件
-    virtual int post_send()
+    inline int post_send()
     {
         return 0;
     }

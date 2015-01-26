@@ -12,8 +12,8 @@ SL_Thread_Group::~SL_Thread_Group()
 
 int SL_Thread_Group::clear()
 {
-    std::vector<SL_Thread* >::iterator iter = threads_.begin();
-    std::vector<SL_Thread* >::iterator iter_end = threads_.end();
+    std::vector<SL_Thread * >::iterator iter = threads_.begin();
+    std::vector<SL_Thread * >::iterator iter_end = threads_.end();
     for (; iter != iter_end; ++iter)
     {
         (*iter)->clear();
@@ -61,8 +61,8 @@ int SL_Thread_Group::start(SL_ThreadProc threadproc, void *arg, int max_thread_n
 int SL_Thread_Group::stop()
 {
     running_.store(0);
-    std::vector<SL_Thread* >::iterator iter = threads_.begin();
-    std::vector<SL_Thread* >::iterator iter_end = threads_.end();
+    std::vector<SL_Thread * >::iterator iter = threads_.begin();
+    std::vector<SL_Thread * >::iterator iter_end = threads_.end();
     for (; iter != iter_end; ++iter)
     {
         (*iter)->stop();
@@ -72,8 +72,8 @@ int SL_Thread_Group::stop()
 
 int SL_Thread_Group::join()
 {
-    std::vector<SL_Thread* >::iterator iter = threads_.begin();
-    std::vector<SL_Thread* >::iterator iter_end = threads_.end();
+    std::vector<SL_Thread * >::iterator iter = threads_.begin();
+    std::vector<SL_Thread * >::iterator iter_end = threads_.end();
     for (; iter != iter_end; ++iter)
     {
         (*iter)->join();
@@ -83,8 +83,8 @@ int SL_Thread_Group::join()
 
 int SL_Thread_Group::exit()
 {
-    std::vector<SL_Thread* >::iterator iter = threads_.begin();
-    std::vector<SL_Thread* >::iterator iter_end = threads_.end();
+    std::vector<SL_Thread * >::iterator iter = threads_.begin();
+    std::vector<SL_Thread * >::iterator iter_end = threads_.end();
     for (; iter != iter_end; ++iter)
     {
         (*iter)->exit();

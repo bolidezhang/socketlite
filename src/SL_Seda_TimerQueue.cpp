@@ -25,7 +25,7 @@ int SL_Seda_TimerQueue::init(uint queue_max_size, uint interval_ms, SL_Seda_ISta
         return -1;
     }
 
-    for (uint i=0; i<queue_max_size; ++i)
+    for (uint i = 0; i < queue_max_size; ++i)
     {
 #ifdef SOCKETLITE_DEBUG
         pool_[i].param_ = i;

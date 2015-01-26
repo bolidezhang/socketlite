@@ -23,24 +23,12 @@ public:
         clear();
     }
 
-    virtual TRunner* new_runner()
+    SL_Socket_Runner* assign_runner()
     {
-        TRunner *runner;
-        runner = new TRunner();
-        return runner;
-    }
-
-    virtual void delete_runner(TRunner *runner)
-    {
-        delete runner;
-    }
-
-    virtual SL_Socket_Runner* assign_runner()
-    {
-        uint runners_size = (uint)socket_runners_.size();
+        int runners_size = (int)socket_runners_.size();
         if (runners_size > 1)
         {
-    	    uint runner_index = next_runner_index_++;
+            int runner_index = next_runner_index_++;
             if (runner_index >= runners_size)
             {
                 runner_index -= runners_size;
@@ -48,14 +36,14 @@ public:
             }
             return socket_runners_[runner_index];
         }
-        else if (1 == runners_size)
+        else
         {
             return socket_runners_[0];
         }
         return NULL;
     }
 
-    int init(uint runner_num=10)
+    int init(uint runner_num = 10)
     {
         if (runner_num < 2)
         {
@@ -64,9 +52,9 @@ public:
 
         socket_runners_.reserve(runner_num);
         TRunner *runner;
-        for (int i=0; i<runner_num; ++i)
+        for (int i = 0; i < runner_num; ++i)
         {
-            runner = new_runner();
+            runner = new TRunner();
             socket_runners_.push_back(runner);
         }
         return 0;
@@ -74,11 +62,11 @@ public:
 
     int clear()
     {
-        typename std::vector<TRunner* >::iterator iter = socket_runners_.begin();
-        typename std::vector<TRunner* >::iterator iter_end = socket_runners_.end();
+        typename std::vector<TRunner * >::iterator iter = socket_runners_.begin();
+        typename std::vector<TRunner * >::iterator iter_end = socket_runners_.end();
         for (; iter != iter_end; ++iter)
         {
-            delete_runner(*iter);
+            delete (*iter);
         }
         socket_runners_.clear();
         return 0; 
@@ -87,8 +75,8 @@ public:
     inline int set_buffer_size(int recv_buffer_size=32768, int send_buffer_size=32768) 
     { 
         TRunner *runner;
-        typename std::vector<TRunner* >::iterator iter = socket_runners_.begin();
-        typename std::vector<TRunner* >::iterator iter_end = socket_runners_.end();
+        typename std::vector<TRunner * >::iterator iter = socket_runners_.begin();
+        typename std::vector<TRunner * >::iterator iter_end = socket_runners_.end();
         for (; iter != iter_end; ++iter)
         {
             runner = *iter;
@@ -100,8 +88,8 @@ public:
     int open(int event_mask, uint max_size, uint max_timeout_ms, uint thread_number, int handler_close_status = SL_Socket_Handler::STATUS_CLOSE) 
     { 
         TRunner *runner;
-        typename std::vector<TRunner* >::iterator iter = socket_runners_.begin();
-        typename std::vector<TRunner* >::iterator iter_end = socket_runners_.end();
+        typename std::vector<TRunner * >::iterator iter = socket_runners_.begin();
+        typename std::vector<TRunner * >::iterator iter_end = socket_runners_.end();
         for (; iter != iter_end; ++iter)
         {
             runner = *iter;
@@ -113,8 +101,8 @@ public:
     int close() 
     { 
         TRunner *runner;
-        typename std::vector<TRunner* >::iterator iter = socket_runners_.begin();
-        typename std::vector<TRunner* >::iterator iter_end = socket_runners_.end();
+        typename std::vector<TRunner * >::iterator iter = socket_runners_.begin();
+        typename std::vector<TRunner * >::iterator iter_end = socket_runners_.end();
         for (; iter != iter_end; ++iter)
         {
             runner = *iter;
@@ -171,8 +159,8 @@ public:
     {
         size_t handler_size = 0;
         TRunner *runner;
-        typename std::vector<TRunner* >::iterator iter = socket_runners_.begin();
-        typename std::vector<TRunner* >::iterator iter_end = socket_runners_.end();
+        typename std::vector<TRunner * >::iterator iter = socket_runners_.begin();
+        typename std::vector<TRunner * >::iterator iter_end = socket_runners_.end();
         for (; iter != iter_end; ++iter)
         {
             runner = *iter;
@@ -189,8 +177,8 @@ public:
     inline int event_loop(int timeout_ms)
     {
         TRunner *runner;
-        typename std::vector<TRunner* >::iterator iter = socket_runners_.begin();
-        typename std::vector<TRunner* >::iterator iter_end = socket_runners_.end();
+        typename std::vector<TRunner * >::iterator iter = socket_runners_.begin();
+        typename std::vector<TRunner * >::iterator iter_end = socket_runners_.end();
         for (; iter != iter_end; ++iter)
         {
             runner = *iter;
@@ -202,8 +190,8 @@ public:
     inline int thread_event_loop(int timeout_ms)
     {
         TRunner *runner;
-        typename std::vector<TRunner* >::iterator iter = socket_runners_.begin();
-        typename std::vector<TRunner* >::iterator iter_end = socket_runners_.end();
+        typename std::vector<TRunner * >::iterator iter = socket_runners_.begin();
+        typename std::vector<TRunner * >::iterator iter_end = socket_runners_.end();
         for (; iter != iter_end; ++iter)
         {
             runner = *iter;
@@ -215,8 +203,8 @@ public:
     inline int thread_wait()
     { 
         TRunner *runner;
-        typename std::vector<TRunner* >::iterator iter = socket_runners_.begin();
-        typename std::vector<TRunner* >::iterator iter_end = socket_runners_.end();
+        typename std::vector<TRunner * >::iterator iter = socket_runners_.begin();
+        typename std::vector<TRunner * >::iterator iter_end = socket_runners_.end();
         for (; iter != iter_end; ++iter)
         {
             runner = *iter;
@@ -228,8 +216,8 @@ public:
     inline int thread_stop()
     { 
         TRunner *runner;
-        typename std::vector<TRunner* >::iterator iter = socket_runners_.begin();
-        typename std::vector<TRunner* >::iterator iter_end = socket_runners_.end();
+        typename std::vector<TRunner * >::iterator iter = socket_runners_.begin();
+        typename std::vector<TRunner * >::iterator iter_end = socket_runners_.end();
         for (; iter != iter_end; ++iter)
         {
             runner = *iter;
@@ -239,8 +227,8 @@ public:
     }
 
 protected:
-    uint next_runner_index_;
-    std::vector<TRunner* > socket_runners_;
+    int next_runner_index_;
+    std::vector<TRunner * > socket_runners_;
 };
 
 #endif

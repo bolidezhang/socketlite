@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "SL_Socket_CommonAPI.h"
 #include "SL_Crypto_CRC32.h"
+#include "SL_Utility_Memory.h"
 
 /* Definitions for doing the crc four data bytes at a time. */
 #if !defined(SOCKETITE_CRC32_NO_BYFOUR)
@@ -680,7 +681,7 @@ int SL_Crypto_CRC32::final(unsigned char *checksum, uint len)
 {
     assert(checksum && (len >= sizeof(uint32)));
 
-    memcpy(checksum, (char *)&checksum_, sizeof(uint32));
+    sl_memcpy(checksum, (char *)&checksum_, sizeof(uint32));
     checksum_ = 0;
     return sizeof(int32);
 }
@@ -690,7 +691,7 @@ int SL_Crypto_CRC32::final(const unsigned char *in, uint in_len, unsigned char *
     assert(out && (out_len >= sizeof(uint32)));
 
     checksum_ = checksum(in, in_len, checksum_);
-    memcpy(out, (char *)&checksum_, sizeof(uint32));
+    sl_memcpy(out, (char *)&checksum_, sizeof(uint32));
     checksum_ = 0;
     return sizeof(uint32);
 }

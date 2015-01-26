@@ -1,6 +1,7 @@
 #ifndef SOCKETLITE_CIRCULAR_BYTEBUFFER_H
 #define SOCKETLITE_CIRCULAR_BYTEBUFFER_H
 #include "SL_Malloc.h"
+#include "SL_Utility_Memory.h"
 
 class SL_CircularBuffer
 {
@@ -50,7 +51,7 @@ public:
         int write_bytes = min(size, capacity - size);
         if (capacity - data_end_index_ >= write_bytes)
         {
-            memcpy(buffer_ + data_end_index_, data, write_bytes);
+            sl_memcpy(buffer_ + data_end_index_, data, write_bytes);
             data_end_index_ += write_bytes;
             if (data_end_index_ == capacity)
             {
@@ -60,9 +61,9 @@ public:
         else
         {
             int size_1 = capacity - data_end_index_;
-            memcpy(buffer_ + data_end_index_, data, size_1);
+            sl_memcpy(buffer_ + data_end_index_, data, size_1);
             int size_2 = write_bytes - size_1;
-            memcpy(buffer_, data + size_1, size_2);
+            sl_memcpy(buffer_, data + size_1, size_2);
             data_end_index_ = size_2;
         }
         data_size_ += write_bytes;
@@ -75,7 +76,7 @@ public:
         int read_bytes  = min(size, data_size_);
         if (capacity - data_begin_index_ >= read_bytes)
         {
-            memcpy(data, buffer_ + data_begin_index_, read_bytes);
+            sl_memcpy(data, buffer_ + data_begin_index_, read_bytes);
             data_begin_index_ += read_bytes;
             if (data_begin_index_ == capacity)
             {
@@ -85,9 +86,9 @@ public:
         else
         {
             int size_1 = capacity - data_begin_index_;
-            memcpy(data, buffer_ + data_begin_index_, size_1);
+            sl_memcpy(data, buffer_ + data_begin_index_, size_1);
             int size_2 = read_bytes - size_1;
-            memcpy(data + size_1, buffer_, size_2);
+            sl_memcpy(data + size_1, buffer_, size_2);
             data_begin_index_ = size_2;
         }
         data_size_ -= read_bytes;

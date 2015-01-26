@@ -22,6 +22,7 @@ public:
         , connect_timeout_(0)
         , is_connected_(false)
         , is_autoconnect_(false)
+        , object_pool_(NULL)
     {
         serveraddr_list_.reserve(3);
         set_config();
@@ -58,46 +59,40 @@ public:
 
     int close()
     {
-		mutex_.lock();
+        mutex_.lock();
         is_autoconnect_ = false;
         is_connected_   = false;
         if (NULL != socket_handler_)
         {
-            if (is_add_runner_)
-            {
-                socket_runner_->remove_handle(socket_handler_);
-            }
+            socket_runner_->remove_handle(socket_handler_);
             socket_handler_->close();
-			if (is_free_self_handler_)
-			{
-				free_handler(socket_handler_);
-			}
+            if (is_free_self_handler_)
+            {
+                free_handler(socket_handler_);
+            }
             socket_handler_ = NULL;
         }
-		mutex_.unlock();
+        mutex_.unlock();
         return 0;
     }
 
     int clear()
     {
-		mutex_.lock();
+        mutex_.lock();
         is_autoconnect_ = false;
         is_connected_   = false;
         if (NULL != socket_handler_)
         {
-            if (is_add_runner_)
-            {
-                socket_runner_->remove_handle(socket_handler_);
-            }
+            socket_runner_->remove_handle(socket_handler_);
             socket_handler_->close();
-			if (is_free_self_handler_)
-			{
-				free_handler(socket_handler_);
-			}
+            if (is_free_self_handler_)
+            {
+                free_handler(socket_handler_);
+            }
             socket_handler_ = NULL;
         }
         serveraddr_list_.clear();
-		mutex_.unlock();
+        mutex_.unlock();
         return 0;
     }
 
@@ -152,7 +147,7 @@ public:
                    uint  msgbuffer_size         = 4096, 
                    uint8 msglen_bytes           = 2,
                    uint8 msg_byteorder          = 0,
-				   bool  is_free_self_handler   = false)
+                   bool  is_free_self_handler   = false)
     {
         connect_timeout_        = connect_timeout;
         is_autoconnect_         = is_autoconnect;
@@ -161,7 +156,7 @@ public:
         msgbuffer_size_         = msgbuffer_size;
         msglen_bytes_           = msglen_bytes;
         msg_byteorder_          = msg_byteorder;
-		is_free_self_handler_   = is_free_self_handler;
+        is_free_self_handler_   = is_free_self_handler;
 
         switch (msglen_bytes)
         {
@@ -219,11 +214,11 @@ public:
 
     int remove_serveraddr(int pos)
     {
-        if ((pos < 0) || (pos > serveraddr_list_.size()-1))
+        if ((pos < 0) || (pos > serveraddr_list_.size() - 1))
         {
             return -1;
         }
-        serveraddr_list_.erase(serveraddr_list_.begin()+pos);
+        serveraddr_list_.erase(serveraddr_list_.begin() + pos);
         return 0;
     }
 
@@ -248,7 +243,7 @@ public:
 
     bool get_connected()
     {
-		return is_connected_;
+        return is_connected_;
     }
 
     bool get_autoconnect()
@@ -365,16 +360,13 @@ public:
                 free_handler(temp_socket_handler);
                 return -6;
             }
-            if (is_add_runner_)
+            if (socket_runner_->add_handle(temp_socket_handler, SL_Socket_Handler::READ_EVENT_MASK) < 0)
             {
-                if (socket_runner_->add_handle(temp_socket_handler, SL_Socket_Handler::READ_EVENT_MASK) < 0)
-                {
-                    SL_Socket_CommonAPI::socket_close(fd);
-                    free_handler(temp_socket_handler);
-                    return -7;
-                }
+                SL_Socket_CommonAPI::socket_close(fd);
+                free_handler(temp_socket_handler);
+                return -7;
             }
-            is_connected_ = true;
+            is_connected_   = true;
             socket_handler_ = temp_socket_handler;
             socket_handler_->handle_connect();
         }
@@ -411,7 +403,7 @@ protected:
     ulong           connect_timeout_;               //时间单位: ms
     volatile bool   is_connected_;                  //连接状态(fase:失败,true:成功)
     volatile bool   is_autoconnect_;                //是否自动重连
-	SL_Sync_SpinMutex mutex_;
+    SL_Sync_SpinMutex mutex_;
 
     TObjectPool     *object_pool_;
 };

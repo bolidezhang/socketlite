@@ -61,19 +61,13 @@ unsigned int WINAPI SL_Socket_TcpClient_AutoConnect::autoconnect_proc(void *arg)
 void* SL_Socket_TcpClient_AutoConnect::autoconnect_proc(void *arg)
 #endif
 {
-    SL_Socket_TcpClient_AutoConnect *autoconnect = (SL_Socket_TcpClient_AutoConnect*)arg;
+    SL_Socket_TcpClient_AutoConnect *autoconnect = (SL_Socket_TcpClient_AutoConnect *)arg;
     SL_Socket_Source *tcpclient;
-    std::set<SL_Socket_Source* >::iterator iter;
-    std::set<SL_Socket_Source* >::iterator iter_end;
+    std::set<SL_Socket_Source * >::iterator iter;
+    std::set<SL_Socket_Source * >::iterator iter_end;
 
-    while (1)
-    {
-        if (!autoconnect->autoconnect_thread_.get_running())
-        {
-            autoconnect->autoconnect_thread_.exit();
-            return 0;
-        }
-        
+    while (autoconnect->autoconnect_thread_.get_running())
+    {        
         autoconnect->mutex_.lock();
         iter = autoconnect->tcpclient_set_.begin();
         iter_end = autoconnect->tcpclient_set_.end();
@@ -99,7 +93,7 @@ void* SL_Socket_TcpClient_AutoConnect::autoconnect_proc(void *arg)
         autoconnect->mutex_.unlock();
         
         SL_Socket_CommonAPI::util_sleep_us(autoconnect->check_interval_us_);
-    }    
+    }
 
     autoconnect->autoconnect_thread_.exit();
     return 0;

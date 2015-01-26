@@ -4,12 +4,12 @@
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
     #pragma once
 #endif
+#include <vector>
 #include "SL_Config.h"
 #include "SL_Random.h"
 #include "SL_Sync_Condition.h"
 #include "SL_Thread.h"
 #include "SL_Queue.h"
-#include <vector>
 
 //可保证处理顺序的SL_Task
 template <typename T>
@@ -36,7 +36,7 @@ public:
         work_threads_.reserve(thread_number);
 
         WorkThread *work_thread;
-        for (int i=0; i<thread_number; ++i)
+        for (int i = 0; i < thread_number; ++i)
         {
             work_thread = new WorkThread;
             work_thread->parent = this;
@@ -130,7 +130,7 @@ public:
     {
         size_t ret = 0;
         int thread_size = work_threads_.size();
-        for (int i=0; i<thread_size; ++i)
+        for (int i = 0; i < thread_size; ++i)
         {
             ret += work_threads_[i]->queue.size();
         }
@@ -186,17 +186,8 @@ private:
         SL_Sync_ThreadMutex &mutex = work_thread->queue.mutex();
         T *node =  new T[task->batch_node_count_];
 
-        while (1)
+        while (work_thread->thread.get_running())
         {
-            if (!work_thread->thread.get_running())
-            {
-                delete []node;
-                task->put_svc_data(svc_data);
-                task->fini_svc_run();
-                work_thread->thread.exit();
-                return 0;
-            }
-
             mutex.lock();
             while (work_thread->queue.pop_front_i(node, task->batch_node_count_, pop_node_count) < 0)
             {
@@ -214,7 +205,7 @@ private:
             }
             mutex.unlock();
 
-            for (i=0; i<pop_node_count; ++i)
+            for (i = 0; i < pop_node_count; ++i)
             {//处理消息
                 task->svc(node[i], svc_data, change_svc_data);
                 if (change_svc_data > 0)
@@ -248,7 +239,7 @@ private:
         SL_Queue<T, SL_Sync_ThreadMutex> queue;
     };
 
-    std::vector<WorkThread* > work_threads_;
+    std::vector<WorkThread * > work_threads_;
     uint batch_node_count_;
     uint next_thread_index_;
 };

@@ -165,9 +165,9 @@ protected:
     uint                msgbuffer_size_;
     uint8               msglen_bytes_;          //消息长度域所占字节数(一般为1,2,4)
     uint8               msg_byteorder_;         //消息的字节顺序(0:host-byte,1:big endian(network-byte) 2:little endian)
-    bool                is_add_runner_;         //新连接是否加入Socket_Runner中，进行事件分派
+    bool                is_add_runner_;         //新连接是否加入Socket_Runner中，进行事件分派(已不再用,总是加入到运行器中)
     bool                is_free_self_handler_;  //可否释放Source本身的socket_handler_,
-    											//若socket_handler_加入SL_Socket_SendControl_HandlerManager时，应为false
+                                                //若socket_handler_加入SL_Socket_SendControl_HandlerManager时，应为false
 };
 
 #endif

@@ -1,7 +1,6 @@
 #ifndef SOCKETLITE_QUEUE_H
 #define SOCKETLITE_QUEUE_H
 
-#include <list>
 #include <deque>
 #include "SL_DataType.h"
 #include "SL_Sync_Guard.h"
@@ -11,8 +10,7 @@ class SL_Queue
 {
 public:
     inline SL_Queue()
-        : capacity_size_(10000)
-        , queue_size_(0)
+        : capacity_size_(100000)
     {
     }
 
@@ -21,7 +19,7 @@ public:
         clear();
     }
 
-    inline int init(ulong capacity = 10000)
+    inline int init(ulong capacity = 100000)
     {
         if (capacity < 1)
         {
@@ -39,14 +37,13 @@ public:
     {
         mutex_.lock();
         queue_.clear();
-        queue_size_ = 0;
         mutex_.unlock();
     }
 
     inline long push_front_i(const T &node)
     {
         queue_.push_front(node);
-        return ++queue_size_;
+        return queue_.size();
     }
 
     inline long push_front_i(const T node[], int node_count, int &push_node_count)
@@ -56,79 +53,77 @@ public:
             queue_.push_front(node[i]);
         }
         push_node_count = node_count;
-        queue_size_ += node_count;
-        return queue_size_;
+        return queue_.size();
     }
 
     inline long push_back_i(const T &node)
     {
         queue_.push_back(node);
-        return ++queue_size_;
+        return queue_.size();
     }
 
     inline long push_back_i(const T node[], int node_count, int &push_node_count)
     {
-        for (int i=0; i<node_count; ++i)
+        for (int i = 0; i < node_count; ++i)
         {
             queue_.push_back(node[i]);
         }
         push_node_count = node_count;
-        queue_size_ += node_count;
-        return queue_size_;
+        return queue_.size();
     }
 
     inline long pop_front_i(T &node)
     {
-        if (queue_size_ > 0)
+        if (!queue_.empty())
         {
             node = queue_.front();
             queue_.pop_front();
-            return --queue_size_;
+            return queue_.size();
         }
         return -1;
     }
 
     inline long pop_front_i(T node[], int node_count, int &pop_node_count)
     {
-        pop_node_count = ((node_count < queue_size_) ? node_count : queue_size_);
+        int temp_size = queue_.size();
+        pop_node_count = ((node_count < temp_size) ? node_count : temp_size);
         if (pop_node_count <= 0)
         {
             return -1;
         }
-        for (int i=0; i<pop_node_count; ++i)
+        for (int i = 0; i < pop_node_count; ++i)
         {
             node[i] = queue_.front();
             queue_.pop_front();
         }
-        queue_size_ -= pop_node_count;
-        return queue_size_;
+        return queue_.size();
     }
 
     inline long pop_back_i(T &node)
     {
-        if (queue_size_ > 0)
+        if (!queue_.empty())
         {
             node = queue_.back();
             queue_.pop_back();
-            return --queue_size_;
+            return queue_.size();
         }
         return -1;
     }
 
     inline long pop_back_i(T node[], int node_count, int &pop_node_count)
     {
-        pop_node_count = ((node_count < queue_size_) ? node_count : queue_size_);
+        int temp_size = queue_.size();
+        pop_node_count = ((node_count < temp_size) ? node_count : temp_size);
         if (pop_node_count <= 0)
         {
             return -1;
         }
-        for (int i=0; i<pop_node_count; ++i)
+        for (int i = 0; i < pop_node_count; ++i)
         {
             node[i] = queue_.back();
             queue_.pop_back();
         }
-        queue_size_ -= pop_node_count;
-        return queue_size_;
+        return queue_.size();
     }
 
     inline long push_front(const T &node)
@@ -211,14 +206,14 @@ public:
         return ret;
     }
 
-    inline int size() const
+    inline long size() const
     {
-        return queue_size_;
+        return queue_.size();
     }
 
     inline bool empty() const
     {
-        return 0 == queue_size_;
+        return queue_.empty();
     }
 
     inline T& front()
@@ -238,10 +233,8 @@ public:
 
 private:
     ulong           capacity_size_;
-    ulong           queue_size_;    //加入的原因是因为std::list.size()只保证为时间效率为O(N)不是O(1)
+    std::deque<T>   queue_;
     TSyncMutex      mutex_;
-    std::list<T>    queue_;
-    //std::deque<T>   queue_;
 };
 
 #endif

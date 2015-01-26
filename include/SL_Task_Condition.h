@@ -116,16 +116,8 @@ private:
         SL_Sync_ThreadMutex &mutex = task->queue_.mutex();
         T *node =  new T[task->batch_node_count_];
 
-        while (1)
+        while (task->thread_group_.get_running())
         {
-            if (!task->thread_group_.get_running())
-            {
-                delete []node;
-                task->put_svc_data(svc_data);
-                task->fini_svc_run();
-                return 0;
-            }
-
             mutex.lock();
             while (task->queue_.pop_front_i(node, task->batch_node_count_, pop_node_count) < 0)
             {
@@ -141,7 +133,7 @@ private:
             }
             mutex.unlock();
             
-            for (i=0; i<pop_node_count; ++i)
+            for (i = 0; i < pop_node_count; ++i)
             {//处理消息
                 task->svc(node[i], svc_data, change_svc_data);
                 if (change_svc_data > 0)
@@ -152,6 +144,7 @@ private:
                 }
             }
         }
+
         delete []node;
         task->put_svc_data(svc_data);
         task->fini_svc_run();

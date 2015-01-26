@@ -92,7 +92,7 @@ public:
 
         if (redo_count > 0)
         {//有限次数
-            for (int i=0; i<redo_count; ++i) 
+            for (int i = 0; i < redo_count; ++i) 
             {
                 write_index     = write_index_.load();
                 read_end_index  = read_end_index_.load();
@@ -103,13 +103,7 @@ public:
                     {
                         ulong offset  = write_index & index_bit_mask_;
                         pool_[offset] = value;
-                        while (1)
-                        {
-                            if (write_end_index_.compare_exchange(write_index, write_index + 1))
-                            {
-                                break;
-                            }
-                        }
+                        while (!write_end_index_.compare_exchange(write_index, write_index + 1));
                         return queue_size + 1;
                     }
                 }
@@ -117,7 +111,7 @@ public:
         }
         else
         {//无限次数
-            while (1)
+            for (;;)
             {
                 write_index     = write_index_.load();
                 read_end_index  = read_end_index_.load();
@@ -128,13 +122,7 @@ public:
                     {
                         ulong offset  = write_index & index_bit_mask_;
                         pool_[offset] = value;
-                        while (1)
-                        {
-                            if (write_end_index_.compare_exchange(write_index, write_index + 1))
-                            {
-                                break;
-                            }
-                        }
+                        while (!write_end_index_.compare_exchange(write_index, write_index + 1));
                         return queue_size + 1;
                     }
                 }
@@ -157,7 +145,7 @@ public:
 
         if (redo_count > 0)
         {//有限次数
-            for (int i=0; i<redo_count; ++i)
+            for (int i = 0; i < redo_count; ++i)
             {
                 write_end_index = write_end_index_.load();
                 read_index      = read_index_.load();
@@ -168,13 +156,7 @@ public:
                     {
                         ulong offset = read_index & index_bit_mask_;
                         value        = pool_[offset];
-                        while (1)
-                        {
-                            if (read_end_index_.compare_exchange(read_index, read_index + 1))
-                            {
-                                break;
-                            }
-                        }
+                        while (!read_end_index_.compare_exchange(read_index, read_index + 1));
                         return queue_size - 1;
                     }
                 }
@@ -182,7 +164,7 @@ public:
         }
         else
         {//无限次数
-            while (1)
+            for (;;)
             {
                 write_end_index = write_end_index_.load();
                 read_index      = read_index_.load();
@@ -193,13 +175,7 @@ public:
                     {
                         ulong offset = read_index & index_bit_mask_;
                         value        = pool_[offset];
-                        while (1)
-                        {
-                            if (read_end_index_.compare_exchange(read_index, read_index + 1))
-                            {
-                                break;
-                            }
-                        }
+                        while (!read_end_index_.compare_exchange(read_index, read_index + 1))
                         return queue_size - 1;
                     }
                 }

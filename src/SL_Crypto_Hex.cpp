@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <string.h>
 #include "SL_Crypto_Hex.h"
 
 static unsigned char HEX_ENCODE_TABLE_UPPER[]   = "0123456789ABCDEF";
@@ -48,11 +47,11 @@ int SL_Crypto_Hex::get_need_len(unsigned int len, SL_Crypto_BaseN::TYPE type)
 {
     if (SL_Crypto_BaseN::ENCODE == type)
     {//encode
-	    return len * 2;
+        return (len << 1);
     }
     else
     {//decode
-	    return len / 2;
+        return (len >> 1);
     }
 }
 
@@ -86,7 +85,8 @@ int SL_Crypto_Hex::decode(const unsigned char *in, unsigned int in_len, unsigned
     assert(in && out && out_len && (in_len > 0));
 
     unsigned int need_len = in_len >> 1;
-    if ( (in_len % 2 == 1) || (need_len > *out_len) )
+    unsigned int mod_2 = in_len - (need_len << 1);
+    if ( mod_2 || (need_len > *out_len) )
     {
         return -1;
     }

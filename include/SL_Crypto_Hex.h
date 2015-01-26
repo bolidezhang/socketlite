@@ -17,7 +17,7 @@ public:
     int  decode(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len,  bool checked_data = false);
 
 private:
-	unsigned char *encode_table_;
+    unsigned char *encode_table_;
 };
 
 #endif

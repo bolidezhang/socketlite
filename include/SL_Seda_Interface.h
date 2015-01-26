@@ -62,7 +62,7 @@ public:
 
     virtual int open(int thread_number, uint queue_max_size, uint event_max_len, uint timedwait_interval_us, bool timedwait_signal, int type) = 0;
     virtual int close() = 0;
-    virtual int push_event(const SL_Seda_Event *event, int thread_number, bool timedwait_signal) = 0;
+    virtual int push_event(const SL_Seda_Event *event, int thread_number) = 0;
     virtual int get_type() const = 0;
 };
 
@@ -80,7 +80,7 @@ public:
     virtual int  start() = 0;
     virtual void stop() = 0;
     virtual void join() = 0;
-    virtual int  push_event(const SL_Seda_Event *event, bool timedwait_signal) = 0;
+    virtual int  push_event(const SL_Seda_Event *event) = 0;
 
     virtual SL_Seda_Timer* set_timer(uint interval_ms, SL_Seda_Timer::TimerParam param) = 0;
     virtual int  cancel_timer(SL_Seda_Timer *timer) = 0;

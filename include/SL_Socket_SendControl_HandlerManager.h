@@ -79,7 +79,22 @@ public:
     }
 
 protected:
-    virtual int assign_thread();
+    inline int assign_thread()
+    {
+        int thread_size = (int)send_threads_.size();
+        if (thread_size < 2)
+        {
+            return 0;
+        }
+
+        int thread_index = next_thread_index_++;
+        if (thread_index >= thread_size)
+        {
+            thread_index -= thread_size;
+            next_thread_index_ = thread_index + 1;
+        }
+        return thread_index;
+    }
 
 private:
 #ifdef SOCKETLITE_OS_WINDOWS

@@ -21,7 +21,7 @@ public:
 
     inline void lock()
     {
-        while (::InterlockedCompareExchange(&spin_mutex_, 1, 0) != 0) 
+        while (::InterlockedCompareExchange(&spin_mutex_, 1, 0))
         {
             ::Sleep(0);
         }
@@ -52,7 +52,7 @@ private:
 class SL_Sync_SpinMutex
 {
 public:
-    inline SL_Sync_SpinMutex(int pshared=0)
+    inline SL_Sync_SpinMutex(int pshared = 0)
     { 
         pthread_spin_init(&spin_mutex_, pshared);
     }

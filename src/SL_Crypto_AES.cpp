@@ -1,6 +1,6 @@
 #include <assert.h>
-#include <memory.h>
 #include "SL_Crypto_AES.h"
+#include "SL_Utility_Memory.h"
 
 #ifdef SOCKETLITE_USE_OPENSSL
 SL_Crypto_AES::SL_Crypto_AES()
@@ -16,7 +16,8 @@ int SL_Crypto_AES::get_need_len(unsigned int len, SL_Crypto_SymmetricCipher::TYP
 {
     if (SL_Crypto_SymmetricCipher::ENCRYPT == type)
     {
-        int end_block_len = len % AES_BLOCK_SIZE;
+        unsigned int quotient       = len >> 4;
+        unsigned int end_block_len  = len - (quotient << 4);
         return (end_block_len ? (len - end_block_len + AES_BLOCK_SIZE + 1) : (len + 1));
     }
     else
@@ -57,8 +58,9 @@ int SL_Crypto_AES::encrypt(const unsigned char *in, unsigned int in_len, unsigne
 {
     assert(in && out && (in_len > 0));
 
-    unsigned int end_block_len = in_len % AES_BLOCK_SIZE;
-    unsigned int need_len      = end_block_len ? (in_len - end_block_len + AES_BLOCK_SIZE + 1) : (in_len + 1);
+    unsigned int block_count    = in_len >> 4;
+    unsigned int end_block_len  = in_len - (block_count << 4);
+    unsigned int need_len       = end_block_len ? (in_len - end_block_len + AES_BLOCK_SIZE + 1) : (in_len + 1);
     if (out_len < need_len)
     {
         return -1;
@@ -66,8 +68,7 @@ int SL_Crypto_AES::encrypt(const unsigned char *in, unsigned int in_len, unsigne
 
     unsigned char *in_pos    = (unsigned char *)in;
     unsigned char *out_pos   = (out + 1);
-    unsigned int block_count = in_len / AES_BLOCK_SIZE;
-    for (unsigned int i=0; i<block_count; ++i)
+    for (unsigned int i = 0; i < block_count; ++i)
     {
         AES_encrypt(in_pos, out_pos, &encrypt_key_);
         in_pos  += AES_BLOCK_SIZE;
@@ -77,7 +78,7 @@ int SL_Crypto_AES::encrypt(const unsigned char *in, unsigned int in_len, unsigne
     {            
         out[0] = AES_BLOCK_SIZE - end_block_len;
         unsigned char end_block[AES_BLOCK_SIZE] = {0};
-        memcpy(end_block, in_pos, end_block_len);
+        sl_memcpy(end_block, in_pos, end_block_len);
         AES_encrypt(end_block, out_pos, &encrypt_key_);
     }
     else
@@ -92,8 +93,8 @@ int SL_Crypto_AES::decrypt(const unsigned char *in, unsigned int in_len, unsigne
 {
     assert(in && out && (in_len > AES_BLOCK_SIZE));
 
-    unsigned int block_count = (in_len - 1) / AES_BLOCK_SIZE;
-    unsigned int data_len    = block_count * AES_BLOCK_SIZE;
+    unsigned int block_count = (in_len - 1) >> 4;
+    unsigned int data_len    = block_count << 4;
     if ( (out_len < data_len) || (data_len + 1 != in_len) )
     {
         return -1;
@@ -114,15 +115,15 @@ int SL_Crypto_AES::encrypt(const unsigned char *in, unsigned int in_len, unsigne
 {
     assert(in && out && (in_len > 0));
 
-    unsigned int end_block_len  = in_len % AES_BLOCK_SIZE;
+    unsigned int block_count    = in_len >> 4;
+    unsigned int data_len       = block_count << 4;
+    unsigned int end_block_len  = in_len - data_len;
     unsigned int need_len       = end_block_len ? (in_len - end_block_len + AES_BLOCK_SIZE + 1) : (in_len + 1);
     if (out_len < need_len)
     {
         return -1;
     }
 
-    unsigned int block_count = in_len / AES_BLOCK_SIZE;
-    unsigned int data_len    = block_count * AES_BLOCK_SIZE;
     unsigned char *in_pos    = (unsigned char *)in;
     unsigned char *out_pos   = (out + 1);
     switch (mode_)
@@ -139,7 +140,7 @@ int SL_Crypto_AES::encrypt(const unsigned char *in, unsigned int in_len, unsigne
                 {            
                     out[0] = AES_BLOCK_SIZE - end_block_len;
                     unsigned char end_block[AES_BLOCK_SIZE] = {0};
-                    memcpy(end_block, in_pos, end_block_len);
+                    sl_memcpy(end_block, in_pos, end_block_len);
                     AES_encrypt(end_block, out_pos, &encrypt_key_);
                 }
                 else
@@ -160,7 +161,7 @@ int SL_Crypto_AES::encrypt(const unsigned char *in, unsigned int in_len, unsigne
                         out_pos += data_len;
                     }
                     unsigned char end_block[AES_BLOCK_SIZE] = {0};
-                    memcpy(end_block, in_pos, end_block_len);
+                    sl_memcpy(end_block, in_pos, end_block_len);
                     AES_cbc_encrypt(end_block, out_pos, AES_BLOCK_SIZE, &encrypt_key_, ivec, 1);
                 }
                 else
@@ -182,7 +183,7 @@ int SL_Crypto_AES::encrypt(const unsigned char *in, unsigned int in_len, unsigne
                         out_pos += data_len;
                     }
                     unsigned char end_block[AES_BLOCK_SIZE] = {0};
-                    memcpy(end_block, in_pos, end_block_len);
+                    sl_memcpy(end_block, in_pos, end_block_len);
                     AES_cfb128_encrypt(end_block, out_pos, AES_BLOCK_SIZE, &encrypt_key_, ivec, num, 1);
                 }
                 else
@@ -204,7 +205,7 @@ int SL_Crypto_AES::encrypt(const unsigned char *in, unsigned int in_len, unsigne
                         out_pos += data_len;
                     }
                     unsigned char end_block[AES_BLOCK_SIZE] = {0};
-                    memcpy(end_block, in_pos, end_block_len);
+                    sl_memcpy(end_block, in_pos, end_block_len);
                     AES_ofb128_encrypt(end_block, out_pos, AES_BLOCK_SIZE, &encrypt_key_, ivec, num);
                 }
                 else
@@ -226,7 +227,7 @@ int SL_Crypto_AES::encrypt(const unsigned char *in, unsigned int in_len, unsigne
                         out_pos += data_len;
                     }
                     unsigned char end_block[AES_BLOCK_SIZE] = {0};
-                    memcpy(end_block, in_pos, end_block_len);
+                    sl_memcpy(end_block, in_pos, end_block_len);
                     AES_ctr128_encrypt(end_block, out_pos, AES_BLOCK_SIZE, &encrypt_key_, ivec, ecount_buf, (unsigned int *)num);
                 }
                 else
@@ -248,7 +249,7 @@ int SL_Crypto_AES::encrypt(const unsigned char *in, unsigned int in_len, unsigne
                         out_pos += data_len;
                     }
                     unsigned char end_block[AES_BLOCK_SIZE] = {0};
-                    memcpy(end_block, in_pos, end_block_len);
+                    sl_memcpy(end_block, in_pos, end_block_len);
                     AES_ige_encrypt(end_block, out_pos, AES_BLOCK_SIZE, &encrypt_key_, ivec, 1);
                 }
                 else
@@ -269,8 +270,8 @@ int SL_Crypto_AES::decrypt(const unsigned char *in, unsigned int in_len, unsigne
 {
     assert(in && out && (in_len > AES_BLOCK_SIZE));
 
-    unsigned int block_count = (in_len - 1) / AES_BLOCK_SIZE;
-    unsigned int data_len    = block_count * AES_BLOCK_SIZE;
+    unsigned int block_count = (in_len - 1) >> 4;
+    unsigned int data_len    = block_count << 4;
     if ( (out_len < data_len) || (data_len + 1 != in_len) )
     {
         return -1;
@@ -286,7 +287,7 @@ int SL_Crypto_AES::decrypt(const unsigned char *in, unsigned int in_len, unsigne
                 {
                     AES_decrypt(in_pos, out_pos, &decrypt_key_);
                     in_pos  += AES_BLOCK_SIZE;
-                    out_pos	+= AES_BLOCK_SIZE;
+                    out_pos += AES_BLOCK_SIZE;
                 }
             }
             break;
@@ -326,7 +327,8 @@ int SL_Crypto_AES::get_need_len(unsigned int len, SL_Crypto_SymmetricCipher::TYP
 {
     if (SL_Crypto_SymmetricCipher::ENCRYPT == type)
     {
-        int end_block_len = len % AES_BLOCK_SIZE;
+        unsigned int quotient       = len >> 4;
+        unsigned int end_block_len  = len - (quotient << 4);
         return (end_block_len ? (len - end_block_len + AES_BLOCK_SIZE + 1) : (len + 1));
     }
     else

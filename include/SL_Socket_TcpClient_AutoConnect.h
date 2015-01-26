@@ -28,7 +28,7 @@ private:
 #endif
 
     SL_Sync_SpinMutex               mutex_;
-    std::set<SL_Socket_Source* >    tcpclient_set_;
+    std::set<SL_Socket_Source * >   tcpclient_set_;
     SL_Thread                       autoconnect_thread_;
     uint                            check_interval_us_;
 };

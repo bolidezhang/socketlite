@@ -58,10 +58,10 @@
     #define free(ptr) tc_free(ptr)
 #else
     //重新定义内存分配器
-    #define sl_malloc(size) malloc(size)
-    #define sl_calloc(count, size) calloc(count, size)
-    #define sl_realloc(ptr, size) realloc(ptr, size)
-    #define sl_free(ptr) free(ptr)
+    #define sl_malloc(size) ::malloc(size)
+    #define sl_calloc(count, size) ::calloc(count, size)
+    #define sl_realloc(ptr, size) ::realloc(ptr, size)
+    #define sl_free(ptr) ::free(ptr)
 #endif
 
 //默认的内存块大小，经验值
@@ -123,7 +123,6 @@ public:
     typedef T&          reference;
     typedef const T&    const_reference;
     typedef size_t      size_type;
-    typedef ptrdiff_t   difference_type;
 
     virtual int clear()
     {

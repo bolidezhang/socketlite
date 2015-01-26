@@ -125,7 +125,7 @@ public:
             mutex->lock();
         }
         return -2;
-	}
+    }
 
     inline SL_SYNC_CONDTIION_T* handle()
     {
@@ -197,11 +197,12 @@ public:
             int ret = -1;
             if (timeout_us > 0)
             {
+                int seconds = timeout_us / 1000000L;
                 timeval nowtime;
                 gettimeofday(&nowtime, NULL);
                 timespec abstime;
-                abstime.tv_sec  = nowtime.tv_sec + timeout_us / 1000000L;
-                abstime.tv_nsec = (nowtime.tv_usec + (timeout_us % 1000000L)) * 1000;
+                abstime.tv_sec  = nowtime.tv_sec + seconds;
+                abstime.tv_nsec = (nowtime.tv_usec + (timeout_us - seconds * 1000000L)) * 1000;
                 if (abstime.tv_nsec >= 1000000000L)
                 {
                     ++abstime.tv_sec;

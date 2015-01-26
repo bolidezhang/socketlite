@@ -41,7 +41,7 @@ public:
         //若只accept出一个连接进行处理,这样就可能导致后来的连接不能被及时处理,要等到下一次连接才会被激活
         SL_SOCKET fd;
         SL_Socket_Handler *handler;
-        while (1)
+        for (;;)
         {   
             fd = SL_Socket_CommonAPI::socket_accept(socket_, sl_addr.get_addr(), &addrlen);
             if (SL_INVALID_SOCKET != fd)
@@ -49,21 +49,18 @@ public:
                 handler = socket_source_->alloc_handler();
                 if (NULL != handler)
                 {
-                    if (handler->handle_open(fd, socket_source_, socket_runner_) < 0)
+                    if (handler->handle_open(fd, socket_source_, socket_runner_) >= 0)
                     {
-                        handler->close();
-                        socket_source_->free_handler(handler);
+                        if (socket_source_->get_socket_runner()->add_handle(handler, SL_Socket_Handler::READ_EVENT_MASK) < 0)
+                        {
+                            handler->close();
+                            socket_source_->free_handler(handler);
+                        }
                     }
                     else
                     {
-                        if (socket_source_->get_add_runner())
-                        {
-                            if (socket_source_->get_socket_runner()->add_handle(handler, SL_Socket_Handler::READ_EVENT_MASK) < 0)
-                            {
-                                handler->close();
-                                socket_source_->free_handler(handler);
-                            }
-                        }
+                        handler->close();
+                        socket_source_->free_handler(handler);
                     }
                 }
                 else
@@ -72,10 +69,11 @@ public:
                 }
             }
             else
-            {//关闭TcpServer::socket_,进而促使accept线程退出
+            {//非阻塞模式(NIO)下,退出此次激活事件处理
                 break;
             }
         }
+
         return 0;
     }
 
@@ -84,18 +82,18 @@ public:
         SL_Socket_Handler *handler = socket_source_->alloc_handler();
         if (NULL != handler)
         {
-            if (handler->handle_open(fd, socket_source_, socket_runner_) < 0)
-            {
-                socket_source_->free_handler(handler);
-                return -1;
-            }
-            if (socket_source_->get_add_runner())
+            if (handler->handle_open(fd, socket_source_, socket_runner_) >= 0)
             {
                 if (socket_source_->get_socket_runner()->add_handle(handler, SL_Socket_Handler::READ_EVENT_MASK) < 0)
                 {
                     socket_source_->free_handler(handler);
-                    return -2;
+                    return -1;
                 }
+            }
+            else
+            {
+                socket_source_->free_handler(handler);
+                return -2;
             }
         }
         else

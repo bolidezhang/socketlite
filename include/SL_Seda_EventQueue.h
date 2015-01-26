@@ -7,6 +7,7 @@
 #include "SL_Sync_Guard.h"
 #include "SL_Seda_Event.h"
 #include "SL_Seda_Interface.h"
+#include "SL_Utility_Memory.h"
 
 class SL_Seda_EventQueue : public SL_Seda_IEventQueue
 {
@@ -68,7 +69,7 @@ public:
     {
         if (queue_size_ < capacity_)
         {
-            memcpy(write_index_, event->get_event_buffer(), event->get_event_len());
+            sl_memcpy(write_index_, event->get_event_buffer(), event->get_event_len());
             write_index_ += event_max_len_;
             if (write_index_ >= pool_end_)
             {

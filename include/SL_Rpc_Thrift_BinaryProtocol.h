@@ -37,12 +37,12 @@ public:
     {
     }
 
-	inline void setBuffer(char *read_buffer, int read_buffer_len, TByteBuffer *write_buffer)
-	{
+    inline void setBuffer(char *read_buffer, int read_buffer_len, TByteBuffer *write_buffer)
+    {
         write_buffer_    = write_buffer;
         read_buffer_     = read_buffer;
         read_buffer_len_ = read_buffer_len;
-	}
+    }
 
     /**
     * Writing functions.
@@ -195,19 +195,7 @@ public:
     {
         int32_t  sz;
         uint32_t result = readI32(sz);
-        if (sz < 0) 
-        {
-            // Check for correct version number
-            int32_t version = sz & VERSION_MASK;
-            if (version != VERSION_1) 
-            {
-                throw TProtocolException(TProtocolException::BAD_VERSION, "Bad version identifier");
-            }
-            messageType = (TMessageType)(sz & 0x000000ff);
-            result += readString(name);
-            result += readI32(seqid);
-        } 
-        else 
+        if (sz >= 0)
         {
             // Handle pre-versioned input
             int8_t type;
@@ -215,6 +203,18 @@ public:
             result  += readByte(type);
             result  += readI32(seqid);
             messageType = (TMessageType)type;
+        }
+        else
+        {
+            // Check for correct version number
+            int32_t version = sz & VERSION_MASK;
+            if (version != VERSION_1)
+            {
+                throw TProtocolException(TProtocolException::BAD_VERSION, "Bad version identifier");
+            }
+            messageType = (TMessageType)(sz & 0x000000ff);
+            result += readString(name);
+            result += readI32(seqid);
         }
         return result;
     }
@@ -239,7 +239,7 @@ public:
         int8_t   type;
         uint32_t result = readByte(type);
         fieldType = (TType)type;
-        if (fieldType == T_STOP) 
+        if (fieldType == T_STOP)
         {
             fieldId = 0;
             return result;
@@ -262,12 +262,16 @@ public:
         result += readByte(v);
         valType = (TType)v;
         result += readI32(sizei);
-        if (sizei < 0) 
+        if (sizei >= 0)
+        {
+            size = (uint32_t)sizei;
+            return result;
+        }
+        else
         {
             throw TProtocolException(TProtocolException::NEGATIVE_SIZE);
-        } 
-        size = (uint32_t)sizei;
-        return result;
+            return 0;
+        }
     }
 
     inline uint32_t readMapEnd() 
@@ -282,12 +286,16 @@ public:
         uint32_t result = readByte(e);
         elemType = (TType)e;
         result += readI32(sizei);
-        if (sizei < 0) 
+        if (sizei >= 0)
+        {
+            size = (uint32_t)sizei;
+            return result;
+        }
+        else
         {
             throw TProtocolException(TProtocolException::NEGATIVE_SIZE);
+            return 0;
         } 
-        size = (uint32_t)sizei;
-        return result;
     }
 
     inline uint32_t readListEnd() 
@@ -302,12 +310,16 @@ public:
         uint32_t result = readByte(e);
         elemType = (TType)e;
         result += readI32(sizei);
-        if (sizei < 0) 
+        if (sizei >= 0)
+        {
+            size = (uint32_t)sizei;
+            return result;
+        }
+        else
         {
             throw TProtocolException(TProtocolException::NEGATIVE_SIZE);
+            return 0;
         }
-        size = (uint32_t)sizei;
-        return result;
     }
 
     inline uint32_t readSetEnd() 
@@ -378,22 +390,22 @@ public:
 protected:
     inline uint32_t readStringBody(std::string& str, int32_t size) 
     {
-        // Catch error cases
-        if (size < 0) 
+        if (size > 0)
         {
-            throw TProtocolException(TProtocolException::NEGATIVE_SIZE);
+            char *b = readBuffer(size);
+            str.assign(b, size);
+            return (uint32_t)size;
         }
-
-        // Catch empty string case
-        if (size == 0) 
-        {
+        else if (size < 0)
+        {// Catch error cases
+            throw TProtocolException(TProtocolException::NEGATIVE_SIZE);
+            return 0;
+        }
+        else
+        {// size == 0, Catch empty string case
             str.clear();
             return 0;
         }
-
-        char *b = readBuffer(size);
-        str.assign(b, size);
-        return (uint32_t)size;
     }
 
     inline char* readBuffer(int len)

@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include "SL_Crypto_CRC16.h"
+#include "SL_Utility_Memory.h"
 
 static const uint16 CRC16_TABLE[256] = {
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
@@ -67,7 +68,7 @@ int SL_Crypto_CRC16::final(unsigned char *checksum, uint len)
 {
     assert(checksum && (len >= sizeof(uint16)));
 
-    memcpy(checksum, (char *)&checksum_, sizeof(uint16));
+    sl_memcpy(checksum, (char *)&checksum_, sizeof(uint16));
     checksum_ = 0;
     return sizeof(uint16);
 }
@@ -77,7 +78,7 @@ int SL_Crypto_CRC16::final(const unsigned char *in, uint in_len, unsigned char *
     assert(out && (out_len >= sizeof(uint16)));
 
     checksum_ = checksum(in, in_len, checksum_);
-    memcpy(out, (char *)&checksum_, sizeof(uint16));
+    sl_memcpy(out, (char *)&checksum_, sizeof(uint16));
     checksum_ = 0;
     return sizeof(uint16);
 }

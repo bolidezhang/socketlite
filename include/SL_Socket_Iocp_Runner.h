@@ -64,7 +64,7 @@ public:
         }
 
         //使工作线程退出
-        for (int i=0; i<work_thread_num_; ++i)
+        for (int i = 0; i < work_thread_num_; ++i)
         {
             //发出退出消息
             PostQueuedCompletionStatus(completion_port_, -1, 0, NULL);
@@ -79,59 +79,37 @@ public:
 
     inline int add_handle(SL_Socket_Handler *socket_handler, int event_mask) 
     {
-        if (SL_INVALID_SOCKET == socket_handler->socket_)
-        {
-            return -1;
-        }
-
-        mutex_.lock();
-        if (socket_handler->runner_pos_ >= 0)
-        {//socket_handler已加入runner
-            mutex_.unlock();
-            return -2;
-        }
         //将socket_handler关联到完成端口
         if (NULL == CreateIoCompletionPort((HANDLE)socket_handler->socket_, completion_port_, (ULONG_PTR)socket_handler, 0))
         {
-            mutex_.unlock();
-            return -3;
+            return -1;
         }
         //投递接收操作
         if (((SL_Socket_Iocp_Handler *)socket_handler)->post_recv() < 0)
         {
-            mutex_.unlock();
-            return -4;
+            return -2;
         }
+
         socket_handler->runner_pos_ = 0;
         ++current_handle_size_;
-        mutex_.unlock();
 
         return 0;
     }
 
     inline int del_handle(SL_Socket_Handler *socket_handler) 
     { 
-        if (SL_INVALID_SOCKET == socket_handler->socket_)
+        if (socket_handler->runner_pos_ >= 0)
         {
-            return -1;
-        }
+            socket_handler->runner_pos_ = -1;
+            --current_handle_size_;
 
-        mutex_.lock();
-        if (socket_handler->runner_pos_ < 0)
-        {
-            mutex_.unlock();
-            return -2;
-        }
-        socket_handler->runner_pos_ = -1;
-        --current_handle_size_;
-        mutex_.unlock();
-
-        //清理工作
-        int ret = socket_handler->handle_close();
-        socket_handler->socket_source_->disconnect(socket_handler);
-        if (ret >= 0)
-        {
-            socket_handler->socket_source_->free_handler(socket_handler);
+            //清理工作
+            int ret = socket_handler->handle_close();
+            socket_handler->socket_source_->disconnect(socket_handler);
+            if (ret >= 0)
+            {
+                socket_handler->socket_source_->free_handler(socket_handler);
+            }
         }
 
         return 0;
@@ -139,20 +117,11 @@ public:
 
     inline int remove_handle(SL_Socket_Handler *socket_handler) 
     { 
-        if (SL_INVALID_SOCKET == socket_handler->socket_)
+        if (socket_handler->runner_pos_ >= 0)
         {
-            return -1;
+            socket_handler->runner_pos_ = -1;
+            --current_handle_size_;
         }
-
-        mutex_.lock();
-        if (socket_handler->runner_pos_ < 0)
-        {
-            mutex_.unlock();
-            return -2;
-        }
-        socket_handler->runner_pos_ = -1;
-        --current_handle_size_;
-        mutex_.unlock();
 
         return 0; 
     }
@@ -164,7 +133,7 @@ public:
 
     inline int event_loop(int timeout_ms=1)
     {
-		SL_Socket_CommonAPI::util_sleep_ms(timeout_ms);
+        SL_Socket_CommonAPI::util_sleep_ms(timeout_ms);
         return 0;
     }
 
@@ -199,7 +168,7 @@ public:
 
     static unsigned int WINAPI event_loop_proc(void *arg)
     {
-        SL_Socket_Iocp_Runner<TSyncMutex> *runner = (SL_Socket_Iocp_Runner<TSyncMutex>*)arg;
+        SL_Socket_Iocp_Runner<TSyncMutex> *runner = (SL_Socket_Iocp_Runner<TSyncMutex> *)arg;
         HANDLE completion_port = runner->completion_port_;
 
         DWORD   byteTransferred = 0;
@@ -207,13 +176,8 @@ public:
         SL_Socket_Iocp_Handler *per_handle_data = NULL;
         SL_Socket_Iocp_Handler::PER_IO_DATA *per_io_data = NULL;
 
-        while (1)
+        while (runner->thread_group_.get_running())
         {
-            if (!runner->thread_group_.get_running())
-            {
-                break;
-            }
-
             per_handle_data = NULL;
             per_io_data     = NULL;
             byteTransferred = -1;
@@ -259,6 +223,7 @@ public:
                     per_handle_data->next_status_ = SL_Socket_Handler::STATUS_CLOSE;
                     runner->del_handle(per_handle_data);
                 }
+
             }
         }
         return 0;
@@ -270,7 +235,7 @@ private:
     ushort          work_thread_num_;           //工作线程数
 
     uint            max_size_;
-    uint            current_handle_size_;
+    uint            current_handle_size_;       //连接数量(废弃)
     int8            handler_close_status_;
 
     TSyncMutex      mutex_;

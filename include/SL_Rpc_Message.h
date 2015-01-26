@@ -11,6 +11,7 @@
 #include "SL_Rpc_Thrift_BufferTransport.h"
 #include "SL_Seda_Event.h"
 #include "SL_Socket_CommonAPI.h"
+#include "SL_Utility_Memory.h"
 
 enum SL_RPC_MESSAGE_ENCODE_TYPE
 {
@@ -30,12 +31,14 @@ enum SL_RPC_MESSAGE_ENCODE_TYPE
 //消息标记的取值: 一个或几个按位组合
 enum SL_RPC_MESSAGE_FLAG
 {
-    SL_RPC_MESSAGE_FLAG_BROADCAST = 1,                  //广播(同等于本地广播)
+    SL_RPC_MESSAGE_FLAG_BROADCAST = 1,                  //广播(等同于本地广播)
     SL_RPC_MESSAGE_FLAG_LOCAL_BROADCAST = 1,            //本地广播(多播:多个接收者的广播)
     SL_RPC_MESSAGE_FLAG_GLOBAL_BROADCAST = 2,           //全局广播
     SL_RPC_MESSAGE_FLAG_COMPRESS = 4,                   //压缩
     SL_RPC_MESSAGE_FLAG_CRYPTO = 8,                     //加密
     SL_RPC_MESSAGE_FLAG_NOT_DESTINATIONS = 16,          //消息头中的destination不在目标集合中
+    SL_RPC_MESSGAE_FLAG_ROUTE_DIRECTION = 32,           //消息路由方向 0:请求 按消息头destination字段转发 1:回复 按消息头source字段转发
+    SL_RPC_MESSGAE_FLAG_DIRECTION = 32,                 //消息方向(等同于消息路由方向)
 };
 
 struct SL_Rpc_MessageHead       //24个字节
@@ -472,7 +475,7 @@ public:
                             destination_index = i + 1;
                         }
                         dest_item = THead::serialize_destination( *iter );
-                        memcpy(dest_pos, (const char *)&dest_item, sizeof(TDestinationType));
+                        sl_memcpy(dest_pos, (const char *)&dest_item, sizeof(TDestinationType));
                         dest_pos += sizeof(TDestinationType);
                         ++iter;
                     }
@@ -496,7 +499,7 @@ public:
                     for (uint i = 0; i < dest_size; ++i)
                     {
                         dest_item = THead::serialize_destination( *iter );
-                        memcpy(dest_pos, (const char *)&dest_item, sizeof(TDestinationType));
+                        sl_memcpy(dest_pos, (const char *)&dest_item, sizeof(TDestinationType));
                         dest_pos += sizeof(TDestinationType);
                         ++iter;
                     }
@@ -653,7 +656,7 @@ class SL_Rpc_Message
 public:
     inline SL_Rpc_Message()
     {
-        memset(&head_, 0, sizeof(THead));
+        sl_memclear(&head_, sizeof(THead));
     }
 
     inline ~SL_Rpc_Message()
@@ -662,7 +665,7 @@ public:
 
     inline bool parse(char *data, int len, SL_RPC_MESSAGE_ENCODE_TYPE encode_type = SL_RPC_MESSAGE_ENCODE_THRIFT)
     { 
-        memcpy(&head_, data, sizeof(THead));
+        sl_memcpy(&head_, data, sizeof(THead));
         if (head_.flag & SL_RPC_MESSAGE_FLAG_LOCAL_BROADCAST)
         {
             TDestinationType dest_item;
@@ -679,7 +682,7 @@ public:
         {
             destinations_.insert(destinations_.end(), head_.destination);
         }
-        return SL_Rpc_MessageParser::parse_to_body<TBody>(&body_, data+sizeof(THead), len-sizeof(THead), encode_type);
+        return SL_Rpc_MessageParser::parse_to_body<TBody>(&body_, data + sizeof(THead), len - sizeof(THead), encode_type);
     }
 
     template <typename TByteBuffer>
@@ -728,7 +731,7 @@ public:
                         head_.flag |= SL_RPC_MESSAGE_FLAG_LOCAL_BROADCAST;
                         head_.destination = buf->data_size() - sizeof(TDestinationType) * dest_size;
                         head_.length = buf->data_size();
-                        memcpy(buf->data(), &head_, sizeof(THead));
+                        sl_memcpy(buf->data(), &head_, sizeof(THead));
                         THead::serialize((THead *)buf->data(), destination_index);
                         return true;
                     }
@@ -750,7 +753,7 @@ public:
                         head_.flag |= SL_RPC_MESSAGE_FLAG_LOCAL_BROADCAST;
                         head_.destination = buf->data_size() - sizeof(TDestinationType) * dest_size;
                         head_.length = buf->data_size();
-                        memcpy(buf->data(), &head_, sizeof(THead));
+                        sl_memcpy(buf->data(), &head_, sizeof(THead));
                         THead::serialize((THead *)buf->data());
                         return true;
                     }
@@ -769,7 +772,7 @@ public:
             }
 
             head_.length = buf->data_size();
-            memcpy(buf->data(), &head_, sizeof(THead));
+            sl_memcpy(buf->data(), &head_, sizeof(THead));
             THead::serialize((THead *)buf->data());
             return true;
         }

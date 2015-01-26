@@ -20,7 +20,7 @@ const ulong SL_PRIME_LIST[SL_NUM_PRIMES] = { 53, 97, 193, 389, 769, 1543, 3079, 
     805306457, 1610612741, 3221225473, 4294967291 };
 
 template <typename TKey> 
-struct SL_Hash 
+struct SL_Hash
 {
 };
 

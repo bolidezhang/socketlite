@@ -4,12 +4,12 @@
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
     #pragma once
 #endif
+#include <vector>
 #include "SL_Config.h"
 #include "SL_Random.h"
 #include "SL_Sync_Semaphore.h"
 #include "SL_Thread.h"
 #include "SL_Queue.h"
-#include <vector>
 
 //可保证处理顺序的SL_Task
 template <typename T>
@@ -35,7 +35,7 @@ public:
         work_threads_.reserve(thread_number);
 
         WorkThread *work_thread;
-        for (int i=0; i<thread_number; ++i)
+        for (int i = 0; i < thread_number; ++i)
         {
             work_thread = new WorkThread;        
             work_thread->parent = this;
@@ -79,7 +79,7 @@ public:
         uint res_index = 0;
         uint min_queue_size = (uint)work_threads_[0]->queue.size();
         uint queue_size;
-        for (uint i=1; i<thread_size; ++i)
+        for (uint i = 1; i < thread_size; ++i)
         {
             queue_size = work_threads_[i]->queue.size();
             if (queue_size < min_queue_size)
@@ -185,20 +185,12 @@ private:
         void *svc_data = task->get_svc_data();
         T *node =  new T[task->batch_node_count_];
 
-        while (1)
+        while (work_thread->thread.get_running())
         {
             work_thread->semaphore.acquire();
-            if (!work_thread->thread.get_running())
-            {
-                delete []node;
-                task->put_svc_data(svc_data);
-                task->fini_svc_run();
-                work_thread->thread.exit();
-                return 0;
-            }
             if (work_thread->queue.pop_front(node, task->batch_node_count_, pop_node_count) >= 0)
             {
-                for (i=0; i<pop_node_count; ++i)
+                for (i = 0; i < pop_node_count; ++i)
                 {
                     task->svc(node[i], svc_data, change_svc_data);
                     if (change_svc_data > 0)
@@ -210,6 +202,7 @@ private:
                 }
             }
         }
+
         delete []node;
         task->put_svc_data(svc_data);
         task->fini_svc_run();

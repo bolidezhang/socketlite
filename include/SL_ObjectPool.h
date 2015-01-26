@@ -1,6 +1,6 @@
 //**********************************************************************
 //
-// Copyright (C) 2005-2007 Zhang bao yuan(bolidezhang@gmail.com).
+// Copyright (C) 2005-2007 Bolide Zhang(bolidezhang@gmail.com)
 // All rights reserved.
 //
 // This copy of SocketLite is licensed to you under the terms described 
@@ -114,18 +114,14 @@ public:
             object = free_objects_.back();
             free_objects_.pop_back();
             --free_size_;
+            mutex_.unlock();
         }
         else
         {
-            object = new T();
-            if (NULL == object)
-            {
-                mutex_.unlock();
-                return NULL;
-            }
             alloc_i(grow_size_);
+            mutex_.unlock();
+            object = new T();
         }
-        mutex_.unlock();
         return object;
     }
 
@@ -136,25 +132,22 @@ public:
         {
             free_objects_.push_back(object);
             ++free_size_;
+            mutex_.unlock();
         }
         else
         {
+            mutex_.unlock();
             delete object;
         }
-        mutex_.unlock();
     }
 
 private:
     inline bool alloc_i(unsigned int size)
     {
         T *object;
-        for (unsigned int i=0; i<size; ++i)
+        for (unsigned int i = 0; i < size; ++i)
         {            
             object = new T();
-            if (NULL == object)
-            {
-                return false;
-            }
             free_objects_.push_back(object);
             ++free_size_;
         }
@@ -224,7 +217,7 @@ public:
         mutex_.lock();
         max_chunk_size_ = max_chunk_size;
         per_chunk_size_ = per_chunk_size;
-        for (unsigned int i=0; i<init_chunk_size; ++i)
+        for (unsigned int i = 0; i < init_chunk_size; ++i)
         {
             alloc_i();
         }
@@ -235,6 +228,7 @@ public:
     inline T* alloc_object()
     {
         T *object;
+
         mutex_.lock();
         if (!free_objects_.empty())
         {
@@ -243,25 +237,18 @@ public:
             mutex_.unlock();
             return object;
         }
+
         if (current_chunk_size_ >= max_chunk_size_)
         {
             mutex_.unlock();
             return NULL;
         }
-        if (!alloc_i())
-        {
-            mutex_.unlock();
-            return NULL;
-        }
-        if (!free_objects_.empty())
-        {
-            object = free_objects_.back();
-            free_objects_.pop_back();
-            mutex_.unlock();
-            return object;
-        }
+
+        alloc_i();
+        object = free_objects_.back();
+        free_objects_.pop_back();
         mutex_.unlock();
-        return NULL;
+        return object;
     }
 
     inline void free_object(T *object)
@@ -275,11 +262,7 @@ private:
     inline bool alloc_i()
     {
         T *chunk = new T[per_chunk_size_];
-        if (NULL == chunk)
-        {
-            return false;
-        }
-        for(unsigned int i=0; i<per_chunk_size_; ++i)
+        for (unsigned int i = 0; i < per_chunk_size_; ++i)
         {
             free_objects_.push_back(&chunk[i]);
         }

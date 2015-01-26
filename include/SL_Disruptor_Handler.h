@@ -186,15 +186,15 @@ private:
         int64   current_index = 0;
         int64   next_index = 0;
         int64   temp_index = 0;
-        std::list<SL_Disruptor_IHandler* >::iterator iter;
-        std::list<SL_Disruptor_IHandler* >::iterator iter_end;
+        std::list<SL_Disruptor_IHandler * >::iterator iter;
+        std::list<SL_Disruptor_IHandler * >::iterator iter_end;
 
         SL_Disruptor_TimerExpireEvent timer_expire_event;
         SL_Disruptor_Event *event = NULL;
 
         if (!timer_event_flag)
         {//timer_event_flag = false
-            while (1)
+            for (;;)
             {
                 if (!dependent_flag)
                 {
@@ -263,7 +263,7 @@ private:
         }
         else
         {//timer_event_flag = true
-            while (1)
+            for (;;)
             {
                 if (!dependent_flag)
                 {

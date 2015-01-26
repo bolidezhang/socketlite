@@ -163,7 +163,7 @@ int SL_Crypto_CRC64::final(unsigned char *checksum, uint len)
 {
     assert(checksum && (len >= sizeof(uint64)));
 
-    memcpy(checksum, (char *)&checksum_, sizeof(uint64));
+    sl_memcpy(checksum, (char *)&checksum_, sizeof(uint64));
     checksum_ = 0;
     return sizeof(uint64);
 }
@@ -173,7 +173,7 @@ int SL_Crypto_CRC64::final(const unsigned char *in, uint in_len, unsigned char *
     assert(out && (out_len >= sizeof(uint64)));
 
     checksum_ = checksum(in, in_len, checksum_);
-    memcpy(out, (char *)&checksum_, sizeof(uint64));
+    sl_memcpy(out, (char *)&checksum_, sizeof(uint64));
     checksum_ = 0;
     return sizeof(uint64);
 }

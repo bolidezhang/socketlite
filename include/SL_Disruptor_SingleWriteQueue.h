@@ -33,7 +33,7 @@ public:
     inline int init(ulong capacity, uint event_max_len = 64, int rewrite_count = -1, int reread_count = -1)
     {
         int i = 0;
-        for (; i<SL_NUM_2_POW; ++i)
+        for (; i < SL_NUM_2_POW; ++i)
         {
             if (capacity <= SL_2_POW_LIST[i])
             {
@@ -77,7 +77,7 @@ public:
         notify_list_.clear();
     }
 
-    inline long push(const SL_Disruptor_Event *event, bool timedwait_signal = true, int redo_count = 0)
+    inline long push(const SL_Disruptor_Event *event, int redo_count = 0)
     {
         int64 cursor_index = cursor_index_.get();
         int64 handler_index;
@@ -92,20 +92,20 @@ public:
         {
             if (redo_count < 0)
             {
-                while (1)
+                for (;;)
                 {
                     handler_index   = min_dependent_index_i();
                     queue_size      = (ulong)(cursor_index - handler_index);
                     if (queue_size < capacity_)
                     {
                         ulong offset = (cursor_index & index_bit_mask_) * event_max_len_;
-                        memcpy(event_pool_ + offset, event->get_event_buffer(), event->get_event_len());
+                        sl_memcpy(event_pool_ + offset, event->get_event_buffer(), event->get_event_len());
                         ++cursor_index_;
 
-                        if (timedwait_signal && notify_flag_)
+                        if (notify_flag_)
                         {
-                            std::list<SL_Disruptor_IHandler* >::iterator iter = notify_list_.begin();
-                            std::list<SL_Disruptor_IHandler* >::iterator iter_end = notify_list_.end();
+                            std::list<SL_Disruptor_IHandler * >::iterator iter = notify_list_.begin();
+                            std::list<SL_Disruptor_IHandler * >::iterator iter_end = notify_list_.end();
                             for (; iter != iter_end; ++iter)
                             {
                                 (*iter)->signal_event(cursor_index);
@@ -117,20 +117,20 @@ public:
             }
             else
             {
-                for (int i=0; i<redo_count; ++i)
+                for (int i = 0; i < redo_count; ++i)
                 {
                     handler_index   = min_dependent_index_i();
                     queue_size      = (ulong)(cursor_index - handler_index);
                     if (queue_size < capacity_)
                     {
                         ulong offset = (cursor_index & index_bit_mask_) * event_max_len_;
-                        memcpy(event_pool_ + offset, event->get_event_buffer(), event->get_event_len());
+                        sl_memcpy(event_pool_ + offset, event->get_event_buffer(), event->get_event_len());
                         ++cursor_index_;
 
-                        if (timedwait_signal && notify_flag_)
+                        if (notify_flag_)
                         {
-                            std::list<SL_Disruptor_IHandler* >::iterator iter = notify_list_.begin();
-                            std::list<SL_Disruptor_IHandler* >::iterator iter_end = notify_list_.end();
+                            std::list<SL_Disruptor_IHandler * >::iterator iter = notify_list_.begin();
+                            std::list<SL_Disruptor_IHandler * >::iterator iter_end = notify_list_.end();
                             for (; iter != iter_end; ++iter)
                             {
                                 (*iter)->signal_event(cursor_index);
@@ -190,7 +190,7 @@ public:
     inline long quit_event()
     {
         SL_Disruptor_QuitEvent quit_event;
-        return push(&quit_event, true, -1);
+        return push(&quit_event, -1);
     }
 
     inline SL_Disruptor_Event* get_event(int64 event_index)
@@ -204,8 +204,8 @@ private:
     {
         if (dependent_flag_)
         {
-            std::list<SL_Disruptor_IHandler* >::iterator iter = dependent_list_.begin();
-            std::list<SL_Disruptor_IHandler* >::iterator iter_end = dependent_list_.end();
+            std::list<SL_Disruptor_IHandler * >::iterator iter = dependent_list_.begin();
+            std::list<SL_Disruptor_IHandler * >::iterator iter_end = dependent_list_.end();
             int64 index = (*iter)->handler_index();
             int64 temp;
             ++iter;
@@ -224,8 +224,8 @@ private:
 
     inline int64 min_dependent_index_i()
     {
-        std::list<SL_Disruptor_IHandler* >::iterator iter = dependent_list_.begin();
-        std::list<SL_Disruptor_IHandler* >::iterator iter_end = dependent_list_.end();
+        std::list<SL_Disruptor_IHandler * >::iterator iter = dependent_list_.begin();
+        std::list<SL_Disruptor_IHandler * >::iterator iter_end = dependent_list_.end();
         int64 index = (*iter)->handler_index();
         int64 temp;
         ++iter;
@@ -248,8 +248,8 @@ private:
     uint                    event_max_len_;                 //事件对象最大大小
     int                     rewrite_count_;                 //重写次数(-1:无限次数)
 
-    std::list<SL_Disruptor_IHandler* >  dependent_list_;    //依赖列表
-    std::list<SL_Disruptor_IHandler* >  notify_list_;       //通知列表
+    std::list<SL_Disruptor_IHandler * >  dependent_list_;   //依赖列表
+    std::list<SL_Disruptor_IHandler * >  notify_list_;      //通知列表
     bool dependent_flag_;
     bool notify_flag_;
 };

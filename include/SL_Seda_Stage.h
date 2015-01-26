@@ -68,19 +68,7 @@ public:
         return 0;
     }
 
-    inline int assign_thread()
-    {
-        uint thread_size  = (uint)stage_threads_.size();
-        uint thread_index = next_thread_index_++;
-        if (thread_index >= thread_size)
-        {
-            thread_index -= thread_size;
-            next_thread_index_ = thread_index + 1;
-        }
-        return thread_index;
-    }
-
-    inline int push_event(const SL_Seda_Event *event, int thread_index = -1, bool timedwait_signal = true)
+    inline int push_event(const SL_Seda_Event *event, int thread_index = -1)
     {
         int thread_size = stage_threads_.size();
         if (thread_size < 2)
@@ -100,7 +88,7 @@ public:
             }
         }
 
-        int ret = stage_threads_[thread_index]->push_event(event, timedwait_signal);
+        int ret = stage_threads_[thread_index]->push_event(event);
         if (ret < 0)
         {
             return -1;
@@ -118,7 +106,7 @@ protected:
 
     std::vector<StageThread* > stage_threads_;
     uint    timedwait_interval_us_;
-    uint    next_thread_index_;
+    int     next_thread_index_;
     int     type_;
 };
 

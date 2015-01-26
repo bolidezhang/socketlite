@@ -14,10 +14,11 @@ SL_Crypto_Rand::~SL_Crypto_Rand()
 
 int SL_Crypto_Rand::random_int(int low, int high)
 {
-    int distance = high - low;
-    if (distance > 0)
+    int distance = high - low + 1;
+    if (distance > 1)
     {
-        return (low + (random_int() % (distance + 1)));
+        int random_value = random_int();
+        return low + SL_MOD(random_value, distance);
     }
     return low;
 }

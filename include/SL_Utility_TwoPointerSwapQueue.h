@@ -10,7 +10,7 @@
 //1)TQueue类型需提供接口：push_back/pop_front/front/empty
 //2)目前stl容器中符合: list/deque
 
-template <typename TValue, typename TQueue, typename TPushMutex=SL_Sync_NullMutex, typename TPopMutex=SL_Sync_NullMutex>
+template <typename TValue, typename TQueue, typename TPushMutex = SL_Sync_NullMutex, typename TPopMutex = SL_Sync_NullMutex>
 class SL_Utility_TwoPointerSwapQueue
 {
 public:

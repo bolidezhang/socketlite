@@ -15,7 +15,7 @@ int SL_Socket_Message_Handler::handle_read()
     int  ret;
     int  error_id;
 
-    while (1)
+    for (;;)
     {
         ret = SL_Socket_CommonAPI::socket_recv(socket_, recv_buffer, recv_buffer_size, 0, NULL, error_id);
         if (ret > 0)
@@ -23,7 +23,7 @@ int SL_Socket_Message_Handler::handle_read()
             pos = recv_buffer;
             pos_size = ret;
             do
-            {                  
+            {
                 if (0 == need_len_)
                 {
                     if (0 == last_left_)

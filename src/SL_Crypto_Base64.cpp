@@ -1,5 +1,5 @@
 #include <assert.h>
-#include <string.h>
+#include "SL_Config.h"
 #include "SL_Crypto_Base64.h"
 
 static const unsigned char BASE64_ENCODE_TABLE[]    = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -33,32 +33,32 @@ SL_Crypto_Base64::~SL_Crypto_Base64()
 int SL_Crypto_Base64::get_need_len(unsigned int len, SL_Crypto_BaseN::TYPE type)
 {
     if (SL_Crypto_BaseN::ENCODE == type)
-	{//encode
-        unsigned int i = len % 3;
+    {//encode
+        unsigned int i = SL_MOD(len, 3);
         if (i)
         {
-            return (len + 3 - i) * 4 / 3;
+            return ((len + 3 - i) << 2) / 3;
         }
-		return  len * 4 / 3;
-	}
-	else
-	{//decode
-        return  len * 3 / 4;
-	}
+        return  (len << 2) / 3;
+    }
+    else
+    {//decode
+        return (len * 3) >> 2;
+    }
 }
 
 int SL_Crypto_Base64::encode(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int *out_len)
 {
     assert(in && out && out_len && (in_len > 0));
 
-	unsigned int need_len;
-    unsigned int remainder = in_len % 3;
+    unsigned int need_len;
+    unsigned int remainder = SL_MOD(in_len, 3);
     switch (remainder)
     {
         case 1:
             {
                 /* valid output size ? */
-                need_len = (in_len + 3 - remainder) * 4 / 3;
+                need_len = ((in_len + 3 - remainder) << 2) / 3;
                 if (*out_len < need_len)
                 {
                     return -1;
@@ -83,7 +83,7 @@ int SL_Crypto_Base64::encode(const unsigned char *in, unsigned int in_len, unsig
         case 2:
             {
                 /* valid output size ? */
-                need_len = (in_len + 3 - remainder) * 4 / 3;
+                need_len = ((in_len + 3 - remainder) << 2) / 3;
                 if (*out_len < need_len)
                 {
                     return -1;
@@ -108,7 +108,7 @@ int SL_Crypto_Base64::encode(const unsigned char *in, unsigned int in_len, unsig
         default:
             {//remainder == 0
                 /* valid output size ? */
-                need_len = in_len * 4 / 3;
+                need_len = (in_len << 2) / 3;
                 if (*out_len < need_len)
                 {
                     return -1;
@@ -126,9 +126,9 @@ int SL_Crypto_Base64::encode(const unsigned char *in, unsigned int in_len, unsig
         break;
     }
 
-	/* return ok */
-	*out_len = need_len;
-	return need_len;
+    /* return ok */
+    *out_len = need_len;
+    return need_len;
 }
 
 int SL_Crypto_Base64::encode(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len)
@@ -140,8 +140,10 @@ int SL_Crypto_Base64::decode(const unsigned char *in, unsigned int in_len, unsig
 {
     assert(in && out && out_len && (in_len > 0));
 
-    unsigned int need_len = (in_len * 3 / 4);
-    if ( (in_len % 4) || (*out_len < need_len) )
+    unsigned int need_len = (in_len * 3) >> 2;
+    unsigned int mod_4 = in_len >> 2;
+    mod_4 = in_len - (mod_4 << 2);
+    if ( mod_4 || (*out_len < need_len) )
     {
         return -1;
     }

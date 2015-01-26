@@ -2,7 +2,7 @@
 #define SOCKETLITE_THREAD_GROUP_H
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
-	#pragma once
+    #pragma once
 #endif
 #include <vector>
 #include "SL_Config.h"
@@ -12,8 +12,8 @@
 class SOCKETLITE_API SL_Thread_Group
 {
 public:
-	SL_Thread_Group();
-	~SL_Thread_Group();
+    SL_Thread_Group();
+    ~SL_Thread_Group();
     int start(SL_ThreadProc threadproc, void *arg, int max_thread_num, int init_thread_num);
     int stop();
     int join();
@@ -25,7 +25,7 @@ public:
         return (int)threads_.size();
     }
 
-	inline bool get_running()
+    inline bool get_running()
     {
         if (running_.load() > 0)
         {

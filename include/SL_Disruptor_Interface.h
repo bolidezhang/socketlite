@@ -35,7 +35,7 @@ public:
     virtual int     init(ulong capacity, uint event_max_len, int rewrite_count, int reread_count) = 0;
     virtual void    clear() = 0;
 
-    virtual long    push(const SL_Disruptor_Event *event, bool timedwait_signal, int redo_count) = 0;
+    virtual long    push(const SL_Disruptor_Event *event, int redo_count) = 0;
     virtual ulong   capacity() const = 0;
     virtual ulong   size() = 0;
     virtual bool    empty() = 0;

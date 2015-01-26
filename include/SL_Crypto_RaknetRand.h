@@ -4,9 +4,9 @@
 
 class SL_Crypto_RaknetRand : public SL_Crypto_Rand
 {
-	// Initialise seed for Random Generator
-	// param[in] seed The seed value for the random number generator.
-	// extern void RAK_DLL_EXPORT seed_mt( unsigned int seed );
+    // Initialise seed for Random Generator
+    // param[in] seed The seed value for the random number generator.
+    // extern void RAK_DLL_EXPORT seed_mt( unsigned int seed );
 public:
     SL_Crypto_RaknetRand();
     virtual ~SL_Crypto_RaknetRand();
@@ -30,9 +30,9 @@ protected:
     // return 0 to 1.0f, inclusive
     float frandom_mt();
 
-    unsigned int	state_[625];        // state vector(624) + 1 extra to not violate ANSI C
-    unsigned int	*next_;             // next random value is computed from here
-    int				left_;              // can *next++ this many times before reloading
+    unsigned int    state_[625];        // state vector(624) + 1 extra to not violate ANSI C
+    unsigned int    *next_;             // next random value is computed from here
+    int             left_;              // can *next++ this many times before reloading
 };
 
 #endif

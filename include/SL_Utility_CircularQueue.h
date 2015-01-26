@@ -105,7 +105,7 @@ public:
         }
         else
         {//无限次数
-            while (1)
+            for (;;)
             {
                 mutex_.lock();
                 queue_size = (ulong)(write_index_ - read_index_);
@@ -155,7 +155,7 @@ public:
         }
         else
         {//无限次数
-            while (1)
+            for (;;)
             {
                 mutex_.lock();
                 queue_size  = (ulong)(write_index_ - read_index_);

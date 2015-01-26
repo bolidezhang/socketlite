@@ -2,10 +2,10 @@
 #define SOCKETLITE_BYTEBUFFER_H
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
-    #pragma once
+#pragma once
 #endif
-#include <string.h>
 #include "SL_Malloc.h"
+#include "SL_Utility_Memory.h"
 #include "SL_Sync_Atomic.h"
 
 class SL_Buffer
@@ -293,7 +293,7 @@ public:
             {
                 return false;
             }
-            memcpy(new_buffer, data, size);
+            sl_memcpy(new_buffer, data, size);
             buffer_ = new_buffer;
         }
         else
@@ -434,7 +434,7 @@ public:
 
         if (free_size() >= size)
         {
-            memcpy(buffer_ + data_end_index_, data, size);
+            sl_memcpy(buffer_ + data_end_index_, data, size);
             data_end_index_ += size;
         }
         else
@@ -483,7 +483,7 @@ public:
     {
         if (data_size() >= size)
         {
-            memcpy(data, buffer_ + data_begin_index_, size);
+            sl_memcpy(data, buffer_ + data_begin_index_, size);
             data_begin_index_ += size;
             return size;
         }
@@ -508,7 +508,7 @@ private:
         char *new_buffer = (char *)sl_realloc(buffer_, new_size);
         if (NULL != new_buffer)
         {
-            memcpy(new_buffer + data_end_index_, data, size);
+            sl_memcpy(new_buffer + data_end_index_, data, size);
             buffer_         = new_buffer;
             buffer_size_    = new_size;
             data_end_index_ += size;
@@ -753,13 +753,13 @@ public:
     {
         return write((const char *)&d, sizeof(double));
     }
-        
+
     inline int read(char *data, int size)
     {
         int data_size = data_end_index_ - data_begin_index_;
         if (data_size >= size)
         {
-            memcpy(data, buffer_->buffer_ + data_begin_index_, size);
+            sl_memcpy(data, buffer_->buffer_ + data_begin_index_, size);
             data_begin_index_ += size;
             return size;
         }
@@ -833,7 +833,7 @@ private:
         {
             return ++refcount_;
         }
-        
+
         //减1, 返回变化后值
         inline long decrement_refcount()
         {
@@ -868,11 +868,11 @@ private:
                     buffer_size_ = 0;
                     use_size_ = 0;
                 }
-                                                                                
+
                 delete this;
             }
         }
-        
+
         inline int buffer_size() const
         {
             return buffer_size_;
@@ -893,7 +893,7 @@ private:
         {
             if (free_size() >= size)
             {
-                memcpy(buffer_ + use_size_, data, size);
+                sl_memcpy(buffer_ + use_size_, data, size);
                 use_size_ += size;
                 return true;
             }
@@ -905,7 +905,7 @@ private:
                     char *new_buffer = (char *)sl_realloc(buffer_, new_size);
                     if (NULL != new_buffer)
                     {
-                        memcpy(new_buffer + use_size_, data, size);
+                        sl_memcpy(new_buffer + use_size_, data, size);
                         use_size_      += size;
                         buffer_size_    = new_size;
                         buffer_         = new_buffer;

@@ -58,12 +58,12 @@ public:
         return thread_.join();
     }
 
-    inline int push_event(const SL_Seda_Event *event, bool timedwait_signal)
+    inline int push_event(const SL_Seda_Event *event)
     {
         event_queue_mutex_.lock();
         int ret = event_queue_standby_->push(event);
         event_queue_mutex_.unlock();
-        if ((1 == ret) && timedwait_signal && timedwait_signal_)
+        if ((1 == ret) && timedwait_signal_)
         {
             if (timedwait_flag_.load() > 0)
             {
@@ -190,7 +190,7 @@ private:
     inline void check_timers(uint64 current_clock_ms, SL_Seda_TimerExpireEvent *event)
     {
         int timer_size = (int)lru_timer_managers_.size();
-        for (int i=0; i<timer_size; ++i)
+        for (int i = 0; i < timer_size; ++i)
         {
             lru_timer_managers_[i].expire(current_clock_ms, event);
         }
@@ -242,7 +242,7 @@ private:
         {
             if (!idle_event_flag)
             {//timer_event_flag = false and idle_event_flag = false
-                while (1)
+                for (;;)
                 {
                     if (stage_thread->event_queue_active_->pop(&event) > 0)
                     {
@@ -276,7 +276,7 @@ private:
             }
             else
             {///timer_event_flag = false and idle_event_flag = true
-                while (1)
+                for (;;)
                 {
                     if (stage_thread->event_queue_active_->pop(&event) > 0)
                     {
@@ -320,7 +320,7 @@ private:
         {
             if (!idle_event_flag)
             {//timer_event_flag = true and idle_event_flag = false
-                while (1)
+                for (;;)
                 {
                     if (stage_thread->event_queue_active_->pop(&event) > 0)
                     {
@@ -365,7 +365,7 @@ private:
             }
             else
             {//timer_event_flag = true and idle_event_flag = true
-                while (1)
+                for (;;)
                 {
                     if (stage_thread->event_queue_active_->pop(&event) > 0)
                     {

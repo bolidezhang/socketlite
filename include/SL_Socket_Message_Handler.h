@@ -30,7 +30,7 @@ public:
     {
     }
 
-    virtual int handle_open(SL_SOCKET fd, SL_Socket_Source *socket_source, SL_Socket_Runner *socket_runner)
+    inline int handle_open(SL_SOCKET fd, SL_Socket_Source *socket_source, SL_Socket_Runner *socket_runner)
     {
         SL_Socket_Handler::handle_open(fd, socket_source, socket_runner);
         msg_buffer_.reserve(socket_source_->get_msgbuffer_size());
