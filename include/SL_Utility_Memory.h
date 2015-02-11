@@ -8,11 +8,11 @@ class SL_Utility_Memory
 public:
     SL_Utility_Memory()
     {
-    };
+    }
 
     ~SL_Utility_Memory()
     {
-    };
+    }
 
     //ÄÚ´æ¿½±´
     //¾­²âÊÔ:  window7-32 vc2010 cpu: 4*i5-2310 memory: 4G:

@@ -15,7 +15,7 @@ int SL_Socket_Message_Handler::handle_read()
     int  ret;
     int  error_id;
 
-    for (;;)
+    do
     {
         ret = SL_Socket_CommonAPI::socket_recv(socket_, recv_buffer, recv_buffer_size, 0, NULL, error_id);
         if (ret > 0)
@@ -127,11 +127,6 @@ int SL_Socket_Message_Handler::handle_read()
                     }
                 }
             } while (pos_size > 0);
-
-            if (ret < recv_buffer_size)
-            {
-                return 1;
-            }
         }
         else if (ret == 0)
         {//连接已关闭
@@ -147,7 +142,7 @@ int SL_Socket_Message_Handler::handle_read()
             last_errno_ = error_id;
             return -1;
         }
-    }
+    } while (ret == recv_buffer_size);
 
     return 1;
 }

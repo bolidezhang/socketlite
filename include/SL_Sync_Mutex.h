@@ -21,7 +21,7 @@ public:
 
     inline SL_Sync_ThreadMutex(bool recursive)
     { 
-#ifndef SOCKETLITE_OS_WINDOWS        
+#ifndef SOCKETLITE_OS_WINDOWS
         if (recursive)
         {
             pthread_mutexattr_t attr;

@@ -12,11 +12,11 @@ class SL_Utility_Math
 public:
     SL_Utility_Math()
     {
-    };
+    }
 
     ~SL_Utility_Math()
     {
-    };
+    }
 
     //计算以2为底的整数的对数值
     //经测试: 1)windows, 方法1 比 方法2 性能高
@@ -98,7 +98,7 @@ public:
 
                 return 31;
         #endif
-    };
+    }
 };
 
 #endif

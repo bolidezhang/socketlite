@@ -369,7 +369,7 @@ public:
             delete message;
         }
         return -2;
-    };
+    }
 
     template<typename THead>
     inline static THead* parse_head(char *data, int len)

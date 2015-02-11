@@ -11,68 +11,68 @@
 class SL_Buffer
 {
 public:
-    SL_Buffer() 
+    SL_Buffer()
     {
     }
 
-    virtual ~SL_Buffer() 
+    virtual ~SL_Buffer()
     {
     }
 
-    virtual void clear() 
+    virtual void clear()
     {
     }
 
-    virtual void reset() 
+    virtual void reset()
     {
     }
 
-    virtual char* buffer() const 
+    virtual char* buffer() const
     { 
         return NULL;
     }
 
-    virtual int buffer_size() const 
+    virtual int buffer_size() const
     { 
         return 0;
     }
 
-    virtual bool data(const char *data, int size, bool owner) 
+    virtual bool data(const char *data, int size, bool owner)
     { 
-        return false; 
+        return false;
     }
 
-    virtual char* data() const 
+    virtual char* data() const
     { 
-        return NULL; 
+        return NULL;
     }
 
-    virtual int data_size() const 
+    virtual int data_size() const
     { 
-        return 0; 
+        return 0;
     }
 
     //返回未使用的容量
-    virtual int free_size() const 
+    virtual int free_size() const
     { 
         return 0; 
     }
 
-    virtual int data_begin() const 
+    virtual int data_begin() const
     { 
-        return 0; 
+        return 0;
     }
 
-    virtual void data_begin(int new_begin_index) 
+    virtual void data_begin(int new_begin_index)
     {
     }
 
-    virtual int data_end() const 
+    virtual int data_end() const
     { 
-        return 0; 
+        return 0;
     }
 
-    virtual void data_end(int new_end_index) 
+    virtual void data_end(int new_end_index)
     {
     }
 
@@ -80,17 +80,17 @@ public:
     {
     }
 
-    virtual bool empty() const 
+    virtual bool empty() const
     { 
-        return true; 
+        return true;
     }
 
-    virtual bool owner() const 
+    virtual bool owner() const
     { 
-        return false; 
+        return false;
     }
 
-    virtual void owner(bool owner) 
+    virtual void owner(bool owner)
     {
     }
 
@@ -99,9 +99,9 @@ public:
         return false;
     }
 
-    virtual bool resize(int new_size) 
+    virtual bool resize(int new_size)
     { 
-        return reserve(new_size); 
+        return reserve(new_size);
     }
 
     virtual bool write(const char *data, int size, int multiple)

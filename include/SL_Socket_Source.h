@@ -117,7 +117,7 @@ public:
 
     static void set_msglen_int8(char *msg, int len)
     {
-        *msg = len;      
+        *msg = len;
     }
 
     static void set_msglen_int16_host(char *msg, int len)

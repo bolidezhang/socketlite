@@ -8,11 +8,11 @@ class SL_Utility
 public:
     SL_Utility()
     {
-    };
+    }
 
     ~SL_Utility()
     {
-    };
+    }
 };
 
 #endif

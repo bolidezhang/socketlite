@@ -35,7 +35,7 @@ double SL_Crypto_Rand::random_double(double low, double high)
         double tmp = high;
         high = low;
         low  = tmp;
-    };
+    }
 
     double d;
     d = (double)(random_int() / ((double)RAND_MAX + 1));

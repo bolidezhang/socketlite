@@ -171,28 +171,21 @@ public:
         SL_Socket_Iocp_Runner<TSyncMutex> *runner = (SL_Socket_Iocp_Runner<TSyncMutex> *)arg;
         HANDLE completion_port = runner->completion_port_;
 
-        DWORD   byteTransferred = 0;
+        DWORD   byteTransferred = -1;
         BOOL    success = false;
         SL_Socket_Iocp_Handler *per_handle_data = NULL;
         SL_Socket_Iocp_Handler::PER_IO_DATA *per_io_data = NULL;
 
         while (runner->thread_group_.get_running())
         {
-            per_handle_data = NULL;
-            per_io_data     = NULL;
-            byteTransferred = -1;
-
-            success = GetQueuedCompletionStatus(completion_port, 
-                &byteTransferred, 
-                (LPDWORD)&per_handle_data, 
-                (LPOVERLAPPED*)&per_io_data, 
-                INFINITE);
+            success = GetQueuedCompletionStatus(completion_port, &byteTransferred, (LPDWORD)&per_handle_data, (LPOVERLAPPED *)&per_io_data, INFINITE);
 
             //退出信号到达，退出线程
             if (-1 == byteTransferred)
             {
                 return 1;
             }
+
             //客户机已经断开连接或者连接出现错误
             if (0 == byteTransferred)
             {
@@ -204,6 +197,7 @@ public:
                 }
                 continue;
             }
+
             if ( (!success) || (NULL == per_handle_data) || (NULL == per_io_data) )
             { //出现异常情况
                 continue;
@@ -223,7 +217,6 @@ public:
                     per_handle_data->next_status_ = SL_Socket_Handler::STATUS_CLOSE;
                     runner->del_handle(per_handle_data);
                 }
-
             }
         }
         return 0;

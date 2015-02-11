@@ -334,13 +334,20 @@ private:
 
     inline void clear_control()
     {
+        //通过交换技巧, 释放handler的发送队列占用的内存
+        SendQueue swap_queue1;
+        SendQueue swap_queue2;
+
         mutex_.lock();
         last_update_timestamp_us_       = SL_Socket_SendControl_HandlerManager::current_timestamp_us_;
         last_fail_timestamp_us_         = 0;
         crypto_type_                    = SL_CRYPTO_TYPE_NOCRYPT;
-        queue1_.clear();
-        queue2_.clear();
+        swap_queue1.swap(queue1_);
+        swap_queue2.swap(queue2_);
         mutex_.unlock();
+
+        swap_queue1.clear();
+        swap_queue2.clear();
     }
 
     //发送数据
@@ -437,7 +444,7 @@ private:
 
     inline int put_data_i(const char *msg, int len)
     {
-        if (queue_standby_->empty() && queue_active_->empty())
+        if (handler_manager_->direct_send_flag_ && queue_standby_->empty() && queue_active_->empty())
         {
             uint64 current_timestamp_us = SL_Socket_SendControl_HandlerManager::current_timestamp_us_;
             if (current_timestamp_us - last_fail_timestamp_us_ >= handler_manager_->send_delaytime_us_)
@@ -483,7 +490,7 @@ private:
 
     inline int put_data_i(TByteBuffer &tmsg)
     {
-        if (queue_standby_->empty() && queue_active_->empty())
+        if (handler_manager_->direct_send_flag_ && queue_standby_->empty() && queue_active_->empty())
         {
             uint64 current_timestamp_us = SL_Socket_SendControl_HandlerManager::current_timestamp_us_;
             if (current_timestamp_us - last_fail_timestamp_us_ >= handler_manager_->send_delaytime_us_)

@@ -30,16 +30,16 @@ public:
         //strncpy(uuid_string, str, 64);
         //RpcStringFree(&str);
         //return 0;
-    };
+    }
 
 private:
     SL_UUID()
     {
-    };
+    }
 
     ~SL_UUID()
     {
-    };
+    }
 };
 
 #else   //SOCKETLITE_OS_LINUX
@@ -60,16 +60,16 @@ public:
         uuid_generate(uuid);
         uuid_unparse(uuid, uuid_string);
         return 0;
-    };
+    }
 
 private:
     SL_UUID()
     {
-    };
+    }
 
     ~SL_UUID()
     {
-    };
+    }
 };
 
 #endif  //SOCKETLITE_OS_WINDOWS

@@ -30,8 +30,8 @@
 
 #define SOCKETLITE_MAJOR_VERSION        3
 #define SOCKETLITE_MINOR_VERSION        6
-#define SOCKETLITE_SUB_MINOR_VERSION    48
-#define SOCKETLITE_VERSION_STRING       "3.6.48"
+#define SOCKETLITE_SUB_MINOR_VERSION    50
+#define SOCKETLITE_VERSION_STRING       "3.6.50"
 
 #ifdef _DEBUG
     #define SOCKETLITE_DEBUG
@@ -187,7 +187,7 @@
         #define FD_SETSIZE  1024
     #else
         #undef FD_SETSIZE
-        #define FD_SETSIZE  1024            
+        #define FD_SETSIZE  1024
     #endif
     // Winsock¿â°æ±¾(Ä¬ÈÏwinsock2)
     #if !defined(SOCKETLITE_USE_WINSOCK2)

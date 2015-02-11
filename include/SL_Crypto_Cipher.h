@@ -48,7 +48,7 @@ enum SL_CRYPTO_KEY_LEN
 
 class SL_Crypto_SymmetricCipher
 {
-public:	
+public:
     enum TYPE
     {
         ENCRYPT = 1,
