@@ -2,6 +2,7 @@
 #define SOCKETLITE_UTILITY_H
 #include "SL_Utility_Memory.h"
 #include "SL_Utility_Math.h"
+#include "SL_Utility_DataConvert.h"
 
 class SL_Utility
 {

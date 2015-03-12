@@ -8,6 +8,19 @@
 //
 //**********************************************************************
 
+//float128说明
+//gcc
+// a)long double, sizeof(long double)==16;
+// b)但其在linux x86 and x86-64下的有效字节数为10(80-bit x87 floating point type on x86 and x86-64 architectures);
+// c)4.7.0以上版本, 有__float128, __float128数学运算函数需加载libquadmath库
+//vc
+// a)等同于double, sizeof(long double)==8;
+// b)__m128(单精度浮点数)/__m128d(双精度浮点数), 不能直接访问, Streaming SIMD Extensions 2(SSE2) instructions intrinsics, is defined in xmmintrin.h
+
+//int128说明
+// a) gcc: 4.7.0以上版本，有__int128
+// b)  vc: __m128i(整数), 不能直接访问, Streaming SIMD Extensions 2(SSE2) instructions intrinsics, is defined in emmintrin.h
+
 #ifndef SOCKETLITE_DATATYPE_H
 #define SOCKETLITE_DATATYPE_H
 #include <string>
@@ -21,9 +34,12 @@ typedef unsigned char           byte;
 typedef unsigned short          ushort;
 typedef unsigned int            uint;
 typedef unsigned long           ulong;
+typedef long long               longlong;
+typedef unsigned long long      ulonglong;
+typedef float                   float32;
+typedef double                  float64;
 typedef float                   f32;
 typedef double                  f64;
-typedef unsigned long long      ulonglong;
 
 #ifdef _MSC_VER
     typedef __int8              int8;

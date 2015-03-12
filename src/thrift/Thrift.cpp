@@ -43,7 +43,7 @@ void TOutput::printf(const char *message, ...) {
     return;
   }
 
-  char *heap_buf = (char*)malloc((need+1) * sizeof(char));
+  char *heap_buf = (char *)malloc((need+1) * sizeof(char));
   if (heap_buf == NULL) {
     // Malloc failed.  We might as well print the stack buffer.
     f_(stack_buf);

@@ -103,7 +103,7 @@ class TTransport {
       get = read(buf+have, len-have);
       if (get <= 0) {
         throw TTransportException(TTransportException::END_OF_FILE,
-				  "No more data to read.");
+                  "No more data to read.");
       }
       have += get;
     }

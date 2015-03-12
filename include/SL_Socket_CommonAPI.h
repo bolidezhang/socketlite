@@ -5,6 +5,8 @@
 #include "SL_Config.h"
 #include "SL_OS_API.h"
 #include "SL_Utility_Memory.h"
+#include "SL_Utility_DataConvert.h"
+
 #ifdef SOCKETLITE_OS_WINDOWS
     #include <io.h>
     #include "Shlwapi.h"
@@ -656,50 +658,91 @@ public:
         #endif
     }
 
-    static inline int64 util_atoi64(const char *str)
+    static inline int64 util_atoll(const char *str)
     {
         //方法1
-        //_atoi64(atoll)
+        return SL_Utility_DataConvert::atoll(str);
 
         //方法2
-        //_strtoi64(strtoll)
+        //_atoi64/atoll(
 
-        #ifdef SOCKETLITE_OS_WINDOWS
-            return _atoi64(str);
-        #else
-            return atoll(str);
-        #endif
+        //方法3
+        //_strtoi64/strtoll
+
+        //#ifdef SOCKETLITE_OS_WINDOWS
+        //    return _atoi64(str);
+        //#else
+        //    return atoll(str);
+        //#endif
     }
 
-    static inline uint64 util_atoui64(const char *str)
+    static inline uint64 util_atoull(const char *str)
     {
-        #ifdef SOCKETLITE_OS_WINDOWS
-            return _strtoui64(str, NULL, 10);
-        #else
-            return strtoull(str, NULL, 10);
-        #endif
+        //方法1
+        return SL_Utility_DataConvert::atoull(str);
+
+        //方法2
+        //#ifdef SOCKETLITE_OS_WINDOWS
+        //    return _strtoui64(str, NULL, 10);
+        //#else
+        //    return strtoull(str, NULL, 10);
+        //#endif
     }
 
-    static inline int util_i64toa(int64 i, char *str, int radix)
+    static inline void util_i64toa(int64 i, char *str, int len)
     {
-        #ifdef SOCKETLITE_OS_WINDOWS
-            _i64toa(i, str, radix);
-        #else
-            //lltoa(i, str, radix);
-            sprintf(str, "%lld", i);
-        #endif
-        return 0;
+        //方法1
+        SL_Utility_DataConvert::lltoa(i, str);
+
+        //方法2
+        //#ifdef SOCKETLITE_OS_WINDOWS
+        //    _i64toa(i, str, 10);
+        //#else
+        //    //lltoa(i, str, 10);
+        //    snprintf(str, len, "%lld", i);
+        //#endif
     }
 
-    static inline int util_ui64toa(uint64 i, char *str, int radix)
+    static inline void util_ui64toa(uint64 i, char *str, int len)
     {
-        #ifdef SOCKETLITE_OS_WINDOWS
-            _ui64toa(i, str, radix);
-        #else
-            //ulltoa(i, str, radix);
-            sprintf(str, "%llu", i);
-        #endif
-        return 0;
+        //方法1
+        SL_Utility_DataConvert::ulltoa(i, str);
+
+        //方法2
+        //#ifdef SOCKETLITE_OS_WINDOWS
+        //    _ui64toa(i, str, 10);
+        //#else
+        //    //ulltoa(i, str, 10);
+        //    snprintf(str, len, "%llu", i);
+        //#endif
+    }
+
+    static inline void util_lltoa(int64 i, char *str, int len)
+    {
+        //方法1
+        SL_Utility_DataConvert::lltoa(i, str);
+
+        //方法2
+        //#ifdef SOCKETLITE_OS_WINDOWS
+        //    _i64toa(i, str, 10);
+        //#else
+        //    //lltoa(i, str, 10);
+        //    snprintf(str, len, "%lld", i);
+        //#endif
+    }
+
+    static inline void util_ulltoa(uint64 i, char *str, int len)
+    {
+        //方法1
+        SL_Utility_DataConvert::ulltoa(i, str);
+
+        //方法2
+        //#ifdef SOCKETLITE_OS_WINDOWS
+        //    _ui64toa(i, str, 10);
+        //#else
+        //    //ulltoa(i, str, 10);
+        //    snprintf(str, len, "%llu", i);
+        //#endif
     }
 
     static inline int util_get_application_path(SL_TCHAR *path, int path_len)

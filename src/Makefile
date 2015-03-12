@@ -128,6 +128,7 @@ SL_Socket_SendControl_HandlerManager.cpp \
 SL_Socket_TcpClient_AutoConnect.cpp \
 SL_Thread_Group.cpp \
 SL_Utility_Memory.cpp \
+SL_Utility_DataConvert.cpp \
 SL_Rpc_Thrift_CompactProtocol.cpp \
 ./thrift/TApplicationException.cpp \
 ./thrift/transport/TBufferTransports.cpp \

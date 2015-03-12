@@ -235,7 +235,7 @@ public:
         return socket_handlers_.size();
     }
 
-    int event_loop(int timeout_ms=10)
+    int event_loop(int timeout_ms = 10)
     {
         SL_Socket_Handler *socket_handler;
         int ret = 0;

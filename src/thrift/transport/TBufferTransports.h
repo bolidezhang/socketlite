@@ -22,7 +22,6 @@
 
 #include <cstring>
 #include "boost/scoped_array.hpp"
-
 #include <transport/TTransport.h>
 
 #ifdef __GNUC__
@@ -395,7 +394,7 @@ class TMemoryBuffer : public TBufferBase {
   void initCommon(uint8_t* buf, uint32_t size, bool owner, uint32_t wPos) {
     if (buf == NULL && size != 0) {
       assert(owner);
-      buf = (uint8_t*)std::malloc(size);
+      buf = (uint8_t *)malloc(size);
       if (buf == NULL) {
         throw TTransportException("Out of memory");
       }
@@ -496,7 +495,7 @@ class TMemoryBuffer : public TBufferBase {
 
   ~TMemoryBuffer() {
     if (owner_) {
-      std::free(buffer_);
+      free(buffer_);
     }
   }
 
@@ -543,7 +542,7 @@ class TMemoryBuffer : public TBufferBase {
     {
       assert(owner_);
 
-      void* new_buffer = std::realloc(buffer_, defaultSize);
+      void* new_buffer = realloc(buffer_, defaultSize);
 
       if (new_buffer == NULL) {
         throw TTransportException("Out of memory.");

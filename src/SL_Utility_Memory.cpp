@@ -145,7 +145,7 @@ void SL_Utility_Memory::memcpy(void *dest, const void *src, size_t n)
 
     //方法2 (经测试, 在某些环境下,性能比方法1差很多)
     //long double特别说明
-    //1)sizeof(long double)==16;
+    //1)linux gcc, sizeof(long double)==16;
     //2)但其在linux x86 and x86-64下的有效字节数为10(80-bit x87 floating point type on x86 and x86-64 architectures)
     //if (n > 260)
     //{

@@ -85,11 +85,11 @@ class TOutput {
     time(&now);
 #ifndef THRIFT_WIN32
     char dbgtime[26];
-	ctime_r(&now, dbgtime);
-	dbgtime[24] = 0;
-	fprintf(stderr, "Thrift: %s %s\n", dbgtime, msg);
+    ctime_r(&now, dbgtime);
+    dbgtime[24] = 0;
+    fprintf(stderr, "Thrift: %s %s\n", dbgtime, msg);
 #else
-	fprintf(stderr, "Thrift: %s %s\n", ctime(&now), msg);
+    fprintf(stderr, "Thrift: %s %s\n", ctime(&now), msg);
 #endif
 
   }

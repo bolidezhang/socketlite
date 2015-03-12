@@ -1,3 +1,33 @@
+SocketLite 3.2.43 2014-8-5
+    1. 统一消息的序列化和反主序列化的接口
+
+SocketLite 3.2.39 2014-7-2
+    1. 修复thrift消息体非法时, CPU 100%的bug
+    
+SocketLite 3.2.34 2014-5-19
+    1. 增加SL_Utility_HashTreeMap
+    2. 增加SL_Utility_HashTreeSet
+    
+SocketLite 3.2.32 2014-5-8
+    1. 增加SL_Crypto_Checksum
+    2. 增加SL_Crypto_Adler32    
+    3. 增加SL_Crypto_CRC32
+    4. 增加SL_Crypto_CRC32C   
+    
+SocketLite 3.2.30 2014-4-30
+    1. 增加SL_Crypto_HMAC
+    2. 增加SL_Crypto_DH
+
+SocketLite 3.2.29 2014-4-25
+    1. 增加SL_Crypto_OSRand
+    2. 修改SL_Crypto_Rand
+
+SocketLite 3.2.28 2014-4-23
+    1. 修复了SL_Crypto_CRTRand和SL_Crypto_RaknetRand类的random_int(int low, int high)范围为1时，不随机的问题
+
+SocketLite 3.2.27 2014-3-14
+    1. 增加SL_Crypto_RSA类
+
 SocketLite 3.2.26 2014-1-7
     1. SL_Socket_SendControl_Handler类增加直接发送
 

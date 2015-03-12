@@ -52,7 +52,7 @@ public:
                  bool direct_send_flag      = true);
 
     int     close();
-    int     event_loop(int timeout_ms=10);
+    int     event_loop(int timeout_ms = 10);
 
     int     add_handler(SL_Socket_Handler *handler, SL_Socket_SendControl_Interface *sendcontrol);
     int     wakeup_thread(int thread_index);

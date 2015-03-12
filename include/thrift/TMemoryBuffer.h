@@ -21,8 +21,8 @@
 #import "TTransport.h"
 
 @interface TMemoryBuffer : NSObject <TTransport> {
-	NSMutableData *mBuffer;
-	NSUInteger mOffset;
+    NSMutableData *mBuffer;
+    NSUInteger mOffset;
 }
 - (id)initWithData:(NSData *)data;
 - (NSData *)getBuffer;
