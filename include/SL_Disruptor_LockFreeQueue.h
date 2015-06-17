@@ -17,7 +17,7 @@ public:
         , next_index_(0)
         , capacity_(0)
         , index_bit_mask_(0)
-        , event_max_len_(0)
+        , event_len_(0)
         , rewrite_count_(-1)
         , dependent_flag_(false)
         , notify_flag_(false)
@@ -32,7 +32,7 @@ public:
         }
     }
 
-    inline int init(ulong capacity, uint event_max_len = 64, int rewrite_count = -1, int reread_count = -1)
+    inline int init(uint capacity, uint event_len = 64, int rewrite_count = -1, int reread_count = -1)
     {
         rewrite_count_ = (rewrite_count < 1) ? -1 : rewrite_count;
 
@@ -45,18 +45,18 @@ public:
                 break;
             }
         }
-        if (i == SL_NUM_2_POW)
+        if (SL_NUM_2_POW == i)
         {
             capacity = SL_2_POW_LIST[SL_NUM_2_POW - 1];
         }
 
-        ulong pool_size = capacity * event_max_len;
+        uint pool_size = capacity * event_len;
         event_pool_ = (char *)sl_malloc(pool_size);
         if (NULL != event_pool_)
         {
             capacity_       = capacity;
             index_bit_mask_ = capacity - 1;
-            event_max_len_  = event_max_len;
+            event_len_      = event_len;
             next_index_.store(0);
             cursor_index_.store(0);
             return 1;
@@ -73,7 +73,7 @@ public:
         }
         capacity_       = 0;
         index_bit_mask_ = 0;
-        event_max_len_  = 0;
+        event_len_      = 0;
         rewrite_count_  = -1;
         dependent_flag_ = false;
         notify_flag_    = false;
@@ -83,31 +83,31 @@ public:
         notify_list_.clear();
     }
 
-    inline long push(const SL_Disruptor_Event *event, int redo_count = 0)
+    inline int64 push(const SL_Disruptor_Event *event, int redo_count = 0)
     {
         int64 next_index;
         int64 handler_index;
-        ulong queue_size;
+        int64 queue_size;
 
         if (0 == redo_count)
         {
             redo_count = rewrite_count_;
         }
-        
+
         if (dependent_flag_)
         {
-            if (redo_count < 0)
-            {//无限次数
-                for (;;)
+            if (redo_count > 0)
+            {//有限次数
+                for (int i = 0; i < redo_count; ++i)
                 {
                     next_index      = next_index_.load();
                     handler_index   = min_dependent_index_i();
-                    queue_size      = (ulong)(next_index - handler_index);
+                    queue_size      = next_index - handler_index;
                     if (queue_size < capacity_)
                     {
                         if (next_index_.compare_exchange(next_index, next_index + 1))
                         {
-                            ulong offset = (next_index & index_bit_mask_) * event_max_len_;
+                            int64 offset = (next_index & index_bit_mask_) * event_len_;
                             sl_memcpy(event_pool_ + offset, event->get_event_buffer(), event->get_event_len());
                             while (!cursor_index_.compare_exchange(next_index, next_index + 1));
 
@@ -126,17 +126,17 @@ public:
                 }
             }
             else
-            {//有限次数
-                for (int i = 0; i < redo_count; ++i)
+            {//无限次数
+                for (;;)
                 {
                     next_index      = next_index_.load();
                     handler_index   = min_dependent_index_i();
-                    queue_size      = (ulong)(next_index - handler_index);
+                    queue_size      = next_index - handler_index;
                     if (queue_size < capacity_)
                     {
                         if (next_index_.compare_exchange(next_index, next_index + 1))
                         {
-                            ulong offset = (next_index & index_bit_mask_) * event_max_len_;
+                            int64 offset = (next_index & index_bit_mask_) * event_len_;
                             sl_memcpy(event_pool_ + offset, event->get_event_buffer(), event->get_event_len());
                             while (!cursor_index_.compare_exchange(next_index, next_index + 1));
 
@@ -159,16 +159,16 @@ public:
         return -1;
     }
 
-    inline ulong capacity() const
+    inline int64 capacity() const
     {
         return capacity_;
     }
 
-    inline ulong size()
+    inline int64 size()
     {
-        int64 next_index        = next_index_.load();
-        int64 dependent_index   = min_dependent_index();
-        return (ulong)(next_index - dependent_index);
+        int64 next_index      = next_index_.load();
+        int64 dependent_index = min_dependent_index();
+        return next_index - dependent_index;
     }
 
     inline bool empty()
@@ -201,7 +201,7 @@ public:
         return cursor_index_.load();
     }
 
-    inline long quit_event()
+    inline int64 quit_event()
     {
         SL_Disruptor_QuitEvent quit_event;
         return push(&quit_event, -1);
@@ -209,7 +209,7 @@ public:
 
     inline SL_Disruptor_Event* get_event(int64 event_index)
     {
-        ulong offset = (event_index & index_bit_mask_) * event_max_len_;
+        int64 offset = (event_index & index_bit_mask_) * event_len_;
         return (SL_Disruptor_Event *)(event_pool_ + offset);
     }
 
@@ -258,13 +258,13 @@ private:
     char                    *event_pool_;                   //事件池
     SL_Sync_Atomic_Int64    cursor_index_;                  //队列当前位置(只增不减)
     SL_Sync_Atomic_Int64    next_index_;                    //队列下一位置(只增不减)
-    ulong                   capacity_;                      //队列容量(必须为2的N次方)
-    ulong                   index_bit_mask_;                //下标位掩码(为capacity_ - 1)
-    uint                    event_max_len_;                 //事件对象最大大小
+    int64                   capacity_;                      //队列容量(必须为2的N次方)
+    int64                   index_bit_mask_;                //下标位掩码(为capacity_ - 1)
+    uint                    event_len_;                     //事件对象长度
     int                     rewrite_count_;                 //重写次数(-1:无限次数)
 
-    std::list<SL_Disruptor_IHandler * >  dependent_list_;   //依赖列表
-    std::list<SL_Disruptor_IHandler * >  notify_list_;      //通知列表
+    std::list<SL_Disruptor_IHandler * > dependent_list_;    //依赖列表
+    std::list<SL_Disruptor_IHandler * > notify_list_;       //通知列表
     bool dependent_flag_;
     bool notify_flag_;
 };

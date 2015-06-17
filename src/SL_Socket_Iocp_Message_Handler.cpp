@@ -127,7 +127,7 @@ int SL_Socket_Iocp_Message_Handler::write_message(const char *msg, int len)
 {
     int msglen_bytes = socket_source_->get_msglen_bytes();
     int datalen = msglen_bytes + len;
-    if (datalen > msg_buffer_.buffer_size())
+    if (datalen > (int)msg_buffer_.buffer_size())
     {
         return -1;
     }
@@ -135,28 +135,28 @@ int SL_Socket_Iocp_Message_Handler::write_message(const char *msg, int len)
     SL_ByteBuffer buf;
     switch (msglen_bytes)
     {
-    case 2:
-        {
-            short i = datalen;
-            buf.reserve(datalen);
-            buf.write(i);
-        }
-        break;
-    case 1:
-        {
-            char i = datalen;
-            buf.reserve(datalen);
-            buf.write(i);
-        }
-        break;
-    case 4:
-        {
-            buf.reserve(datalen);
-            buf.write(datalen);
-        }
-        break;
-    default:
-        return -1;
+        case 1:
+            {
+                char i = datalen;
+                buf.reserve(datalen);
+                buf.write(i);
+            }
+            break;
+        case 2:
+            {
+                short i = datalen;
+                buf.reserve(datalen);
+                buf.write(i);
+            }
+            break;
+        case 4:
+            {
+                buf.reserve(datalen);
+                buf.write(datalen);
+            }
+            break;
+        default:
+            return -1;
     }
     buf.write(msg, len);
     if (socket_source_->get_socket_handler() == this)

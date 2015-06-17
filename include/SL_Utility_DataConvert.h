@@ -16,22 +16,22 @@ public:
 
     //字符串转4字节整数
     static int32   atoi(const char *str);
-    static int32   atoi(const char *str, int str_len, char **endptr);
+    static int32   atoi(const char *str, uint len, char **endptr);
     //字符串转4字节无符号整数
     static uint32  atoui(const char *str);
-    static uint32  atoui(const char *str, int str_len, char **endptr);
+    static uint32  atoui(const char *str, uint len, char **endptr);
     //字符串转8字节整数
     static int64   atoll(const char *str);
-    static int64   atoll(const char *str, int str_len, char **endptr);
+    static int64   atoll(const char *str, uint len, char **endptr);
     //字符串转8字节无符号整数
     static uint64  atoull(const char *str);
-    static uint64  atoull(const char *str, int str_len, char **endptr);
+    static uint64  atoull(const char *str, uint len, char **endptr);
 
     //4字节无符号整数转10进制字串
-    static int uitoa(uint32 value, char str[10]);
+    static int uitoa(uint32 value, char str[12]);
 
     //4字节整数转10进制字串
-    static inline int itoa(int32 value, char str[11])
+    static inline int itoa(int32 value, char str[12])
     {
         if (value >= 0)
         {
@@ -45,10 +45,10 @@ public:
     }
 
     //8字节无符号整数转10进制字串
-    static int ulltoa(uint64 value, char str[20]);
+    static int ulltoa(uint64 value, char str[21]);
 
     //8字节整数转10进制字串
-    static inline int lltoa(int64 value, char str[20])
+    static inline int lltoa(int64 value, char str[21])
     {
         if (value >= 0)
         {

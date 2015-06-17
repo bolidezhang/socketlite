@@ -1041,7 +1041,7 @@ public:
     }
 
     //两个进程时钟差
-    static inline long util_process_clock_difference(ulong end_clock, ulong start_clock)
+    static inline int util_process_clock_difference(uint end_clock, uint start_clock)
     {
         return (end_clock - start_clock);
     }
@@ -1215,15 +1215,19 @@ public:
         sl_memcpy(dest, src, n);
     }
 
-    //内存拷贝(这种方式实现, 性能比较差)
+    //内存拷贝
     static inline void util_memcpy_char(void *dest, const void *src, size_t n)
     {
-        char *dest_char = (char *)dest;
-        char *src_char  = (char *)src;
-        while (n--) 
-        {
-            *dest_char++ = *src_char++;
-        }
+        //方法1
+        sl_memcpy(dest, src, n);
+
+        //方法2: 性能比较差
+        //char *dest_char = (char *)dest;
+        //char *src_char  = (char *)src;
+        //while (n--) 
+        //{
+        //    *dest_char++ = *src_char++;
+        //}
     }
 
     //检测文件是否存在

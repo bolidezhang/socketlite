@@ -18,7 +18,7 @@ template <typename TSedaStageHandler>
 class SL_Seda_StageThread : public SL_Seda_IStageThread
 {
 public:
-    SL_Seda_StageThread(SL_Seda_IStage *stage, int thread_index, uint queue_max_size, uint event_max_len, uint timedwait_interval_us, bool timedwait_signal)
+    SL_Seda_StageThread(SL_Seda_IStage *stage, int thread_index, uint queue_max_size, uint event_len, uint timedwait_interval_us, bool timedwait_signal)
         : stage_(stage)
         , thread_index_(thread_index)
         , idle_event_flag_(false)
@@ -30,8 +30,8 @@ public:
         , timedwait_signal_(timedwait_signal)
     {
         stage_handler_.set_stage_thread(this);
-        event_queue1_.init(queue_max_size, event_max_len);
-        event_queue2_.init(queue_max_size, event_max_len);
+        event_queue1_.init(queue_max_size, event_len);
+        event_queue2_.init(queue_max_size, event_len);
         event_queue_active_  = &event_queue1_;
         event_queue_standby_ = &event_queue2_;
     }
@@ -244,7 +244,8 @@ private:
             {//timer_event_flag = false and idle_event_flag = false
                 for (;;)
                 {
-                    if (stage_thread->event_queue_active_->pop(&event) > 0)
+                    event = stage_thread->event_queue_active_->pop();
+                    if (NULL != event)
                     {
                         if (SL_Seda_EventType::QUIT_EVENT != event->type_)
                         {
@@ -278,7 +279,8 @@ private:
             {///timer_event_flag = false and idle_event_flag = true
                 for (;;)
                 {
-                    if (stage_thread->event_queue_active_->pop(&event) > 0)
+                    event = stage_thread->event_queue_active_->pop();
+                    if (NULL != event)
                     {
                         if (SL_Seda_EventType::QUIT_EVENT != event->type_)
                         {
@@ -312,7 +314,7 @@ private:
 
                             stage_thread->swap_event_queue();
                         }
-                    }            
+                    }
                 }
             }
         }
@@ -322,7 +324,8 @@ private:
             {//timer_event_flag = true and idle_event_flag = false
                 for (;;)
                 {
-                    if (stage_thread->event_queue_active_->pop(&event) > 0)
+                    event = stage_thread->event_queue_active_->pop();
+                    if (NULL != event)
                     {
                         if (SL_Seda_EventType::QUIT_EVENT != event->type_)
                         {
@@ -331,8 +334,8 @@ private:
                             ++timer_event_count;
                             if (SOCKETLITE_SEDA_TIMER_EVENT_FACTOR == timer_event_count)
                             {
-                                stage_thread->check_timers(SL_Socket_CommonAPI::util_process_clock_ms(), &timer_expire_event);
                                 timer_event_count = 0;
+                                stage_thread->check_timers(SL_Socket_CommonAPI::util_process_clock_ms(), &timer_expire_event);
                             }
                         }
                         else
@@ -367,7 +370,8 @@ private:
             {//timer_event_flag = true and idle_event_flag = true
                 for (;;)
                 {
-                    if (stage_thread->event_queue_active_->pop(&event) > 0)
+                    event = stage_thread->event_queue_active_->pop();
+                    if (NULL != event)
                     {
                         if (SL_Seda_EventType::QUIT_EVENT != event->type_)
                         {
@@ -376,8 +380,8 @@ private:
                             ++timer_event_count;
                             if (SOCKETLITE_SEDA_TIMER_EVENT_FACTOR == timer_event_count)
                             {
-                                stage_thread->check_timers(SL_Socket_CommonAPI::util_process_clock_ms(), &timer_expire_event);
                                 timer_event_count = 0;
+                                stage_thread->check_timers(SL_Socket_CommonAPI::util_process_clock_ms(), &timer_expire_event);
                             }
                         }
                         else

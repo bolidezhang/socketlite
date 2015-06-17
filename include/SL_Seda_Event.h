@@ -50,6 +50,7 @@ public:
     inline SL_Seda_Event(int type, int len)
         : type_(type)
         , len_(len)
+        , timestamp_(0)
     {
     }
 
@@ -59,7 +60,7 @@ public:
 
     int     type_;      //type of SL_Seda_Event
     int     len_;       //len of data, include sizeof(SL_Seda_Event)
-    int64   timestamp_; //事件发生时间(建议时间单位:us, 可以自行定义) 用于控制SEDA线程处理太慢,事件在队列等待时间过长时,无需再处理此事件)
+    uint64  timestamp_; //事件发生时间(建议时间单位:us, 可以自行定义) 用于控制SEDA线程处理太慢,事件在队列等待时间过长时,无需再处理此事件)
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +72,7 @@ class SL_Seda_SignalEvent : public SL_Seda_Event
 {
 public:
     inline SL_Seda_SignalEvent(int type = type_value) 
-        : SL_Seda_Event(type, sizeof(SL_Seda_Event))
+        : SL_Seda_Event(type, sizeof(SL_Seda_SignalEvent))
     {
     }
 
@@ -121,7 +122,8 @@ struct SL_Seda_EventType
         UDP_READ_DATA = 11,
         UDP_WRITE_DATA = 12,
 
-        RPC_MESSAGE = 13,               //rpc(支持thrift和protobuf等消息格式)
+        RPC_MESSAGE  = 13,              //rpc(支持thrift和protobuf等消息格式)
+        RPC_MESSAGE2 = 14,              //rpc(支持thrift和protobuf等消息格式)
 
         USER_START = 1000,
         USER_START_NUMBER = 1000,
@@ -237,11 +239,11 @@ struct SL_Seda_TcpWriteDataEvent : public SL_Seda_Event
 typedef int (* SL_Seda_RpcMessageProc)(int socket_handler_id, SL_Socket_Handler *socket_handler, void *seda_stagehandler, void *rpc_message, SL_Socket_INET_Addr *remote_addr);
 struct SL_Seda_RpcMessageEvent : public SL_Seda_Event
 {
-    int socket_handler_id;
     SL_Socket_Handler *socket_handler;
     SL_Seda_RpcMessageProc rpc_proc;
     void *rpc_message;
     SL_Socket_INET_Addr *remote_addr;
+    int socket_handler_id;
 
     inline SL_Seda_RpcMessageEvent()
         : SL_Seda_Event(SL_Seda_EventType::RPC_MESSAGE, sizeof(SL_Seda_RpcMessageEvent))
@@ -249,6 +251,26 @@ struct SL_Seda_RpcMessageEvent : public SL_Seda_Event
     }
 
     inline ~SL_Seda_RpcMessageEvent()
+    {
+    }
+};
+
+struct SL_Seda_RpcMessageEvent2;
+typedef int (* SL_Seda_RpcMessageProc2)(SL_Seda_RpcMessageEvent2 *rpc_event, void *seda_stagehandler);
+struct SL_Seda_RpcMessageEvent2 : public SL_Seda_Event
+{
+    SL_Socket_Handler *socket_handler;
+    SL_Seda_RpcMessageProc2 rpc_proc;
+    void *rpc_message;
+    SL_Socket_INET_Addr *remote_addr;
+    int64 socket_handler_id;
+
+    inline SL_Seda_RpcMessageEvent2()
+        : SL_Seda_Event(SL_Seda_EventType::RPC_MESSAGE2, sizeof(SL_Seda_RpcMessageEvent2))
+    {
+    }
+
+    inline ~SL_Seda_RpcMessageEvent2()
     {
     }
 };

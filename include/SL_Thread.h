@@ -43,7 +43,7 @@ public:
         return 0;
     }
 
-    int start(SL_ThreadProc threadproc, void *arg)
+    int start(SL_ThreadProc thread_proc, void *arg)
     {
         if (started_.load() > 0)
         {
@@ -52,7 +52,7 @@ public:
 
         started_.store(1);
         running_.store(1);
-        thread_handle_ = reinterpret_cast<SL_THREAD_HANDLE>(::_beginthreadex(NULL, 0, threadproc, arg, 0, &thread_id_));
+        thread_handle_ = reinterpret_cast<SL_THREAD_HANDLE>(::_beginthreadex(NULL, 0, thread_proc, arg, 0, &thread_id_));
         if (NULL == thread_handle_)
         {
             started_.store(0);
@@ -175,7 +175,7 @@ public:
         return 0;
     }
 
-    int start(SL_ThreadProc threadproc, void *arg)
+    int start(SL_ThreadProc thread_proc, void *arg)
     {
         if (started_.load() > 0)
         {
@@ -184,7 +184,7 @@ public:
 
         started_.store(1);
         running_.store(1);
-        int ret  = pthread_create(&thread_handle_, NULL, threadproc, arg);
+        int ret  = pthread_create(&thread_handle_, NULL, thread_proc, arg);
         if (ret != 0)
         {
             started_.store(0);

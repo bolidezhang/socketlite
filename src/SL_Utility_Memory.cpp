@@ -1,82 +1,7 @@
 #include "SL_Utility_Memory.h"
 
-void SL_Utility_Memory::memcpy(void *dest, const void *src, size_t n)
+void* SL_Utility_Memory::memcpy(void *dest, const void *src, size_t n)
 {
-#ifdef SOCKETLITE_OS_WINDOWS
-
-#define MOD0                                        \
-    do {                                            \
-        *dest_64++ = *src_64++;                     \
-    } while (0)
-
-#define MOD1                                        \
-    do {                                            \
-        *((int8 *)dest_64) = *((int8 *)src_64);     \
-    } while (0)
-
-#define MOD2                                        \
-    do {                                            \
-        *((int16 *)dest_64) = *((int16 *)src_64);   \
-    } while (0)
-
-#define MOD3                                        \
-    do {                                            \
-        int16 *dest_16 = (int16 *)dest_64;          \
-        int16 *src_16  = (int16 *)src_64;           \
-        *dest_16++ = *src_16++;                     \
-        *((int8 *)dest_16) = *((int8 *)src_16);     \
-    } while (0)
-
-#define MOD4                                        \
-    do {                                            \
-        *((float *)dest_64) = *((float *)src_64);   \
-    } while (0)
-
-#define MOD5                                        \
-    do {                                            \
-        float *dest_32 = (float *)dest_64;          \
-        float *src_32  = (float *)src_64;           \
-        *dest_32++ = *src_32++;                     \
-        *((int8 *)dest_32) = *((int8 *)src_32);     \
-    } while (0)
-
-#define MOD6                                        \
-    do {                                            \
-        float *dest_32 = (float *)dest_64;          \
-        float *src_32  = (float *)src_64;           \
-        *dest_32++ = *src_32++;                     \
-        *((int16 *)dest_32) = *((int16 *)src_32);   \
-    } while (0)
-
-#define MOD7                                        \
-    do {                                            \
-        float *dest_32 = (float *)dest_64;          \
-        float *src_32  = (float *)src_64;           \
-        *dest_32++ = *src_32++;                     \
-        int16 *dest_16 = (int16 *)dest_32;          \
-        int16 *src_16  = (int16 *)src_32;           \
-        *dest_16++ = *src_16++;                     \
-        *((int8 *)dest_16) = *((int8 *)src_16);     \
-    } while (0)
-
-    if (n > 256)
-    {
-        std::memcpy(dest, src, n);
-        return;
-    }
-
-    double *dest_64  = (double *)dest;
-    double *src_64   = (double *)src;
-
-    while (n > 256)
-    {
-        MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
-        MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
-        n -= 256;
-    }
-
-#else   //linux
-
 #define MOD0                                        \
     do {                                            \
         *dest_64++ = *src_64++;                     \
@@ -132,15 +57,34 @@ void SL_Utility_Memory::memcpy(void *dest, const void *src, size_t n)
         *((int8 *)dest_16) = *((int8 *)src_16);     \
     } while (0)
 
+    void *ret = dest;
+
+#ifdef SOCKETLITE_OS_WINDOWS
+
+    if (n > 256)
+    {
+        return std::memcpy(dest, src, n);
+    }
+
+    int64 *dest_64  = (int64 *)dest;
+    int64 *src_64   = (int64 *)src;
+
+    //for (; n > 256; n -= 256)
+    //{
+    //    MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
+    //    MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
+    //}
+
+#else   //linux
+
     int64 *dest_64  = (int64 *)dest;
     int64 *src_64   = (int64 *)src;
 
     //方法1
-    while (n > 256)
+    for (; n > 256; n -= 256)
     {
         MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
         MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
-        n -= 256;
     }
 
     //方法2 (经测试, 在某些环境下,性能比方法1差很多)
@@ -240,8 +184,6 @@ void SL_Utility_Memory::memcpy(void *dest, const void *src, size_t n)
 
     switch (n)
     {
-        case 0:
-            break;
         case 1:
             {
                 MOD1;
@@ -1635,33 +1577,35 @@ void SL_Utility_Memory::memcpy(void *dest, const void *src, size_t n)
                 MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
             }
             break;
-        case 257:
-            {
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD1;
-            }
-            break;
-        case 258:
-            {
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD2;
-            }
-            break;
-        case 259:
-            {
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD3;
-            }
-            break;
-        case 260:
-            {
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD4;
-            }
-            break;
-        default:
-            break;
+        //case 257:
+        //    {
+        //        MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
+        //        MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD1;
+        //    }
+        //    break;
+        //case 258:
+        //    {
+        //        MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
+        //        MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD2;
+        //    }
+        //    break;
+        //case 259:
+        //    {
+        //        MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
+        //        MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD3;
+        //    }
+        //    break;
+        //case 260:
+        //    {
+        //        MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
+        //        MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD4;
+        //    }
+        //    break;
+        //default:
+        //    break;
     }
+
+    return ret;
 
 #undef MOD0
 #undef MOD1
@@ -1676,68 +1620,6 @@ void SL_Utility_Memory::memcpy(void *dest, const void *src, size_t n)
 
 void SL_Utility_Memory::memclear(void *dest, size_t n)
 {
-#ifdef SOCKETLITE_OS_WINDOWS
-
-#define MOD0                                        \
-    do {                                            \
-        *dest_64++ = 0;                             \
-    } while (0)
-
-#define MOD1                                        \
-    do {                                            \
-        *((int8 *)dest_64) = 0;                     \
-    } while (0)
-
-#define MOD2                                        \
-    do {                                            \
-        *((int16 *)dest_64) = 0;                    \
-    } while (0)
-
-#define MOD3                                        \
-    do {                                            \
-        int16 *dest_16 = (int16 *)dest_64;          \
-        *dest_16++ = 0;                             \
-        *((int8 *)dest_16) = 0;                     \
-    } while (0)
-
-#define MOD4                                        \
-    do {                                            \
-        *((float *)dest_64) = 0;                    \
-    } while (0)
-
-#define MOD5                                        \
-    do {                                            \
-        float *dest_32 = (float *)dest_64;          \
-        *dest_32++ = 0;                             \
-        *((int8 *)dest_32) = 0;                     \
-    } while (0)
-
-#define MOD6                                        \
-    do {                                            \
-        float *dest_32 = (float *)dest_64;          \
-        *dest_32++ = 0;                             \
-        *((int16 *)dest_32) = 0;                    \
-    } while (0)
-
-#define MOD7                                        \
-    do {                                            \
-        float *dest_32 = (float *)dest_64;          \
-        *dest_32++ = 0;                             \
-        int16 *dest_16 = (int16 *)dest_32;          \
-        *dest_16++ = 0;                             \
-        *((int8 *)dest_16) = 0;                     \
-    } while (0)
-
-    if (n > 256)
-    {
-        std::memset(dest, 0, n);
-        return;
-    }
-
-    double *dest_64  = (double *)dest;
-
-#else   //linux
-
 #define MOD0                                        \
     do {                                            \
         *dest_64++ = 0;                             \
@@ -1788,21 +1670,34 @@ void SL_Utility_Memory::memclear(void *dest, size_t n)
         *((int8 *)dest_16) = 0;                     \
     } while (0)
 
-    int64 *dest_64  = (int64 *)dest;
+#ifdef SOCKETLITE_OS_WINDOWS
+
+    if (n > 256)
+    {
+        std::memset(dest, 0, n);
+        return;
+    }
+    int64 *dest_64 = (int64 *)dest;
+
+    //for (; n > 256; n -= 256)
+    //{
+    //    MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
+    //    MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
+    //}
+
+#else   //linux
+
+    int64 *dest_64 = (int64 *)dest;
+    for (; n > 256; n -= 256)
+    {
+        MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
+        MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
+    }
 
 #endif  //linux
 
-    while (n > 256)
-    {
-        MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
-        MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
-        n -= 256;
-    }
-
     switch (n)
     {
-        case 0:
-            break;
         case 1:
             {
                 MOD1;
@@ -3195,32 +3090,6 @@ void SL_Utility_Memory::memclear(void *dest, size_t n)
                 MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
                 MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
             }
-            break;
-        case 257:
-            {
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD1;
-            }
-            break;
-        case 258:
-            {
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD2;
-            }
-            break;
-        case 259:
-            {
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD3;
-            }
-            break;
-        case 260:
-            {
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;
-                MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD0;MOD4;
-            }
-            break;
-        default:
             break;
     }
 

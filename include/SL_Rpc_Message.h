@@ -340,13 +340,44 @@ public:
     {
     }
 
-    template<typename TMessage> 
-    inline static int message_to_event(char *data, 
-        int len, 
-        int socket_handler_id, 
-        SL_Socket_Handler *socket_handler, 
-        SL_Seda_RpcMessageProc rpc_proc, 
-        SL_Seda_RpcMessageEvent *rpc_event, 
+    template<typename TMessage>
+    inline static int message_to_event(char *data,
+        int len,
+        int socket_handler_id,
+        SL_Socket_Handler *socket_handler,
+        SL_Seda_RpcMessageProc rpc_proc,
+        SL_Seda_RpcMessageEvent *rpc_event,
+        SL_Socket_INET_Addr *remote_addr)
+    {
+        TMessage *message = new TMessage;
+        if (NULL == message)
+        {
+            return -1;
+        }
+
+        if (message->parse(data, len))
+        {
+            rpc_event->socket_handler_id = socket_handler_id;
+            rpc_event->socket_handler = socket_handler;
+            rpc_event->rpc_proc = rpc_proc;
+            rpc_event->rpc_message = message;
+            rpc_event->remote_addr = remote_addr;
+            return 0;
+        }
+        else
+        {
+            delete message;
+        }
+        return -2;
+    }
+
+    template<typename TMessage>
+    inline static int message_to_event2(char *data,
+        int len,
+        int64 socket_handler_id,
+        SL_Socket_Handler *socket_handler,
+        SL_Seda_RpcMessageProc2 rpc_proc,
+        SL_Seda_RpcMessageEvent2 *rpc_event,
         SL_Socket_INET_Addr *remote_addr)
     {
         TMessage *message = new TMessage;

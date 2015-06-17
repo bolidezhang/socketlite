@@ -241,7 +241,7 @@ int SL_Seda_LRUTimerQueue::clear()
     return 0;
 }
 
-SL_Seda_Timer* SL_Seda_LRUTimerQueue::set_timer(ulong interval_ms, int64 param)
+SL_Seda_Timer* SL_Seda_LRUTimerQueue::set_timer(uint interval_ms, int64 param)
 {
     if (!free_list_.empty())
     {

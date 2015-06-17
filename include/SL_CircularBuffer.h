@@ -11,13 +11,13 @@ private:
     }
 
 public:
-    inline SL_CircularBuffer(int bffer_size)
-        : buffer_size_(bffer_size)
+    inline SL_CircularBuffer(uint buffer_size)
+        : buffer_size_(buffer_size)
         , data_begin_index_(0)
         , data_end_index_(0)
         , data_size_(0)
     {
-        buffer_ = (char *)sl_malloc(bffer_size);
+        buffer_ = (char *)sl_malloc(buffer_size);
     }
 
     inline ~SL_CircularBuffer()
@@ -28,12 +28,12 @@ public:
         }
     }
 
-    inline int buffer_size() const
+    inline uint buffer_size() const
     {
         return buffer_size_;
     }
     
-    inline int data_size() const
+    inline uint data_size() const
     {
         return data_size_;
     }
@@ -45,10 +45,10 @@ public:
         data_size_          = 0;
     }
 
-    inline int write(const char *data, int size)
+    inline uint write(const char *data, uint size)
     {
-        int capacity    = buffer_size_;
-        int write_bytes = min(size, capacity - size);
+        uint capacity    = buffer_size_;
+        uint write_bytes = min(size, capacity - size);
         if (capacity - data_end_index_ >= write_bytes)
         {
             sl_memcpy(buffer_ + data_end_index_, data, write_bytes);
@@ -60,9 +60,9 @@ public:
         }
         else
         {
-            int size_1 = capacity - data_end_index_;
+            uint size_1 = capacity - data_end_index_;
             sl_memcpy(buffer_ + data_end_index_, data, size_1);
-            int size_2 = write_bytes - size_1;
+            uint size_2 = write_bytes - size_1;
             sl_memcpy(buffer_, data + size_1, size_2);
             data_end_index_ = size_2;
         }
@@ -70,10 +70,10 @@ public:
         return write_bytes;
     }
 
-    inline int read(char *data, int size)
+    inline uint read(char *data, uint size)
     {
-        int capacity    = buffer_size_;
-        int read_bytes  = min(size, data_size_);
+        uint capacity    = buffer_size_;
+        uint read_bytes  = min(size, data_size_);
         if (capacity - data_begin_index_ >= read_bytes)
         {
             sl_memcpy(data, buffer_ + data_begin_index_, read_bytes);
@@ -85,9 +85,9 @@ public:
         }
         else
         {
-            int size_1 = capacity - data_begin_index_;
+            uint size_1 = capacity - data_begin_index_;
             sl_memcpy(data, buffer_ + data_begin_index_, size_1);
-            int size_2 = read_bytes - size_1;
+            uint size_2 = read_bytes - size_1;
             sl_memcpy(data + size_1, buffer_, size_2);
             data_begin_index_ = size_2;
         }
@@ -97,10 +97,10 @@ public:
 
 private:
     char    *buffer_;
-    int     buffer_size_;
-    int     data_begin_index_;
-    int     data_end_index_;
-    int     data_size_;
+    uint    buffer_size_;
+    uint    data_begin_index_;
+    uint    data_end_index_;
+    uint    data_size_;
 };
 
 #endif

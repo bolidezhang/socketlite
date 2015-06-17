@@ -18,10 +18,10 @@ public:
     int open(const SL_TCHAR *file_name, int flags, int mode);
     int creat(const SL_TCHAR *file_name, int mode);
     int close();
-    int read(void *buf, unsigned int nbytes);
-    int readn(void *buf, unsigned int nbytes);
-    int write(const void *buf, unsigned int nbytes);
-    int writen(const void *buf, unsigned int nbytes);
+    int read(void *buf, uint nbytes);
+    int readn(void *buf, uint nbytes);
+    int write(const void *buf, uint nbytes);
+    int writen(const void *buf, uint nbytes);
     int lseek(long offset, int whence);
     int flush();
     int dup();
@@ -33,7 +33,7 @@ public:
 
 protected:
     int fd_;
-    SL_TSTRING file_name_;    
+    SL_TSTRING file_name_;
 };
 
 #endif

@@ -18,11 +18,12 @@
 // b)__m128(单精度浮点数)/__m128d(双精度浮点数), 不能直接访问, Streaming SIMD Extensions 2(SSE2) instructions intrinsics, is defined in xmmintrin.h
 
 //int128说明
-// a) gcc: 4.7.0以上版本，有__int128
-// b)  vc: __m128i(整数), 不能直接访问, Streaming SIMD Extensions 2(SSE2) instructions intrinsics, is defined in emmintrin.h
+// a)gcc: 4.7.0以上版本，有__int128
+// b)vc: __m128i(整数), 不能直接访问, Streaming SIMD Extensions 2(SSE2) instructions intrinsics, is defined in emmintrin.h
 
 #ifndef SOCKETLITE_DATATYPE_H
 #define SOCKETLITE_DATATYPE_H
+#include <stdint.h>
 #include <string>
 #include <sstream>
 
@@ -38,8 +39,8 @@ typedef long long               longlong;
 typedef unsigned long long      ulonglong;
 typedef float                   float32;
 typedef double                  float64;
-typedef float                   f32;
-typedef double                  f64;
+typedef float                   f32;        //已废弃,用float32替代
+typedef double                  f64;        //已废弃,用float64替代
 
 #ifdef _MSC_VER
     typedef __int8              int8;

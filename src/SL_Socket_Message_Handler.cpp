@@ -159,16 +159,16 @@ int SL_Socket_Message_Handler::write_message(const char *msg, int len)
     SL_ByteBuffer buf;
     switch (msglen_bytes)
     {
-        case 2:
+        case 1:
             {
-                short i = data_len;
+                char i = data_len;
                 buf.reserve(data_len);
                 buf.write(i);
             }
             break;
-        case 1:
+        case 2:
             {
-                char i = data_len;
+                short i = data_len;
                 buf.reserve(data_len);
                 buf.write(i);
             }

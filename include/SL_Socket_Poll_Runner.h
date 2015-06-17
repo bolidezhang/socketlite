@@ -68,7 +68,11 @@ public:
         return recv_buffer_.buffer();
     }
 
-    int open(int event_mask = SL_Socket_Handler::READ_EVENT_MASK, uint max_size = 1024, uint max_timeout_ms = 10, uint thread_number = 0, int8 handler_close_status = SL_Socket_Handler::STATUS_CLOSE)
+    int open(int  event_mask = SL_Socket_Handler::READ_EVENT_MASK,
+             uint max_size = 1024,
+             uint max_timeout_ms = 10,
+             uint thread_number = 0,
+             int8 handler_close_status = SL_Socket_Handler::STATUS_CLOSE)
     {
         if (max_size <= 0)
         {

@@ -30,8 +30,8 @@
 
 #define SOCKETLITE_MAJOR_VERSION        3
 #define SOCKETLITE_MINOR_VERSION        6
-#define SOCKETLITE_SUB_MINOR_VERSION    54
-#define SOCKETLITE_VERSION_STRING       "3.6.54"
+#define SOCKETLITE_SUB_MINOR_VERSION    58
+#define SOCKETLITE_VERSION_STRING       "3.6.58"
 
 #ifdef _DEBUG
     #define SOCKETLITE_DEBUG
@@ -111,8 +111,8 @@
 //#define SOCKETLITE_BIG_ENDIAN
 //#define SOCKETLITE_LITTLE_ENDIAN
 //#define SOCKETLITE_BYTE_ORDER
-#define __SOCKETLITE_LITTLE_ENDIAN	1
-#define __SOCKETLITE_BIG_ENDIAN		2
+#define __SOCKETLITE_LITTLE_ENDIAN 1
+#define __SOCKETLITE_BIG_ENDIAN    2
 #if defined(SOCKETLITE_LITTLE_ENDIAN)
     #define SOCKETLITE_BYTE_ORDER __SOCKETLITE_LITTLE_ENDIAN
 #endif
@@ -199,7 +199,7 @@
         #include <winsock2.h>
         #if (_WIN32_WINNT >= 0x0500)  //window 2000 or later version
             //这个两个头文件先后顺序不能改变,否则在vc2008以上版本编译通不过
-            #include <mstcpip.h>       
+            #include <mstcpip.h>
             #include <ws2tcpip.h>
         #endif
     #else

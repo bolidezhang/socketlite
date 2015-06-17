@@ -133,8 +133,8 @@ int SL_Crypto_AES::encrypt(const unsigned char *in, unsigned int in_len, unsigne
                 for (unsigned int i=0; i<block_count; ++i)
                 {
                     AES_encrypt(in_pos, out_pos, &encrypt_key_);
-                    in_pos	+= AES_BLOCK_SIZE;
-                    out_pos	+= AES_BLOCK_SIZE;
+                    in_pos += AES_BLOCK_SIZE;
+                    out_pos += AES_BLOCK_SIZE;
                 }
                 if (end_block_len > 0)
                 {            

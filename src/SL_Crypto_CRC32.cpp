@@ -589,7 +589,7 @@ void gf2_matrix_square(uint32 *square, uint32 *mat)
 uint32 crc32_combine_(uint32 crc1, uint32 crc2, uint64 len2)
 {
     int n;
-    unsigned long row;
+    uint32 row;
     uint32 even[GF2_DIM];    /* even-power-of-two zeros operator */
     uint32 odd[GF2_DIM];     /* odd-power-of-two zeros operator */
 

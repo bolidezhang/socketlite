@@ -34,7 +34,11 @@ public:
         return 0;
     }
 
-    int open(int event_mask = SL_Socket_Handler::READ_EVENT_MASK, uint max_size = 100000, uint max_timeout_ms = 10, uint thread_number = 10, int8 handler_close_status = SL_Socket_Handler::STATUS_CLOSE)
+    int open(int  event_mask = SL_Socket_Handler::READ_EVENT_MASK,
+             uint max_size = 100000,
+             uint max_timeout_ms = 10,
+             uint thread_number = 10,
+             int8 handler_close_status = SL_Socket_Handler::STATUS_CLOSE)
     {
         close();
         if (max_size <= 0)

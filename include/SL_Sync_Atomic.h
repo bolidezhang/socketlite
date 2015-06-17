@@ -55,14 +55,19 @@ public:
     {
         return value_;
     }
+
+    inline void set(long value)
+    {
+        value_ = value;
+    }
   
     inline long load()
     {
         //方法1
-        return static_cast<long const volatile &>(value_);
+        return ::InterlockedExchangeAdd(&value_, 0);
 
         //方法2
-        //return ::InterlockedExchangeAdd(&value_, 0);
+        //return static_cast<long const volatile &>(value_);
     }
 
     inline void store(long new_value)
@@ -191,10 +196,21 @@ private:
             return value_;
         }
 
+        inline void set(int64 value)
+        {
+            value_ = value;
+        }
+
         inline int64 load()
         {
             //方法1
             return static_cast<int64 const volatile &>(value_);
+
+            //方法2
+            //mutex_.lock();
+            //int64 ret = value_;
+            //mutex_.unlock();
+            //return ret;
         }
 
         inline void store(int64 new_value)
@@ -291,12 +307,12 @@ private:
     };
 #else   //Windows Vista 以上版本
     #include <intrin.h>
-    #pragma intrinsic(_InterlockedCompareExchange64)
-    #ifdef SOCKETLITE_OS_WIN64
-        #pragma intrinsic(_InterlockedExchangeAdd64)
-        #pragma intrinsic(_InterlockedIncrement64)
-        #pragma intrinsic(_InterlockedDecrement64)
-    #endif
+    //#pragma intrinsic(_InterlockedCompareExchange64)
+    //#ifdef SOCKETLITE_OS_WIN64
+    //    #pragma intrinsic(_InterlockedExchangeAdd64)
+    //    #pragma intrinsic(_InterlockedIncrement64)
+    //    #pragma intrinsic(_InterlockedDecrement64)
+    //#endif
 
     class SL_Sync_Atomic_Int64
     {
@@ -317,7 +333,7 @@ private:
 
         static bool compare_and_swap(int64 *value, int64 comparand, int64 new_value)
         {
-            int64 ret = _InterlockedCompareExchange64(value, new_value, comparand);
+            int64 ret = ::InterlockedCompareExchange64(value, new_value, comparand);
             if (ret == comparand)
             {
                 return true;
@@ -327,7 +343,7 @@ private:
 
         static bool compare_exchange(int64 *value, int64 comparand, int64 new_value)
         {
-            int64 ret = _InterlockedCompareExchange64(value, new_value, comparand);
+            int64 ret = ::InterlockedCompareExchange64(value, new_value, comparand);
             if (ret == comparand)
             {
                 return true;
@@ -337,20 +353,12 @@ private:
 
         inline int64 fetch_add(int64 add_value)
         {
-            #ifdef SOCKETLITE_OS_WIN64
-                return _InterlockedExchangeAdd64(&value_, add_value);
-            #else
-                return _InterlockedCompareExchange64(&value_, value_ + add_value, value_);
-            #endif
+            return ::InterlockedExchangeAdd64(&value_, add_value);
         }
 
         inline int64 fetch_sub(int64 sub_value)
         {
-            #ifdef SOCKETLITE_OS_WIN64
-                return _InterlockedExchangeAdd64(&value_, -sub_value);
-            #else
-                return _InterlockedCompareExchange64(&value_, value_ - sub_value, value_);
-            #endif
+            return ::InterlockedExchangeAdd64(&value_, -sub_value);
         }
 
         inline int64 get()
@@ -358,36 +366,33 @@ private:
             return value_;
         }
 
+        inline void set(int64 value)
+        {
+            value_ = value;
+        }
+
         inline int64 load()
         {
             //方法1
-            return static_cast<int64 const volatile &>(value_);
+            return ::InterlockedExchangeAdd64(&value_, 0);
 
             //方法2
-            //#ifdef SOCKETLITE_OS_WIN64
-            //    return _InterlockedExchangeAdd64(&value_, 0);
-            //#else
-            //    return _InterlockedCompareExchange64(&value_, value_, value_);
-            //#endif
+            //return static_cast<int64 const volatile &>(value_);
         }
 
         inline void store(int64 new_value)
         {
-            #ifdef SOCKETLITE_OS_WIN64
-                _InterlockedExchange64(&value_, new_value);
-            #else
-                _InterlockedCompareExchange64(&value_, new_value, value_);
-            #endif            
+            ::InterlockedExchange64(&value_, new_value);
         }
 
         inline int64 exchange(int64 new_value)
         {
-            return _InterlockedCompareExchange64(&value_, new_value, value_);
+            return ::InterlockedCompareExchange64(&value_, new_value, value_);
         }
 
         inline bool compare_exchange(int64 comparand, int64 new_value)
         {
-            int64 ret = _InterlockedCompareExchange64(&value_, new_value, comparand);
+            int64 ret = ::InterlockedCompareExchange64(&value_, new_value, comparand);
             if (ret == comparand)
             {
                 return true;
@@ -402,56 +407,32 @@ private:
 
         inline int64 operator+=(int64 add_value)
         {
-            #ifdef SOCKETLITE_OS_WIN64
-                return _InterlockedExchangeAdd64(&value_, add_value) + add_value;
-            #else
-                return _InterlockedCompareExchange64(&value_, value_ + add_value, value_) + add_value;
-            #endif
+            return ::InterlockedExchangeAdd64(&value_, add_value) + add_value;
         }
 
         inline int64 operator-=(int64 sub_value)
         {
-            #ifdef SOCKETLITE_OS_WIN64
-                return _InterlockedExchangeAdd64(&value_, -sub_value) - sub_value;
-            #else
-                return _InterlockedCompareExchange64(&value_, value_- sub_value, value_) - sub_value;
-            #endif
+            return ::InterlockedExchangeAdd64(&value_, -sub_value) - sub_value;
         }
 
         inline int64 operator++()
         {// preincrement 前置递增
-            #ifdef SOCKETLITE_OS_WIN64
-                return _InterlockedIncrement64(&value_);
-            #else
-                return _InterlockedCompareExchange64(&value_, value_ + 1, value_) + 1;
-            #endif
+            return ::InterlockedIncrement64(&value_);
         }
 
         inline int64 operator--() 
         {// preincrement 前置递减
-            #ifdef SOCKETLITE_OS_WIN64
-                return _InterlockedDecrement64(&value_);
-            #else
-                return _InterlockedCompareExchange64(&value_, value_ - 1, value_) - 1;
-            #endif
+            return ::InterlockedDecrement64(&value_);
         }
 
         inline int64 operator++(int)
         {// postincrement 后置递增
-            #ifdef SOCKETLITE_OS_WIN64
-                return _InterlockedExchangeAdd64(&value_, 1);
-            #else
-                return _InterlockedCompareExchange64(&value_, value_ + 1, value_);
-            #endif
+            return ::InterlockedExchangeAdd64(&value_, 1);
         }
 
         inline int64 operator--(int)
         {// postincrement 后置递减
-            #ifdef SOCKETLITE_OS_WIN64
-                return _InterlockedExchangeAdd64(&value_, -1);
-            #else
-                return _InterlockedCompareExchange64(&value_, value_ - 1, value_);
-            #endif
+            return ::InterlockedExchangeAdd64(&value_, -1);
         }
 
     private:
@@ -505,6 +486,11 @@ public:
     inline int32 get()
     {
         return value_;
+    }
+
+    inline void set(int32 value)
+    {
+        value_ = value;
     }
 
     inline int32 load()
@@ -610,6 +596,11 @@ public:
     inline int64 get()
     {
         return value_;
+    }
+
+    inline void set(int64 value)
+    {
+        value_ = value;
     }
 
     inline int64 load()

@@ -11,7 +11,7 @@ class SL_Seda_IStageThread;
 
 #define SOCKETLITE_SEDA_DEFAULT_IDLE_INTERVAL       1000        //millisecond(ms)
 #define SOCKETLITE_SEDA_DEFAULT_TIMEDWAIT_INTERVAL  2000        //microsecond(us)
-#define SOCKETLITE_SEDA_TIMER_EVENT_FACTOR          1000        //每处理SOCKETLITE_SEDA_TIMER_EVENT_FACTOR个事件后，检测定时器
+#define SOCKETLITE_SEDA_TIMER_EVENT_FACTOR          10000       //每处理SOCKETLITE_SEDA_TIMER_EVENT_FACTOR个事件后，检测定时器
 
 class SL_Seda_IEventQueue
 {
@@ -24,13 +24,13 @@ public:
     {
     }
 
-    virtual int   init(ulong capacity, uint event_max_len) = 0;
-    virtual void  clear() = 0;
-    virtual long  push(const SL_Seda_Event *event) = 0;
-    virtual long  pop(SL_Seda_Event **event) = 0;
-    virtual ulong capacity() const = 0;
-    virtual ulong size() const = 0;
-    virtual bool  empty() const = 0;
+    virtual int             init(uint capacity, uint event_len) = 0;
+    virtual void            clear() = 0;
+    virtual int             push(const SL_Seda_Event *event) = 0;
+    virtual SL_Seda_Event*  pop() = 0;
+    virtual int             capacity() const = 0;
+    virtual int             size() const = 0;
+    virtual bool            empty() const = 0;
 };
 
 class SL_Seda_IStageHandler
@@ -60,7 +60,7 @@ public:
     {
     }
 
-    virtual int open(int thread_number, uint queue_max_size, uint event_max_len, uint timedwait_interval_us, bool timedwait_signal, int type) = 0;
+    virtual int open(int thread_number, uint queue_max_size, uint event_len, uint timedwait_interval_us, bool timedwait_signal, int type) = 0;
     virtual int close() = 0;
     virtual int push_event(const SL_Seda_Event *event, int thread_number) = 0;
     virtual int get_type() const = 0;

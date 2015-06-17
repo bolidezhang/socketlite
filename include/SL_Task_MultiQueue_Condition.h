@@ -232,8 +232,8 @@ private:
         uint    loadfactor;         //∏∫‘ÿ“Ú◊”
 
         uint    timedwait_interval_us;
-        volatile bool timedwait_flag;
         SL_Sync_Condition timedwait_condition;
+        volatile bool timedwait_flag;
 
         SL_Thread thread;
         SL_Queue<T, SL_Sync_ThreadMutex> queue;

@@ -83,7 +83,7 @@ private:
 #else
 
 #include <pthread.h>
-#define SL_TLS_OUT_OF_INDEXES -1 
+#define SL_TLS_OUT_OF_INDEXES -1
 
 template <typename T>
 class SL_TLS

@@ -51,18 +51,18 @@ int SL_OS_File::close()
     return 0;
 }
 
-int SL_OS_File::read(void *buf, unsigned int nbytes)
+int SL_OS_File::read(void *buf, uint nbytes)
 {
     return _read(fd_, buf, nbytes);
 }
 
-int SL_OS_File::readn(void *buf, unsigned int nbytes)
+int SL_OS_File::readn(void *buf, uint nbytes)
 {
     assert(buf != NULL);
     assert(nbytes > 0);
 
     char *ptr = (char *)buf;
-    unsigned int nleft = nbytes;
+    uint nleft = nbytes;
     int nread = 0;
 
     do 
@@ -90,18 +90,18 @@ int SL_OS_File::readn(void *buf, unsigned int nbytes)
     return (nbytes - nleft);
 }
 
-int SL_OS_File::write(const void *buf, unsigned int nbytes)
+int SL_OS_File::write(const void *buf, uint nbytes)
 {
     return _write(fd_, buf, nbytes);
 }
 
-int SL_OS_File::writen(const void *buf, unsigned int nbytes)
+int SL_OS_File::writen(const void *buf, uint nbytes)
 {
     assert(buf != NULL);
     assert(nbytes > 0);
 
     char *ptr = (char *)buf;
-    unsigned int nleft = nbytes;
+    uint nleft = nbytes;
     int nwrite = 0;
 
     do 
@@ -227,18 +227,18 @@ int SL_OS_File::close()
     return 0;
 }
 
-int SL_OS_File::read(void *buf, unsigned int nbytes)
+int SL_OS_File::read(void *buf, uint nbytes)
 {
     return ::read(fd_, buf, nbytes);
 }
 
-int SL_OS_File::readn(void *buf, unsigned int nbytes)
+int SL_OS_File::readn(void *buf, uint nbytes)
 {
     assert(buf != NULL);
     assert(nbytes > 0);
 
     char *ptr = (char *)buf;
-    unsigned int nleft = nbytes;
+    uint nleft = nbytes;
     int nread = 0;
 
     do 
@@ -266,18 +266,18 @@ int SL_OS_File::readn(void *buf, unsigned int nbytes)
     return (nbytes - nleft);
 }
 
-int SL_OS_File::write(const void *buf, unsigned int nbytes)
+int SL_OS_File::write(const void *buf, uint nbytes)
 {
     return ::write(fd_, buf, nbytes);
 }
 
-int SL_OS_File::writen(const void *buf, unsigned int nbytes)
+int SL_OS_File::writen(const void *buf, uint nbytes)
 {
     assert(buf != NULL);
     assert(nbytes > 0);
 
     char *ptr = (char *)buf;
-    unsigned int nleft = nbytes;
+    uint nleft = nbytes;
     int nwrite = 0;
 
     do 

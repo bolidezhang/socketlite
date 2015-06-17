@@ -29,7 +29,7 @@ public:
         }
     }
 
-    inline int init(ulong capacity, int rewrite_count = 1, int reread_count = 1)
+    inline int init(uint capacity, int rewrite_count = 1, int reread_count = 1)
     {
         rewrite_count_ = (rewrite_count < 1) ? -1 : rewrite_count;
         reread_count_  = (reread_count < 1) ? -1 : reread_count;
@@ -43,7 +43,7 @@ public:
                 break;
             }
         }
-        if (i == SL_NUM_2_POW)
+        if (SL_NUM_2_POW == i)
         {
             capacity = SL_2_POW_LIST[SL_NUM_2_POW - 1];
         }
@@ -79,11 +79,11 @@ public:
         read_index_.store(0);
     }
 
-    inline long push(const TValue &value, int redo_count = 0)
+    inline int64 push(const TValue &value, int redo_count = 0)
     {
         int64 write_index;
         int64 read_end_index;
-        ulong queue_size;
+        int64 queue_size;
 
         if (0 == redo_count)
         {
@@ -96,12 +96,12 @@ public:
             {
                 write_index     = write_index_.load();
                 read_end_index  = read_end_index_.load();
-                queue_size      = (ulong)(write_index - read_end_index);
+                queue_size      = write_index - read_end_index;
                 if (queue_size < capacity_)
                 {
                     if (write_index_.compare_exchange(write_index, write_index + 1))
                     {
-                        ulong offset  = write_index & index_bit_mask_;
+                        uint offset   = write_index & index_bit_mask_;
                         pool_[offset] = value;
                         while (!write_end_index_.compare_exchange(write_index, write_index + 1));
                         return queue_size + 1;
@@ -115,12 +115,12 @@ public:
             {
                 write_index     = write_index_.load();
                 read_end_index  = read_end_index_.load();
-                queue_size      = (ulong)(write_index - read_end_index);
+                queue_size      = write_index - read_end_index;
                 if (queue_size < capacity_)
                 {
                     if (write_index_.compare_exchange(write_index, write_index + 1))
                     {
-                        ulong offset  = write_index & index_bit_mask_;
+                        uint offset   = write_index & index_bit_mask_;
                         pool_[offset] = value;
                         while (!write_end_index_.compare_exchange(write_index, write_index + 1));
                         return queue_size + 1;
@@ -132,11 +132,11 @@ public:
         return -1;
     }
 
-    inline long pop(TValue &value, int redo_count = 0)
+    inline int64 pop(TValue &value, int redo_count = 0)
     {
         int64 write_end_index;
         int64 read_index;
-        ulong queue_size;
+        int64 queue_size;
 
         if (0 == redo_count)
         {
@@ -149,12 +149,12 @@ public:
             {
                 write_end_index = write_end_index_.load();
                 read_index      = read_index_.load();
-                queue_size      = (ulong)(write_end_index - read_index);
+                queue_size      = write_end_index - read_index;
                 if (queue_size > 0)
                 {
                     if (read_index_.compare_exchange(read_index, read_index + 1))
                     {
-                        ulong offset = read_index & index_bit_mask_;
+                        int64 offset = read_index & index_bit_mask_;
                         value        = pool_[offset];
                         while (!read_end_index_.compare_exchange(read_index, read_index + 1));
                         return queue_size - 1;
@@ -168,14 +168,14 @@ public:
             {
                 write_end_index = write_end_index_.load();
                 read_index      = read_index_.load();
-                queue_size      = (ulong)(write_end_index - read_index);
+                queue_size      = write_end_index - read_index;
                 if (queue_size > 0)
                 {
                     if (read_index_.compare_exchange(read_index, read_index + 1))
                     {
-                        ulong offset = read_index & index_bit_mask_;
+                        int64 offset = read_index & index_bit_mask_;
                         value        = pool_[offset];
-                        while (!read_end_index_.compare_exchange(read_index, read_index + 1))
+                        while (!read_end_index_.compare_exchange(read_index, read_index + 1));
                         return queue_size - 1;
                     }
                 }
@@ -185,22 +185,22 @@ public:
         return -1;
     }
 
-    inline ulong capacity() const
+    inline int64 capacity() const
     {
         return capacity_;
     }
 
-    inline ulong size()
+    inline int64 size()
     {
-        int64 write_end_index   = write_end_index_.load();
-        int64 read_end_index    = read_end_index_.load();
-        return (ulong)(write_end_index - read_end_index);
+        int64 write_end_index = write_end_index_.load();
+        int64 read_end_index  = read_end_index_.load();
+        return write_end_index - read_end_index;
     }
 
     inline bool empty()
     {
-        int64 write_end_index   = write_end_index_.load();
-        int64 read_end_index    = read_end_index_.load();
+        int64 write_end_index = write_end_index_.load();
+        int64 read_end_index  = read_end_index_.load();
         if (write_end_index - read_end_index > 0)
         {
             return false;
@@ -240,13 +240,13 @@ public:
 
     inline TValue& get(int64 index)
     {
-        ulong offset = index & index_bit_mask_;
+        int64 offset = index & index_bit_mask_;
         return pool_[offset];
     }
 
     inline const TValue& get(int64 index) const
     {
-        ulong offset = index & index_bit_mask_;
+        int64 offset = index & index_bit_mask_;
         return pool_[offset];
     }
 
@@ -256,8 +256,8 @@ private:
     SL_Sync_Atomic_Int64    read_end_index_;            //队列读结束位(只增不减)
     SL_Sync_Atomic_Int64    write_index_;               //队列写位置(只增不减)
     SL_Sync_Atomic_Int64    read_index_;                //队列读位置(只增不减)
-    ulong                   capacity_;                  //队列容量(必须为2的N次方)
-    ulong                   index_bit_mask_;            //下标位掩码(为capacity_ - 1)
+    int64                   capacity_;                  //队列容量(必须为2的N次方)
+    int64                   index_bit_mask_;            //下标位掩码(为capacity_ - 1)
     int                     rewrite_count_;             //重写次数(-1:无限次数)
     int                     reread_count_;              //重读次数(-1:无限次数)
 };

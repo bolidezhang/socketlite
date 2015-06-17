@@ -215,7 +215,7 @@ public:
     int init(uint queue_max_size, uint interval_ms, SL_Seda_IStageHandler *stage_handler = NULL, int slot = -1);
     int clear();
 
-    SL_Seda_Timer* set_timer(ulong interval_ms, SL_Seda_Timer::TimerParam param);
+    SL_Seda_Timer* set_timer(uint interval_ms, SL_Seda_Timer::TimerParam param);
     int cancel_timer(SL_Seda_Timer *timer);
     int update_timer(SL_Seda_Timer *timer);
     int expire(uint64 current_clock_ms, SL_Seda_TimerExpireEvent *event);

@@ -36,7 +36,7 @@ public:
         SL_Socket_INET_Addr sl_addr(socket_source_->get_local_addr()->is_ipv6());
         int addrlen = sl_addr.get_addr_size();
 
-        //while存在的目的, 因为linux epoll边缘触发模式(EPOLLET)
+        //for(;;)存在的目的, 因为linux epoll边缘触发模式(EPOLLET)
         //监听的句柄被设置为EPOLLET,当同时多个连接建立的时候,
         //若只accept出一个连接进行处理,这样就可能导致后来的连接不能被及时处理,要等到下一次连接才会被激活
         SL_SOCKET fd;

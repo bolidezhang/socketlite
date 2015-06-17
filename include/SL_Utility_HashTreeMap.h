@@ -54,7 +54,7 @@ public:
                 break;
             }
         }
-        if (i == SL_NUM_2_POW)
+        if (SL_NUM_2_POW == i)
         {
             bucket_size = SL_2_POW_LIST[SL_NUM_2_POW - 1];
         }
@@ -287,7 +287,7 @@ public:
                 break;
             }
         }
-        if (i == SL_NUM_2_POW)
+        if (SL_NUM_2_POW == i)
         {
             bucket_size = SL_2_POW_LIST[SL_NUM_2_POW - 1];
         }

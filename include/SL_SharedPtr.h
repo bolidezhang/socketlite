@@ -12,7 +12,7 @@ public:
     {
     }
 
-    inline SL_Refcount(long refcount)
+    inline SL_Refcount(int refcount)
         : refcount_(refcount)
     {
     }
@@ -31,9 +31,9 @@ public:
     }
 
     //--²Ù×÷·û
-    inline long operator --()
+    inline int operator --()
     {
-        long ret;
+        int ret;
         lock_.lock();
         --refcount_;
         ret = refcount_;
@@ -41,13 +41,13 @@ public:
         return ret;
     }
 
-    inline long refcount() const
+    inline int refcount() const
     {
         return refcount_;
     }
 
 private:
-    long    refcount_;
+    int     refcount_;
     TLOCK   lock_;
 };
 
@@ -114,7 +114,7 @@ public:
         return *ptr_;
     }
 
-    inline long use_count() const
+    inline int use_count() const
     {//return use count
         if (NULL != refcount_)
         {

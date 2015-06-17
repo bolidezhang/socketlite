@@ -32,12 +32,12 @@ public:
         return NULL;
     }
 
-    virtual int buffer_size() const
+    virtual uint buffer_size() const
     { 
         return 0;
     }
 
-    virtual bool data(const char *data, int size, bool owner)
+    virtual bool data(const char *data, uint size, bool owner)
     { 
         return false;
     }
@@ -47,36 +47,36 @@ public:
         return NULL;
     }
 
-    virtual int data_size() const
+    virtual uint data_size() const
     { 
         return 0;
     }
 
     //返回未使用的容量
-    virtual int free_size() const
+    virtual uint free_size() const
     { 
         return 0; 
     }
 
-    virtual int data_begin() const
+    virtual uint data_begin() const
     { 
         return 0;
     }
 
-    virtual void data_begin(int new_begin_index)
+    virtual void data_begin(uint new_begin_index)
     {
     }
 
-    virtual int data_end() const
+    virtual uint data_end() const
     { 
         return 0;
     }
 
-    virtual void data_end(int new_end_index)
+    virtual void data_end(uint new_end_index)
     {
     }
 
-    virtual void advance(int amount)
+    virtual void advance(uint amount)
     {
     }
 
@@ -94,24 +94,24 @@ public:
     {
     }
 
-    virtual bool reserve(int new_size)
+    virtual bool reserve(uint new_size)
     {
         return false;
     }
 
-    virtual bool resize(int new_size)
+    virtual bool resize(uint new_size)
     { 
         return reserve(new_size);
     }
 
-    virtual bool write(const char *data, int size, int multiple)
+    virtual bool write(const char *data, uint size, uint multiple)
     {
         return false;
     }
 
     virtual bool write(const char *data)
     {
-        return write(data, (int)strlen(data), 100);
+        return write(data, (uint)strlen(data), 100);
     }
 
     virtual bool write(char c)
@@ -126,7 +126,7 @@ public:
 
     virtual bool write(int n)
     {
-        return write((const char *)&n, sizeof(int), 100);
+        return write((const char *)&n, sizeof(uint), 100);
     }
 
     virtual bool write(int64 n)
@@ -157,7 +157,7 @@ public:
     {
     }
 
-    inline SL_ByteBuffer(int buffer_size)
+    inline SL_ByteBuffer(uint buffer_size)
         : data_begin_index_(0)
         , data_end_index_(0)
         , owner_(true)
@@ -258,12 +258,12 @@ public:
         return buffer_;
     }
 
-    inline int buffer_size() const
+    inline uint buffer_size() const
     {
         return buffer_size_;
     }
 
-    inline bool data(const char *data, int size, bool owner = true)
+    inline bool data(const char *data, uint size, bool owner = true)
     {
         if (size <= 0)
         {
@@ -316,23 +316,23 @@ public:
         return buffer_ + data_begin_index_;
     }
 
-    inline int data_size() const
+    inline uint data_size() const
     {
         return data_end_index_ - data_begin_index_;
     }
 
     //返回未使用的容量
-    inline int free_size() const
+    inline uint free_size() const
     {
         return buffer_size_ - data_end_index_;
     }
 
-    inline int data_begin() const
+    inline uint data_begin() const
     { 
         return data_begin_index_;
     }
 
-    inline void data_begin(int new_begin_index)
+    inline void data_begin(uint new_begin_index)
     {
         if (new_begin_index > buffer_size_)
         {
@@ -345,12 +345,12 @@ public:
         }
     }
 
-    inline int data_end() const
+    inline uint data_end() const
     {
         return data_end_index_;
     }
 
-    inline void data_end(int new_end_index)
+    inline void data_end(uint new_end_index)
     {
         if (new_end_index > buffer_size_)
         {
@@ -363,7 +363,7 @@ public:
         }
     }
 
-    inline void advance(int amount)
+    inline void advance(uint amount)
     {
         if (buffer_size_ >= (data_end_index_ + amount))
         {
@@ -386,7 +386,7 @@ public:
         owner_ = owner;
     }
 
-    inline bool reserve(int new_size)
+    inline bool reserve(uint new_size)
     {
         if (owner_)
         {
@@ -419,13 +419,13 @@ public:
         return false;
     }
 
-    inline bool resize(int new_size)
+    inline bool resize(uint new_size)
     {
         return reserve(new_size);
     }
 
     //multiple: 缓冲区扩大倍数
-    inline bool write(const char *data, int size, int multiple = 100)
+    inline bool write(const char *data, uint size, uint multiple = 100)
     {
         if (!owner_)
         {
@@ -461,7 +461,7 @@ public:
 
     inline bool write(int n)
     {
-        return write((const char *)&n, sizeof(int));
+        return write((const char *)&n, sizeof(uint));
     }
 
     inline bool write(int64 n)
@@ -479,7 +479,7 @@ public:
         return write((const char *)&d, sizeof(double));
     }
 
-    inline int read(char *data, int size)
+    inline uint read(char *data, uint size)
     {
         if (data_size() >= size)
         {
@@ -490,7 +490,7 @@ public:
         return -1;
     }
 
-    inline char* read(int size)
+    inline char* read(uint size)
     {
         if (data_size() >= size)
         {
@@ -502,9 +502,9 @@ public:
     }
 
 private:
-    inline bool adjust_buffer_i(const char *data, int size, int multiple)
+    inline bool adjust_buffer_i(const char *data, uint size, uint multiple)
     {
-        int  new_size    = buffer_size_ * multiple / 100 + buffer_size_ + size;
+        uint  new_size    = buffer_size_ * multiple / 100 + buffer_size_ + size;
         char *new_buffer = (char *)sl_realloc(buffer_, new_size);
         if (NULL != new_buffer)
         {
@@ -519,9 +519,9 @@ private:
 
 private:
     char            *buffer_;           //缓冲区
-    int             buffer_size_;       //缓冲区大小
-    int             data_begin_index_;  //数据开始位
-    int             data_end_index_;    //数据结束位
+    uint            buffer_size_;       //缓冲区大小
+    uint            data_begin_index_;  //数据开始位
+    uint            data_end_index_;    //数据结束位
     mutable bool    owner_;             //表示是否拥有所有权
 };
 
@@ -535,7 +535,7 @@ public:
         buffer_ = new Buffer_();
     }
 
-    inline SL_SharedBuffer(int buffer_size)
+    inline SL_SharedBuffer(uint buffer_size)
         : data_begin_index_(0)
         , data_end_index_(0)
     {
@@ -574,12 +574,12 @@ public:
         buffer_->clear();
     }
 
-    inline bool reserve(int new_size)
+    inline bool reserve(uint new_size)
     {
         return buffer_->reserve(new_size);
     }
 
-    inline bool resize(int new_size)
+    inline bool resize(uint new_size)
     {
         return reserve(new_size);
     }
@@ -590,7 +590,7 @@ public:
         data_end_index_   = 0;
     }
 
-    inline int use_count()
+    inline uint use_count()
     {
         return buffer_->refcount_.load();
     }
@@ -600,7 +600,7 @@ public:
         return data_end_index_ - data_begin_index_ == 0;
     }
 
-    inline int buffer_size() const
+    inline uint buffer_size() const
     {
         return buffer_->buffer_size();
     }
@@ -611,12 +611,12 @@ public:
     }
 
     //返回未使用的容量
-    inline int free_size() const
+    inline uint free_size() const
     {
         return buffer_->free_size();
     }
 
-    inline bool data(const char *data, int size, bool owner = true)
+    inline bool data(const char *data, uint size, bool owner = true)
     {
         if (size <= 0)
         {
@@ -649,17 +649,17 @@ public:
         return buffer_->buffer_ + data_begin_index_;
     }
 
-    inline int data_size() const
+    inline uint data_size() const
     {
         return data_end_index_ - data_begin_index_;
     }
 
-    inline int data_begin() const
+    inline uint data_begin() const
     { 
         return data_begin_index_;
     }
 
-    inline void data_begin(int new_begin_index)
+    inline void data_begin(uint new_begin_index)
     {
         if (new_begin_index > buffer_->buffer_size_)
         {
@@ -672,12 +672,12 @@ public:
         }
     }
 
-    inline int data_end() const
+    inline uint data_end() const
     {
         return data_end_index_;
     }
 
-    inline void data_end(int new_end_index)
+    inline void data_end(uint new_end_index)
     {
         if (new_end_index > buffer_->buffer_size_)
         {
@@ -690,7 +690,7 @@ public:
         }
     }
 
-    inline void advance(int amount)
+    inline void advance(uint amount)
     {
         if (buffer_->buffer_size() >= (data_end_index_ + amount))
         {
@@ -709,7 +709,7 @@ public:
     }
 
     //multiple: 缓冲区扩大倍数
-    inline bool write(const char *data, int size, int multiple = 100)
+    inline bool write(const char *data, uint size, uint multiple = 100)
     {
         bool ret = buffer_->write(data, size, multiple);
         if (ret)
@@ -721,7 +721,7 @@ public:
 
     inline bool write(const char *data)
     {
-        return write(data, (int)(strlen(data) + 1));
+        return write(data, (uint)(strlen(data) + 1));
     }
 
     inline bool write(char c)
@@ -736,7 +736,7 @@ public:
 
     inline bool write(int n)
     {
-        return write((const char *)&n, sizeof(int));
+        return write((const char *)&n, sizeof(uint));
     }
 
     inline bool write(int64 n)
@@ -754,9 +754,9 @@ public:
         return write((const char *)&d, sizeof(double));
     }
 
-    inline int read(char *data, int size)
+    inline uint read(char *data, uint size)
     {
-        int data_size = data_end_index_ - data_begin_index_;
+        uint data_size = data_end_index_ - data_begin_index_;
         if (data_size >= size)
         {
             sl_memcpy(data, buffer_->buffer_ + data_begin_index_, size);
@@ -766,9 +766,9 @@ public:
         return -1;
     }
 
-    inline char* read(int size)
+    inline char* read(uint size)
     {
-        int data_size = data_end_index_ - data_begin_index_;
+        uint data_size = data_end_index_ - data_begin_index_;
         if (data_size >= size)
         {
             char *ret = buffer_->buffer_ + data_begin_index_;
@@ -791,7 +791,7 @@ private:
         {
         }
 
-        inline Buffer_(int buffer_size)
+        inline Buffer_(uint buffer_size)
             : use_size_(0)
             , refcount_(1)
             , owner_(true)
@@ -813,7 +813,7 @@ private:
         {
         }
 
-        inline bool reserve(int new_size)
+        inline bool reserve(uint new_size)
         {   
             if (owner_ && (new_size > buffer_size_))
             {
@@ -829,13 +829,13 @@ private:
         }
 
         //加1, 返回变化后值
-        inline long increment_refcount()
+        inline int32 increment_refcount()
         {
             return ++refcount_;
         }
 
         //减1, 返回变化后值
-        inline long decrement_refcount()
+        inline int32 decrement_refcount()
         {
             return --refcount_;
         }
@@ -873,7 +873,7 @@ private:
             }
         }
 
-        inline int buffer_size() const
+        inline uint buffer_size() const
         {
             return buffer_size_;
         }
@@ -883,13 +883,13 @@ private:
             return buffer_;
         }
 
-        inline int free_size() const
+        inline uint free_size() const
         {
             return buffer_size_ - use_size_;
         }
 
         //multiple: 缓冲区扩大倍数
-        inline bool write(const char *data, int size, int multiple = 100)
+        inline bool write(const char *data, uint size, uint multiple = 100)
         {
             if (free_size() >= size)
             {
@@ -901,7 +901,7 @@ private:
             {
                 if (owner_)
                 {
-                    int new_size  = buffer_size_ * multiple / 100 + buffer_size_ + size;
+                    uint new_size  = buffer_size_ * multiple / 100 + buffer_size_ + size;
                     char *new_buffer = (char *)sl_realloc(buffer_, new_size);
                     if (NULL != new_buffer)
                     {
@@ -918,16 +918,16 @@ private:
 
     public:
         char                    *buffer_;       //缓冲区
-        int                     buffer_size_;   //缓冲区大小
-        int                     use_size_;      //已使用大小
+        uint                    buffer_size_;   //缓冲区大小
+        uint                    use_size_;      //已使用大小
         SL_Sync_Atomic_Int32    refcount_;      //引用计数
         bool                    owner_;         //表示是否拥有所有权
     };
 
 private:
     Buffer_ *buffer_;       
-    int     data_begin_index_;  //数据开始位
-    int     data_end_index_;    //数据结束位
+    uint    data_begin_index_;  //数据开始位
+    uint    data_end_index_;    //数据结束位
 };
 
 #endif

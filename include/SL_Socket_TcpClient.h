@@ -140,11 +140,11 @@ public:
         return send_len;
     }
 
-    int set_config(ulong connect_timeout        = 0,
+    int set_config(uint  connect_timeout        = 0,
                    bool  is_autoconnect         = false,
                    bool  is_add_runner          = true,
                    uint  recvbuffer_size        = 4096,
-                   uint  msgbuffer_size         = 4096, 
+                   uint  msgbuffer_size         = 4096,
                    uint8 msglen_bytes           = 2,
                    uint8 msg_byteorder          = 0,
                    bool  is_free_self_handler   = false)
@@ -400,7 +400,7 @@ protected:
     bool            is_bind_localaddr_;
 
     uint            connect_serveraddr_pos_;
-    ulong           connect_timeout_;               //时间单位: ms
+    uint            connect_timeout_;               //时间单位: ms
     volatile bool   is_connected_;                  //连接状态(fase:失败,true:成功)
     volatile bool   is_autoconnect_;                //是否自动重连
     SL_Sync_SpinMutex mutex_;

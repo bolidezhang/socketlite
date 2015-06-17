@@ -19,7 +19,7 @@
    (thank you to John Reiser for pointing this out) */
 #  define CHOP(a) \
     do { \
-        unsigned long tmp = a >> 16; \
+        uint32 tmp = a >> 16; \
         a &= 0xffffUL; \
         a += (tmp << 4) - tmp; \
     } while (0)

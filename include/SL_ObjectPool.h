@@ -29,7 +29,7 @@ public:
     {
     }
 
-    inline int init(unsigned int max_size = 100000, unsigned int init_size = 0, unsigned int grow_size = 10)
+    inline int init(uint max_size = 100000, uint init_size = 0, uint grow_size = 10)
     {
         return 0;
     }
@@ -81,7 +81,7 @@ public:
         return 0;
     }
 
-    inline int init(unsigned int max_size = 100000, unsigned int init_size = 0, unsigned int grow_size = 10)
+    inline int init(uint max_size = 100000, uint init_size = 0, uint grow_size = 10)
     {
         clear();
         if (grow_size < 1)
@@ -142,10 +142,10 @@ public:
     }
 
 private:
-    inline bool alloc_i(unsigned int size)
+    inline bool alloc_i(uint size)
     {
         T *object;
-        for (unsigned int i = 0; i < size; ++i)
+        for (uint i = 0; i < size; ++i)
         {            
             object = new T();
             free_objects_.push_back(object);
@@ -155,9 +155,9 @@ private:
     }
 
 private:
-    unsigned int    max_size_;   //对象池最大容量
-    unsigned int    grow_size_;  //增长幅度
-    unsigned int    free_size_;  
+    uint    max_size_;   //对象池最大容量
+    uint    grow_size_;  //增长幅度
+    uint    free_size_;  
 
     TSyncMutex      mutex_;
     std::list<T * > free_objects_;
@@ -202,7 +202,7 @@ public:
         return 0;
     }
 
-    inline int init(unsigned int max_chunk_size = 10000, unsigned int init_chunk_size = 0, unsigned int per_chunk_size = 10)
+    inline int init(uint max_chunk_size = 10000, uint init_chunk_size = 0, uint per_chunk_size = 10)
     {
         clear();
         if (init_chunk_size > max_chunk_size)
@@ -217,7 +217,7 @@ public:
         mutex_.lock();
         max_chunk_size_ = max_chunk_size;
         per_chunk_size_ = per_chunk_size;
-        for (unsigned int i = 0; i < init_chunk_size; ++i)
+        for (uint i = 0; i < init_chunk_size; ++i)
         {
             alloc_i();
         }
@@ -262,7 +262,7 @@ private:
     inline bool alloc_i()
     {
         T *chunk = new T[per_chunk_size_];
-        for (unsigned int i = 0; i < per_chunk_size_; ++i)
+        for (uint i = 0; i < per_chunk_size_; ++i)
         {
             free_objects_.push_back(&chunk[i]);
         }
@@ -271,9 +271,9 @@ private:
         return true;
     }
 
-    unsigned int    max_chunk_size_;      //对象池最大块数
-    unsigned int    per_chunk_size_;      //每块中对象数
-    unsigned int    current_chunk_size_;
+    uint    max_chunk_size_;      //对象池最大块数
+    uint    per_chunk_size_;      //每块中对象数
+    uint    current_chunk_size_;
 
     TSyncMutex      mutex_;
     std::list<T * > free_objects_;

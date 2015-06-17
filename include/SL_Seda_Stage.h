@@ -21,7 +21,7 @@ public:
         close();
     }
 
-    int open(int thread_number, uint queue_max_size, uint event_max_len = 64, uint timedwait_interval_us = 1000, bool timedwait_signal = true, int type = 0)
+    int open(int thread_number, uint queue_max_size, uint event_len = 64, uint timedwait_interval_us = 1000, bool timedwait_signal = true, int type = 0)
     {
         type_ = type;
         timedwait_interval_us_ = timedwait_interval_us;
@@ -34,7 +34,7 @@ public:
         StageThread *stage_thread;
         for (int i=0; i<thread_number; ++i)
         {
-            stage_thread = new StageThread(this, i, queue_max_size, event_max_len, timedwait_interval_us, timedwait_signal);
+            stage_thread = new StageThread(this, i, queue_max_size, event_len, timedwait_interval_us, timedwait_signal);
             stage_thread->start();
             stage_threads_.push_back(stage_thread);
         }
@@ -44,8 +44,8 @@ public:
     int close()
     {
         StageThread *stage_thread;
-        typename std::vector<StageThread *>::iterator iter = stage_threads_.begin();
-        typename std::vector<StageThread *>::iterator iter_end = stage_threads_.end();
+        typename std::vector<StageThread * >::iterator iter = stage_threads_.begin();
+        typename std::vector<StageThread * >::iterator iter_end = stage_threads_.end();
         for (; iter != iter_end; ++iter)
         {
             stage_thread = *iter;
@@ -59,8 +59,8 @@ public:
 
     int join()
     {
-        typename std::vector<StageThread *>::iterator iter = stage_threads_.begin();
-        typename std::vector<StageThread *>::iterator iter_end = stage_threads_.end();
+        typename std::vector<StageThread * >::iterator iter = stage_threads_.begin();
+        typename std::vector<StageThread * >::iterator iter_end = stage_threads_.end();
         for (; iter != iter_end; ++iter)
         {
             (*iter)->join();
@@ -104,7 +104,7 @@ public:
 protected:
     typedef SL_Seda_StageThread<TSedaStageHandler> StageThread;
 
-    std::vector<StageThread* > stage_threads_;
+    std::vector<StageThread * > stage_threads_;
     uint    timedwait_interval_us_;
     int     next_thread_index_;
     int     type_;
