@@ -2,6 +2,7 @@
 #define SOCKETLITE_SOCKET_COMMON_API_H
 
 #include <time.h>
+#include <stdarg.h>         // for va_list, va_start, va_end
 #include "SL_Config.h"
 #include "SL_OS_API.h"
 #include "SL_Utility_Memory.h"
@@ -9,7 +10,7 @@
 
 #ifdef SOCKETLITE_OS_WINDOWS
     #include <io.h>
-    #include "Shlwapi.h"
+    #include <Shlwapi.h>
     #pragma comment(lib, "shlwapi.lib")
 
     /* timeb.h is actually xsi legacy functionality */
@@ -154,12 +155,16 @@ public:
         return shutdown(fd, how);
     }
 
-    static inline SL_SOCKET socket_accept(SL_SOCKET fd, struct sockaddr *addr, int *addrlen)
+    static inline SL_SOCKET socket_accept(SL_SOCKET fd, struct sockaddr *addr, int *addrlen, int flags = 0)
     {
         #ifdef SOCKETLITE_OS_WINDOWS
             return WSAAccept(fd, addr, addrlen, NULL, 0);
         #else
-            return accept(fd, addr, (socklen_t *)addrlen);
+            #ifdef SOCKETLITE_USE_ACCEPT4
+                return accept4(fd, addr, (socklen_t *)addrlen, flags);
+            #else
+                return accept(fd, addr, (socklen_t *)addrlen);
+            #endif
         #endif
     }
 
@@ -1293,6 +1298,27 @@ public:
                 return bswap_64(net_int64);
             #endif
         #endif
+    }
+
+    // We can't just use _snprintf/snprintf as a drop-in replacement, because it
+    // doesn't always NUL-terminate. :-(
+    static inline int util_snprintf(char *str, size_t size, const char *format, ...)
+    {
+        if (0 == size)      // not even room for a \0?
+        {
+            return -1;      // not what C99 says to do, but what windows does
+        }
+
+        str[size-1] = '\0';
+        va_list ap;
+        va_start(ap, format);
+        #ifdef SOCKETLITE_OS_WINDOWS
+            const int rc = _vsnprintf(str, size-1, format, ap);
+        #else
+            const int rc =  vsnprintf(str, size-1, format, ap);
+        #endif
+        va_end(ap);
+        return rc;
     }
 
 private:

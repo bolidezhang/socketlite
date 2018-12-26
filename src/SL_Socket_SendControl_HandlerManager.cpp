@@ -1,12 +1,21 @@
 #include <algorithm>
+#include "SL_Socket_CommonAPI.h"
 #include "SL_Socket_TcpServer_Handler.h"
 #include "SL_Socket_SendControl_Handler.h"
 #include "SL_Socket_SendControl_HandlerManager.h"
 
-uint64 SL_Socket_SendControl_HandlerManager::current_timestamp_us_ = 0;
-uint64 SL_Socket_SendControl_HandlerManager::current_time_us_ = 0;
-uint64 SL_Socket_SendControl_HandlerManager::current_timestamp_ = 0;
-uint64 SL_Socket_SendControl_HandlerManager::current_time_ = 0;
+uint64 SL_Socket_SendControl_HandlerManager::current_timestamp_us_  = SL_Socket_CommonAPI::util_timestamp_us();
+uint64 SL_Socket_SendControl_HandlerManager::current_time_us_       = SL_Socket_CommonAPI::util_time_us();
+uint64 SL_Socket_SendControl_HandlerManager::current_timestamp_     = SL_Socket_SendControl_HandlerManager::current_timestamp_us_ / 1000;
+uint64 SL_Socket_SendControl_HandlerManager::current_time_          = SL_Socket_SendControl_HandlerManager::current_time_us_ / 1000000;
+
+void SL_Socket_SendControl_HandlerManager::init()
+{
+    current_timestamp_us_   = SL_Socket_CommonAPI::util_timestamp_us();
+    current_time_us_        = SL_Socket_CommonAPI::util_time_us();
+    current_timestamp_      = SL_Socket_SendControl_HandlerManager::current_timestamp_us_ / 1000;
+    current_time_           = SL_Socket_SendControl_HandlerManager::current_time_us_ / 1000000;
+}
 
 SL_Socket_SendControl_HandlerManager::SL_Socket_SendControl_HandlerManager()
     : iovec_(NULL)

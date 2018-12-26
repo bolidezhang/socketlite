@@ -13,7 +13,7 @@
 //1.jemalloc freebsd/facebook/firefox
 //#define SOCKETLITE_MALLOC_JEMALLOC
 //2.google tcmalloc
-//#define SOCKETLITE_MALLOC_TCMALLOC    
+//#define SOCKETLITE_MALLOC_TCMALLOC
 //3.hoard - The Hoard Memory Allocator
 //#define SOCKETLITE_MALLOC_HOARD
 //4.nedmalloc - ned Productions dlmalloc
@@ -123,6 +123,14 @@ public:
     typedef T&          reference;
     typedef const T&    const_reference;
     typedef size_t      size_type;
+
+    SL_Allocator()
+    {
+    }
+
+    virtual ~SL_Allocator()
+    {
+    }
 
     virtual int clear()
     {

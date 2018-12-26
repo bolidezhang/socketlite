@@ -30,7 +30,7 @@ int SL_Crypto_SHA512::final(unsigned char *digest)
     SHA512_Final(digest, &ctx_);
 
     //recover init status
-    SHA512_Init(&ctx_);
+    //SHA512_Init(&ctx_);
 
     return 0;
 }
@@ -41,7 +41,7 @@ int SL_Crypto_SHA512::final(const unsigned char *in, unsigned int in_len, unsign
     SHA512_Final(digest, &ctx_);
 
     //recover init status
-    SHA512_Init(&ctx_);
+    //SHA512_Init(&ctx_);
 
     return 0;
 }

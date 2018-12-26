@@ -37,14 +37,14 @@ SL_Socket_INET_Addr::operator sockaddr* ()
 #ifdef SOCKETLITE_HAVE_IPV6
     if (addr_type_ == IPV4)
     {
-        return (sockaddr*)&inet_addr_.in4;
+        return (sockaddr *)&inet_addr_.in4;
     }
     else
     {
-        return (sockaddr*)&inet_addr_.in6;
+        return (sockaddr *)&inet_addr_.in6;
     }
 #else
-    return (sockaddr*)&inet_addr_.in4;
+    return (sockaddr *)&inet_addr_.in4;
 #endif
 }
 
@@ -87,14 +87,14 @@ int SL_Socket_INET_Addr::get_ip_addr(char *ip_addr, int len) const
 #ifdef SOCKETLITE_HAVE_IPV6
     if (addr_type_ == IPV4)
     {
-        ret = getnameinfo((sockaddr*)&inet_addr_.in4, sizeof(inet_addr_.in4), ip_addr, len, 0, 0, NI_NUMERICHOST);
+        ret = getnameinfo((sockaddr *)&inet_addr_.in4, sizeof(inet_addr_.in4), ip_addr, len, 0, 0, NI_NUMERICHOST);
     }
     else
     {
-        ret = getnameinfo((sockaddr*)&inet_addr_.in6, sizeof(inet_addr_.in6), ip_addr, len, 0, 0, NI_NUMERICHOST);
+        ret = getnameinfo((sockaddr *)&inet_addr_.in6, sizeof(inet_addr_.in6), ip_addr, len, 0, 0, NI_NUMERICHOST);
     }
 #else
-    ret = getnameinfo((sockaddr*)&inet_addr_.in4, sizeof(inet_addr_.in4), ip_addr, len, 0, 0, NI_NUMERICHOST);
+    ret = getnameinfo((sockaddr *)&inet_addr_.in4, sizeof(inet_addr_.in4), ip_addr, len, 0, 0, NI_NUMERICHOST);
 #endif
     return ret;
 }

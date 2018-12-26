@@ -22,7 +22,7 @@ private:
 };
 
 #else
-
+#include "sha256.h"
 class SL_Crypto_SHA256 : public SL_Crypto_Hash
 {
 public:
@@ -35,6 +35,8 @@ public:
     int final(unsigned char *digest);
     int final(const unsigned char *in, unsigned int in_len, unsigned char *digest);
 
+private:
+    sha256_ctx ctx_;
 };
 
 #endif

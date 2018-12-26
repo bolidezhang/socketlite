@@ -14,20 +14,20 @@ enum SL_CRYPTO_TYPE
 //常见加密模式
 enum SL_CRYPTO_MODE 
 { 
-    SL_CRYPTO_MODE_ECB      = 0, 
-    SL_CRYPTO_MODE_CBC      = 1, 
+    SL_CRYPTO_MODE_ECB      = 0,
+    SL_CRYPTO_MODE_CBC      = 1,
     SL_CRYPTO_MODE_CFB      = 2,
     SL_CRYPTO_MODE_OFB      = 3,
     SL_CRYPTO_MODE_CTR      = 4,
     SL_CRYPTO_MODE_IGE      = 5,
 
     SL_CRYPTO_MODE_DEFAULT  = SL_CRYPTO_MODE_ECB
-};                           
+};
 
 //常见密码块大小(字节)
 enum SL_CRYPTO_BLOCK_SIZE
 { 
-    SL_CRYPTO_BLOCK_SIZE_8  = 8, 
+    SL_CRYPTO_BLOCK_SIZE_8  = 8,
     SL_CRYPTO_BLOCK_SIZE_16 = 16,
     SL_CRYPTO_BLOCK_SIZE_24 = 24,
     SL_CRYPTO_BLOCK_SIZE_32 = 32,

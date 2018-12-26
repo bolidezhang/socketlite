@@ -22,7 +22,7 @@ private:
 };
 
 #else
-
+#include "md5.h"
 class SL_Crypto_MD5 : public SL_Crypto_Hash
 {
 public:
@@ -34,6 +34,8 @@ public:
     int update(const unsigned char *in, unsigned int in_len);
     int final(unsigned char *digest);
     int final(const unsigned char *in, unsigned int in_len, unsigned char *digest);
+private:
+    md5_ctx ctx_;
 };
 #endif
 

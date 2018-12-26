@@ -58,6 +58,8 @@ public:
     int     wakeup_thread(int thread_index);
     size_t  handler_size();
 
+    static void init();
+
     static uint64 get_current_timestamp()
     {
         return current_timestamp_;

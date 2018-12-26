@@ -4,8 +4,8 @@
 #ifdef SOCKETLITE_OS_WINDOWS
 #include <io.h>
 #include <direct.h>
-#include "Shlwapi.h"
 #include <stdarg.h>    // for va_list, va_start, va_end
+#include <Shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 
 // Calls the windows _vsnprintf, but always NUL-terminate.

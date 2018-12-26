@@ -61,7 +61,7 @@ public:
         }
         
 #ifdef SOCKETLITE_OS_WINDOWS
-        //目录在windows下，只支持在独立的Accept线程接收新连接
+        //目前在windows下，只支持在独立的Accept线程接收新连接
         if (accept_thread_num_ < 1)
         {
             accept_thread_num_ = 1;
@@ -228,7 +228,7 @@ private:
 
         while (tcpserver->accept_thread_group_.get_running())
         {
-            client_socket = SL_Socket_CommonAPI::socket_accept(listen_fd, addr, &addrlen);
+            client_socket = SL_Socket_CommonAPI::socket_accept(listen_fd, addr, &addrlen, SL_SOCK_NONBLOCK);
             if (SL_INVALID_SOCKET != client_socket)
             {
                 if (tcpserver->get_socket_handler()->handle_accept(client_socket, sl_addr) < 0)

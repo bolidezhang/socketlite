@@ -38,7 +38,7 @@ public:
 private:
     enum
     {
-        IPV4, 
+        IPV4,
         IPV6
     }addr_type_;
 

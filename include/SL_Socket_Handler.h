@@ -3,6 +3,7 @@
 
 #include "SL_Config.h"
 #include "SL_Socket_CommonAPI.h"
+#include "SL_ByteBuffer.h"
 
 class SL_Socket_Source;
 class SL_Socket_Runner;
@@ -94,18 +95,7 @@ public:
         return socket_runner_;
     }
 
-    virtual int handle_open(SL_SOCKET fd, SL_Socket_Source *socket_source, SL_Socket_Runner *socket_runner)
-    {
-        socket_         = fd;
-        socket_source_  = socket_source;
-        socket_runner_  = socket_runner;
-        last_errno_     = 0;
-        current_status_ = STATUS_OPEN;
-        next_status_    = STATUS_OPEN;
-        SL_Socket_CommonAPI::socket_set_block(fd, false);
-        return 0;
-    }
-
+    virtual int handle_open(SL_SOCKET fd, SL_Socket_Source *socket_source, SL_Socket_Runner *socket_runner);
     virtual int handle_close()
     { 
         return 0;
@@ -171,6 +161,62 @@ protected:
     int                 last_errno_;        //最后错误号
     int8                current_status_;    //当前状态
     int8                next_status_;       //下一状态(引入它的目的: 检测到连接关闭,远程主机可能只关闭了发送通道;还可继续接收数据)
+
+#ifdef SOCKETLITE_OS_WINDOWS
+public:
+        enum OPERTYPE
+        {
+            RECV_POSTED     = 1,
+            SEND_POSTED     = 2,
+            ACCEPT_POSTED   = 3
+        };
+
+        //单I/O操作数据
+        struct PER_IO_DATA
+        {
+            //重叠结构
+            OVERLAPPED    overlapped;
+
+            //操作类型表示
+            OPERTYPE      oper_type;
+
+            //缓冲区
+            WSABUF        buffer;
+            SL_ByteBuffer data_buffer;
+        };
+
+        //投递接收操作
+        inline int post_recv()
+        {
+            //重置IO操作数据
+            DWORD flag = 0;
+            DWORD recv_byte = 0;
+            ZeroMemory(&(per_io_data_.overlapped), sizeof(OVERLAPPED));
+
+            //提交WSARecv请求
+            int ret = WSARecv(socket_, &(per_io_data_.buffer), 1, &recv_byte, &flag, &(per_io_data_.overlapped), NULL);
+            if (ret == SOCKET_ERROR)
+            {
+                ret = WSAGetLastError();
+                if (ret != WSA_IO_PENDING)
+                {//接收失败,一律Socket断开处理
+                    return -1;
+                }
+            }
+            return 0;
+        }
+
+        //投递发送事件
+        inline int post_send()
+        {
+            return 0;
+        }
+
+protected:
+    PER_IO_DATA per_io_data_;
+
+#endif      //ifdef SOCKETLITE_OS_WINDOWS
+
 };
 
 #endif

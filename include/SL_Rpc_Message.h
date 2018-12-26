@@ -47,7 +47,7 @@ struct SL_Rpc_MessageHead       //24个字节
     ushort  flag;               //消息标记
     ushort  type;               //消息类型
     uint    source;             //源(发送者)
-    uint    destination;        //目标(接收者: 当flag为广播时有多个接收者,  低16位表示为接收者列表的开始位=消息头大小+消息体大小, 高16位第一个接收者在接收者集合中位置)
+    uint    destination;        //目标(接收者: 当flag为广播时有多个接收者, 低16位表示为接收者列表的开始位=消息头大小+消息体大小, 高16位第一个接收者在接收者集合中位置)
     uint    sequence;           //消息序列号
     int     attach_id;          //附加id
 
@@ -404,7 +404,7 @@ public:
 
     template<typename THead>
     inline static THead* parse_head(char *data, int len)
-    {        
+    {
         return THead::parse(data, len);
     }
 

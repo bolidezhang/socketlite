@@ -9,7 +9,7 @@
 #include "SL_Sync_Mutex.h"
 #include "SL_Thread_Group.h"
 #include "SL_Socket_Runner.h"
-#include "SL_Socket_Iocp_Handler.h"
+#include "SL_Socket_Handler.h"
 
 #ifdef SOCKETLITE_OS_WINDOWS
 
@@ -89,7 +89,7 @@ public:
             return -1;
         }
         //投递接收操作
-        if (((SL_Socket_Iocp_Handler *)socket_handler)->post_recv() < 0)
+        if (socket_handler->post_recv() < 0)
         {
             return -2;
         }
@@ -177,8 +177,8 @@ public:
 
         DWORD   byteTransferred = -1;
         BOOL    success = false;
-        SL_Socket_Iocp_Handler *per_handle_data = NULL;
-        SL_Socket_Iocp_Handler::PER_IO_DATA *per_io_data = NULL;
+        SL_Socket_Handler *per_handle_data = NULL;
+        SL_Socket_Handler::PER_IO_DATA *per_io_data = NULL;
 
         while (runner->thread_group_.get_running())
         {
@@ -207,7 +207,7 @@ public:
                 continue;
             }
 
-            if (per_io_data->oper_type == SL_Socket_Iocp_Handler::RECV_POSTED)
+            if (per_io_data->oper_type == SL_Socket_Handler::RECV_POSTED)
             {//接收数据
 
                 //消息处理

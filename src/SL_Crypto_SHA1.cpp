@@ -30,7 +30,7 @@ int SL_Crypto_SHA1::final(unsigned char *digest)
     SHA1_Final(digest, &ctx_);
 
     //recover init status
-    SHA1_Init(&ctx_);
+    //SHA1_Init(&ctx_);
 
     return 0;
 }
@@ -41,7 +41,7 @@ int SL_Crypto_SHA1::final(const unsigned char *in, unsigned int in_len, unsigned
     SHA1_Final(digest, &ctx_);
 
     //recover init status
-    SHA1_Init(&ctx_);
+    //SHA1_Init(&ctx_);
 
     return 0;
 }

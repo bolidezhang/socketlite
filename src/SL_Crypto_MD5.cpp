@@ -30,7 +30,7 @@ int SL_Crypto_MD5::final(unsigned char *digest)
     MD5_Final(digest, &ctx_);
 
     //recover init status
-    MD5_Init(&ctx_);
+    //MD5_Init(&ctx_);
 
     return 0;
 }
@@ -41,7 +41,7 @@ int SL_Crypto_MD5::final(const unsigned char *in, unsigned int in_len, unsigned 
     MD5_Final(digest, &ctx_);
 
     //recover init status
-    MD5_Init(&ctx_);
+    //MD5_Init(&ctx_);
 
     return 0;
 }
@@ -50,6 +50,7 @@ int SL_Crypto_MD5::final(const unsigned char *in, unsigned int in_len, unsigned 
 
 SL_Crypto_MD5::SL_Crypto_MD5()
 {
+    init();
 }
 
 SL_Crypto_MD5::~SL_Crypto_MD5()
@@ -58,26 +59,31 @@ SL_Crypto_MD5::~SL_Crypto_MD5()
 
 int SL_Crypto_MD5::get_digest_len()
 {
-    return 0;
+    return 16;
 }
 
 int SL_Crypto_MD5::init()
 {
+    md5_init(&ctx_);
     return 0;
 }
 
 int SL_Crypto_MD5::update(const unsigned char *in, unsigned int in_len)
 {
+    md5_update(&ctx_, (unsigned char *)in, in_len);
     return 0;
 }
 
 int SL_Crypto_MD5::final(unsigned char *digest)
 {
+    md5_final(&ctx_, digest);
     return 0;
 }
 
 int SL_Crypto_MD5::final(const unsigned char *in, unsigned int in_len, unsigned char *digest)
 {
+    md5_update(&ctx_, (unsigned char *)in, in_len);
+    md5_final(&ctx_, digest);
     return 0;
 }
 

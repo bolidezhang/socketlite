@@ -19,8 +19,8 @@ public:
     int decrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len);
 
     //带模式加密解
-    int encrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num = NULL, unsigned char *ecount_buf = NULL);
-    int decrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num = NULL, unsigned char *ecount_buf = NULL);
+    int encrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num , unsigned char *ecount_buf);
+    int decrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num, unsigned char *ecount_buf);
 
 private:
     AES_KEY encrypt_key_;
@@ -29,6 +29,7 @@ private:
 };
 
 #else
+#include "aes.h"
 
 class SL_Crypto_AES : public SL_Crypto_SymmetricCipher
 {
@@ -44,10 +45,12 @@ public:
     int decrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len);
 
     //带模式加密解
-    int encrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num = NULL, unsigned char *ecount_buf = NULL);
-    int decrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num = NULL, unsigned char *ecount_buf = NULL);
+    int encrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num, unsigned char *ecount_buf);
+    int decrypt(const unsigned char *in, unsigned int in_len, unsigned char *out, unsigned int out_len, unsigned char *ivec, int *num, unsigned char *ecount_buf);
 
 private:
+    aes_ctx encrypt_key_;
+    aes_ctx decrypt_key_;
     int mode_;
 };
 #endif

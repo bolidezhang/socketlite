@@ -3,7 +3,7 @@
 #include <math.h>
 #include "SL_Crypto_RaknetRand.h"
 
-#define RAKNET_RAND_N 				(624)     				// length of state vector
+#define RAKNET_RAND_N               (624)                   // length of state vector
 #define RAKNET_RAND_M               (397)                   // a period parameter
 #define RAKNET_RAND_K               (0x9908B0DFU)           // a magic constant
 #define RAKNET_RAND_hiBit(u)        ((u) & 0x80000000U)     // mask all but highest   bit of u

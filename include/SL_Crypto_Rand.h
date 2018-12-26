@@ -8,8 +8,8 @@ public:
     enum TYPE
     {
         RANDOM_CHAR = 0,        // 按unsinged char 随机生成内存块
-        VISIBLE_CHAR,	        // 按char 随机生成 可显字符串(键盘可以输入)
-        STANDARD_CHAR,	        // 按char 随机生成 标准字符串(不包括特殊字符串)
+        VISIBLE_CHAR,           // 按char 随机生成 可显字符串(键盘可以输入)
+        STANDARD_CHAR,          // 按char 随机生成 标准字符串(不包括特殊字符串)
         ENLARGE_CHAR,           // 按char 随机生成 增强型标准字符串(包括自定义的特殊字符)
         NUMBER_CHAR,            // 按char 随机生成 纯数字(0-9)
         LOWERCASE_CHAR,         // 按char 随机生成 小写字母(a-z)

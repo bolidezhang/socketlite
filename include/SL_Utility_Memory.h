@@ -35,8 +35,8 @@ public:
 
     //内存置值
     //另一种实现方式: 预先计算  8字节整数赋值(每字节都等于整数c的数值)
-    //                          4字节整数赋值(每字节都等于整数c的数值)
-    //                          2字节整数赋值(每字节都等于整数c的数值)
+    //                        4字节整数赋值(每字节都等于整数c的数值)
+    //                        2字节整数赋值(每字节都等于整数c的数值)
     static inline void* memset(void *dest, int c, size_t n)
     {
         return std::memset(dest, c, n);
@@ -67,8 +67,16 @@ public:
     #define SL_MEMSET(dest, c, n)       std::memset(dest, c, n)
     #define SL_MEMMOVE(dest, src, n)    std::memmove(dest, src, n)
 
-    #define sl_memcpy(dest, src, n)     SL_Utility_Memory::memcpy(dest, src, n)
-    #define sl_memclear(dest, n)        SL_Utility_Memory::memclear(dest, n)
+    //因SL_Utility_Memory::memcpy在ios下可能会崩毁,
+    //所以在非windows下需要定义宏SOCKETLITE_USE_CUSTOM_MEMCPY来启用sl_memcpy实现为SL_Utility_Memory::memcpy
+    #ifdef SOCKETLITE_USE_CUSTOM_MEMCPY
+        #define sl_memcpy(dest, src, n) SL_Utility_Memory::memcpy(dest, src, n)
+        #define sl_memclear(dest, n)    SL_Utility_Memory::memclear(dest, n)
+    #else
+        #define sl_memcpy(dest, src, n) std::memcpy(dest, src, n)
+        #define sl_memclear(dest, n)    std::memset(dest, 0, n)
+    #endif
+
     #define sl_memcmp(s1, s2, n)        std::memcmp(s1, s2, n)
     #define sl_memset(dest, c, n)       std::memset(dest, c, n)
     #define sl_memmove(dest, src, n)    std::memmove(dest, src, n)

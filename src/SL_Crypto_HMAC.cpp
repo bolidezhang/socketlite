@@ -114,7 +114,7 @@ int SL_Crypto_HMAC::final(const unsigned char *data, unsigned int len, unsigned 
 
 unsigned char* SL_Crypto_HMAC::final(const unsigned char *key, int key_len, int hash_type, const unsigned char *data, unsigned int data_len, unsigned char *md, unsigned int *md_len)
 {
-    return NULL;
+    return 0;
 }
 
 #endif

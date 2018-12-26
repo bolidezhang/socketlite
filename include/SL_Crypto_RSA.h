@@ -57,7 +57,7 @@ public:
     SL_Crypto_RSA();
     virtual ~SL_Crypto_RSA();
 
-    int init(int bits, unsigned long e, int padding);
+    int init(int bits, unsigned long e, int padding, int sign_type);
     int fini();
 
     int generate_key();

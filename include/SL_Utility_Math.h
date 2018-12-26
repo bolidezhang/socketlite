@@ -3,6 +3,9 @@
 #include <math.h>
 #include "SL_Config.h"
 
+#define SL_MAX(a,b)   (((a) > (b)) ? (a) : (b))
+#define SL_MIN(a,b)   (((a) < (b)) ? (a) : (b))
+
 //因整数取模(%)操作性能不高,所以特别定义此宏
 //经测试: 1)windows, 性能提升显著 2)linux，提升不大
 #define SL_MOD(x, y) ((x)-(x)/(y)*(y))

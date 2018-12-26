@@ -1,7 +1,22 @@
 #ifndef SOCKETLITE_APPLICATION_H
 #define SOCKETLITE_APPLICATION_H
+
 #include "SL_DataType.h"
 #include "SL_Sync_SpinMutex.h"
+#include "SL_Socket_Iocp_Runner.h"
+#include "SL_Socket_Epoll_Runner.h"
+#include "SL_Socket_Iocp_Message_Handler.h"
+#include "SL_Socket_Message_Handler.h"
+
+#ifdef SOCKETLITE_OS_WINDOWS
+    #define SL_Socket_Default_Runner        SL_Socket_Iocp_Runner
+    #define SL_Socket_Default_Runner_Group  SL_Socket_Iocp_Runner
+    typedef SL_Socket_Iocp_Message_Handler  SL_Socket_Default_Message_Handler;
+#else
+    #define SL_Socket_Default_Runner        SL_Socket_Epoll_Runner
+    #define SL_Socket_Default_Runner_Group  SL_Socket_Runner_Group
+    typedef SL_Socket_Message_Handler       SL_Socket_Default_Message_Handler;
+#endif
 
 template <typename T>
 class SL_Application

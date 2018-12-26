@@ -5,7 +5,6 @@
 #include "SL_Config.h"
 
 #ifdef SOCKETLITE_OS_WINDOWS
-
 #include <Rpc.h>
 #pragma comment(lib, "Rpcrt4.lib")
 

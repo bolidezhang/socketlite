@@ -4,9 +4,8 @@
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 #pragma once
 #endif
-#include "SL_ByteBuffer.h"
-#include "SL_Socket_Iocp_Handler.h"
-#include "SL_Socket_Message_Handler.h"
+#include "SL_Socket_Source.h"
+#include "SL_Socket_Handler.h"
 
 #ifdef SOCKETLITE_OS_WINDOWS
 
@@ -18,7 +17,7 @@
 //    char   content[0];
 //}
 
-class SL_Socket_Iocp_Message_Handler : public SL_Socket_Iocp_Handler
+class SL_Socket_Iocp_Message_Handler : public SL_Socket_Handler
 {
 public:
     SL_Socket_Iocp_Message_Handler()
@@ -34,7 +33,7 @@ public:
 
     inline int handle_open(SL_SOCKET fd, SL_Socket_Source *socket_source, SL_Socket_Runner *socket_runner)
     {
-        SL_Socket_Iocp_Handler::handle_open(fd, socket_source, socket_runner);
+        SL_Socket_Handler::handle_open(fd, socket_source, socket_runner);
         msg_buffer_.reserve(socket_source_->get_msgbuffer_size());
         msg_buffer_.reset();
         need_len_           = 0;

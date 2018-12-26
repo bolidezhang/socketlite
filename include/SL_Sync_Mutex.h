@@ -29,7 +29,7 @@ public:
             if (recursive)
             {
                 pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-            }        
+            }
             pthread_mutex_init(&mutex_, &attr);
             pthread_mutexattr_destroy(&attr);
         }

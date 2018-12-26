@@ -30,8 +30,8 @@
 
 #define SOCKETLITE_MAJOR_VERSION        3
 #define SOCKETLITE_MINOR_VERSION        6
-#define SOCKETLITE_SUB_MINOR_VERSION    58
-#define SOCKETLITE_VERSION_STRING       "3.6.58"
+#define SOCKETLITE_SUB_MINOR_VERSION    70
+#define SOCKETLITE_VERSION_STRING       "3.6.70"
 
 #ifdef _DEBUG
     #define SOCKETLITE_DEBUG
@@ -97,10 +97,11 @@
 //#define SOCKETLITE_CPLUSPLUS_STD_2017
 
 //STL 实现提供商
-//#define SOCKETLITE_STL_MS
 //#define SOCKETLITE_STL_GNU_LIBSTDC++
 //#define SOCKETLITE_STL_SGI
 //#define SOCKETLITE_STL_STLPORT
+//#define SOCKETLITE_STL_MS
+//#define SOCKETLITE_STL_EASTL
 //#define SOCKETLITE_STL_APACHE_STDCXX
 //#define SOCKETLITE_STL_LLVM_LIBC++
 
@@ -219,36 +220,40 @@
     #include <sys/stat.h>
     #include <sys/types.h>
 
-    typedef HANDLE              SL_HANDLE;
-    typedef SOCKET              SL_SOCKET;
-    typedef OVERLAPPED          SL_OVERLAPPED;
+    typedef HANDLE                  SL_HANDLE;
+    typedef SOCKET                  SL_SOCKET;
+    typedef OVERLAPPED              SL_OVERLAPPED;
 
     struct SL_IOVEC
     {
         u_long  iov_len;
         char    *iov_base;
     };
-    #define SL_MAX_IOVCNT       65536
-    #define SL_IOVCNT           64
+    #define SL_MAX_IOVCNT           65536
+    #define SL_IOVCNT               64
 
-    #define SL_SOCKET_ERROR     SOCKET_ERROR
-    #define SL_INVALID_SOCKET   INVALID_SOCKET
-    #define SL_SHUT_RD          SD_RECEIVE
-    #define SL_SHUT_WR          SD_SEND
-    #define SL_SHUT_RDWR        SD_BOTH
+    #define SL_SOCKET_ERROR         SOCKET_ERROR
+    #define SL_INVALID_SOCKET       INVALID_SOCKET
+    #define SL_SHUT_RD              SD_RECEIVE
+    #define SL_SHUT_WR              SD_SEND
+    #define SL_SHUT_RDWR            SD_BOTH
+    #define SL_SOCK_NONBLOCK        0
+
 
     //一些常见Socket错误
-    #define SL_EAGAIN           WSAEWOULDBLOCK
-    #define SL_ENOBUFS          WSAENOBUFS
-    #define SL_EINVAL           WSAEINVAL
-    #define SL_EINTR            WSAEINTR
-    #define SL_WSAENOTSOCK      WSAENOTSOCK
-    #define SL_EISCONN          WSAEISCONN
-    #define SL_ENOTCONN         WSAENOTCONN
-    #define SL_ESHUTDOWN        WSAESHUTDOWN
-    #define SL_EMSGSIZE         WSAEMSGSIZE
-    #define SL_EWOULDBLOCK      WSAEWOULDBLOCK
-    #define SL_IO_PENDING       WSA_IO_PENDING
+    #define SL_EAGAIN               WSAEWOULDBLOCK
+    #define SL_ENOBUFS              WSAENOBUFS
+    #define SL_EINVAL               WSAEINVAL
+    #define SL_EINTR                WSAEINTR
+    #define SL_ENOTSOCK             WSAENOTSOCK
+    #define SL_EISCONN              WSAEISCONN
+    #define SL_ENOTCONN             WSAENOTCONN
+    #define SL_ESHUTDOWN            WSAESHUTDOWN
+    #define SL_EMSGSIZE             WSAEMSGSIZE
+    #define SL_EWOULDBLOCK          WSAEWOULDBLOCK
+    #define SL_EINPROGRESS          WSAEINPROGRESS
+    #define SL_ECONNECTING          WSAEWOULDBLOCK
+    #define SL_IO_PENDING           WSA_IO_PENDING
 #else
     #include <string.h>
     #include <errno.h>
@@ -271,29 +276,32 @@
     typedef void  SL_OVERLAPPED;
 
     typedef iovec SL_IOVEC;
-    #define SL_MAX_IOVCNT       1024
-    #define SL_IOVCNT           64
+    #define SL_MAX_IOVCNT           1024
+    #define SL_IOVCNT               64
 
     #define SOCKETLITE_API
     #define SOCKETLITE_HAVE_PTHREADS
-    #define SL_SOCKET_ERROR     -1
-    #define SL_INVALID_SOCKET   -1
-    #define SL_SHUT_RD          SHUT_RD
-    #define SL_SHUT_WR          SHUT_WR
-    #define SL_SHUT_RDWR        SHUT_RDWR
+    #define SL_SOCKET_ERROR         -1
+    #define SL_INVALID_SOCKET       -1
+    #define SL_SHUT_RD              SHUT_RD
+    #define SL_SHUT_WR              SHUT_WR
+    #define SL_SHUT_RDWR            SHUT_RDWR
+    #define SL_SOCK_NONBLOCK        SOCK_NONBLOCK
 
     //一些常见Socket错误
-    #define SL_EAGAIN           EAGAIN
-    #define SL_ENOBUFS          ENOBUFS
-    #define SL_EINVAL           EINVAL
-    #define SL_EINTR            EINTR
-    #define SL_WSAENOTSOCK      ENOTSOCK
-    #define SL_EISCONN          EISCONN
-    #define SL_ENOTCONN         ENOTCONN
-    #define SL_ESHUTDOWN        ESHUTDOWN
-    #define SL_EMSGSIZE         EMSGSIZE
-    #define SL_EWOULDBLOCK      EWOULDBLOCK
-    #define SL_IO_PENDING       EAGAIN
+    #define SL_EAGAIN               EAGAIN
+    #define SL_ENOBUFS              ENOBUFS
+    #define SL_EINVAL               EINVAL
+    #define SL_EINTR                EINTR
+    #define SL_ENOTSOCK             ENOTSOCK
+    #define SL_EISCONN              EISCONN
+    #define SL_ENOTCONN             ENOTCONN
+    #define SL_ESHUTDOWN            ESHUTDOWN
+    #define SL_EMSGSIZE             EMSGSIZE
+    #define SL_EWOULDBLOCK          EWOULDBLOCK
+    #define SL_EINPROGRESS          EINPROGRESS
+    #define SL_ECONNECTING          EINPROGRESS
+    #define SL_IO_PENDING           EAGAIN
 #endif
 
 //设置默认字节序
@@ -307,57 +315,69 @@
 #endif
 
 #ifdef SOCKETLITE_OS_LINUX
+    #ifndef SOCKETLITE_NOT_USE_ACCEPT4
+        #define SOCKETLITE_USE_ACCEPT4
+    #endif
 #endif
 
-#ifndef SOCKETLITE_CPLUSPLUS_STD_2011
-    #ifndef SOCKETLITE_CPLUSPLUS_STD_TR1
-        #ifdef SOCKETlITE_STL_MS
-            #include <hash_map>
-            #include <hash_set>
-            #define SL_STDEXT_NAMESPACE stdext
-            #define SL_HASH_REHASH(c,n) {}
-            #define SL_DEFAULT_HASHFUNC stdext::hash_compare
-        #else
-            #ifdef SOCKETLITE_CC_GCC
-                #include <ext/hash_map>
-                #include <ext/hash_set>
-                #define SL_DEFAULT_HASHFUNC __gnu_cxx::hash
-            #else
+#ifndef SOCKETLITE_NOT_HAVE_HASH_MAP
+    #ifndef SOCKETLITE_CPLUSPLUS_STD_2011
+        #ifndef SOCKETLITE_CPLUSPLUS_STD_TR1
+            #ifdef SOCKETlITE_STL_MS
                 #include <hash_map>
                 #include <hash_set>
-                #define SL_DEFAULT_HASHFUNC std::hash
+                #define SL_STDEXT_NAMESPACE stdext
+                #define SL_HASH_REHASH(c,n)
+                #define SL_DEFAULT_HASHFUNC stdext::hash_compare
+            #else
+                #ifdef SOCKETLITE_CC_GCC
+                    #include <ext/hash_map>
+                    #include <ext/hash_set>
+                    #define SL_DEFAULT_HASHFUNC __gnu_cxx::hash
+                #else
+                    #include <hash_map>
+                    #include <hash_set>
+                    #define SL_DEFAULT_HASHFUNC std::hash
+                #endif
+                #define SL_STDEXT_NAMESPACE __gnu_cxx
+                #define SL_HASH_REHASH(c,n) c.resize(n)
             #endif
-            #define SL_STDEXT_NAMESPACE __gnu_cxx
-            #define SL_HASH_REHASH(c,n) c.resize(n)
-        #endif
-        #define SL_HASH_MAP         SL_STDEXT_NAMESPACE::hash_map
-        #define SL_HASH_SET         SL_STDEXT_NAMESPACE::hash_set
-        #define SL_HASH_MULTIMAP    SL_STDEXT_NAMESPACE::hash_multimap
-        #define SL_HASH_MULTISET    SL_STDEXT_NAMESPACE::hash_multiset
-    #else
-        #ifdef SOCKETLITE_CC_GCC
-            #include <tr1/unordered_map>
-            #include <tr1/unordered_set>
+            #define SL_HASH_MAP         SL_STDEXT_NAMESPACE::hash_map
+            #define SL_HASH_SET         SL_STDEXT_NAMESPACE::hash_set
+            #define SL_HASH_MULTIMAP    SL_STDEXT_NAMESPACE::hash_multimap
+            #define SL_HASH_MULTISET    SL_STDEXT_NAMESPACE::hash_multiset
         #else
-            #include <unordered_map>
-            #include <unordered_set>
+            #ifdef SOCKETLITE_CC_GCC
+                #include <tr1/unordered_map>
+                #include <tr1/unordered_set>
+            #else
+                #include <unordered_map>
+                #include <unordered_set>
+            #endif
+            #define SL_DEFAULT_HASHFUNC std::tr1::hash
+            #define SL_HASH_MAP         std::tr1::unordered_map
+            #define SL_HASH_SET         std::tr1::unordered_set
+            #define SL_HASH_MULTIMAP    std::tr1::unordered_multimap
+            #define SL_HASH_MULTISET    std::tr1::unordered_multiset
+            #define SL_HASH_REHASH(c,n) c.rehash(n)
         #endif
-        #define SL_DEFAULT_HASHFUNC std::tr1::hash
-        #define SL_HASH_MAP         std::tr1::unordered_map
-        #define SL_HASH_SET         std::tr1::unordered_set
-        #define SL_HASH_MULTIMAP    std::tr1::unordered_multimap
-        #define SL_HASH_MULTISET    std::tr1::unordered_multiset
+    #else
+        #include <unordered_map>
+        #include <unordered_set>
+        #define SL_DEFAULT_HASHFUNC std::hash
+        #define SL_HASH_MAP         std::unordered_map
+        #define SL_HASH_SET         std::unordered_set
+        #define SL_HASH_MULTIMAP    std::unordered_multimap
+        #define SL_HASH_MULTISET    std::unordered_multiset
         #define SL_HASH_REHASH(c,n) c.rehash(n)
     #endif
 #else
-    #include <unordered_map>
-    #include <unordered_set>
-    #define SL_DEFAULT_HASHFUNC std::hash
-    #define SL_HASH_MAP         std::unordered_map
-    #define SL_HASH_SET         std::unordered_set
-    #define SL_HASH_MULTIMAP    std::unordered_multimap
-    #define SL_HASH_MULTISET    std::unordered_multiset
-    #define SL_HASH_REHASH(c,n) c.rehash(n)
+    #define SL_DEFAULT_HASHFUNC
+    #define SL_HASH_MAP         std::map
+    #define SL_HASH_SET         std::set
+    #define SL_HASH_MULTIMAP    std::multimap
+    #define SL_HASH_MULTISET    std::multiset
+    #define SL_HASH_REHASH(c,n)
 #endif
 
 #ifdef SOCKETLITE_OS_WINDOWS

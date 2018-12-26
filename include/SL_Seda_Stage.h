@@ -21,18 +21,26 @@ public:
         close();
     }
 
-    int open(int thread_number, uint queue_max_size, uint event_len = 64, uint timedwait_interval_us = 1000, bool timedwait_signal = true, int type = 0)
+    int open(uint thread_number,
+             uint queue_max_size,
+             uint event_len = 64,
+             uint timedwait_interval_us = 1000,
+             bool timedwait_signal = true,
+             int  type = 0,
+             uint batch_size = 0,
+             bool is_priority = false,
+             bool is_shared_queue = false)
     {
-        type_ = type;
-        timedwait_interval_us_ = timedwait_interval_us;
         if (thread_number < 1)
         {
             thread_number = 1;
         }
+        type_ = type;
+        timedwait_interval_us_ = timedwait_interval_us;
         stage_threads_.reserve(thread_number);
 
         StageThread *stage_thread;
-        for (int i=0; i<thread_number; ++i)
+        for (uint i=0; i<thread_number; ++i)
         {
             stage_thread = new StageThread(this, i, queue_max_size, event_len, timedwait_interval_us, timedwait_signal);
             stage_thread->start();
@@ -68,7 +76,7 @@ public:
         return 0;
     }
 
-    inline int push_event(const SL_Seda_Event *event, int thread_index = -1)
+    inline int push_event(const SL_Seda_Event *event, int thread_index = -1, int priority = SL_Seda_Priority::UNKNOWN_PRIOITY)
     {
         int thread_size = stage_threads_.size();
         if (thread_size < 2)
@@ -101,12 +109,19 @@ public:
         return type_;
     }
 
+    inline int get_event_count() const
+    {
+        return 0;
+    }
+
 protected:
     typedef SL_Seda_StageThread<TSedaStageHandler> StageThread;
-
     std::vector<StageThread * > stage_threads_;
+
     uint    timedwait_interval_us_;
     int     next_thread_index_;
+
+    //区分多个实例标识
     int     type_;
 };
 

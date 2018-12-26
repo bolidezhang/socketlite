@@ -33,8 +33,8 @@ RANLIB := ranlib
 #   RM     := rm -f
 # endif
 
-DEBUG_CFLAGS     := -Wall -Wno-format -g -DDEBUG -DSOCKETLITE_USE_THIFT -DSOCKETLITE_LOG_USE_LOG4CPLUS -DSOCKETLITE_USE_OPENSSL -DSOCKETLITE_CPLUSPLUS_STD_TR1 -DSOCKETLITE_MALLOC_JEMALLOC
-RELEASE_CFLAGS   := -Wall -Wno-unknown-pragmas -Wno-format -O3 -DNDEBUG -DSOCKETLITE_USE_THRIFT -DSOCKETLITE_LOG_USE_LOG4CPLUS -DSOCKETLITE_USE_OPENSSL -DSOCKETLITE_CPLUSPLUS_STD_TR1 -DSOCKETLITE_MALLOC_JEMALLOC
+DEBUG_CFLAGS     := -Wall -Wno-format -g -DDEBUG -DSOCKETLITE_USE_THIFT -DSOCKETLITE_LOG_USE_LOG4CPLUS -DSOCKETLITE_USE_OPENSSL -DSOCKETLITE_CPLUSPLUS_STD_TR1
+RELEASE_CFLAGS   := -Wall -Wno-unknown-pragmas -Wno-format -O3 -DNDEBUG -DSOCKETLITE_USE_THRIFT -DSOCKETLITE_LOG_USE_LOG4CPLUS -DSOCKETLITE_USE_OPENSSL -DSOCKETLITE_CPLUSPLUS_STD_TR1
 
 DEBUG_CXXFLAGS   := ${DEBUG_CFLAGS}
 RELEASE_CXXFLAGS := ${RELEASE_CFLAGS}
@@ -74,7 +74,7 @@ endif
 
 #INCS := -I/usr/include/g++-2 -I/usr/local/include
 INCS := -I/usr/local/ssl/include -I/usr/local/include/boost -I/usr/local/include -I./thrift -I./thrift/transport -I./thrift/protocol
-LIBS := -L/usr/local/lib/ -ljemalloc -L/usr/local/ssl/lib/ -lcrypto -lpthread 
+LIBS := -L/usr/local/lib/ -L/usr/local/ssl/lib/ -lcrypto -lpthread 
 
 #****************************************************************************
 # Makefile code common to all platforms

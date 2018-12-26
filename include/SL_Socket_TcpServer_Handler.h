@@ -43,7 +43,7 @@ public:
         SL_Socket_Handler *handler;
         for (;;)
         {   
-            fd = SL_Socket_CommonAPI::socket_accept(socket_, sl_addr.get_addr(), &addrlen);
+            fd = SL_Socket_CommonAPI::socket_accept(socket_, sl_addr.get_addr(), &addrlen, SL_SOCK_NONBLOCK);
             if (SL_INVALID_SOCKET != fd)
             {
                 handler = socket_source_->alloc_handler();
